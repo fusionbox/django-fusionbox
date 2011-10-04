@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Behaviors &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
+    <link rel="prev" title="Template Tags" href="templatetags.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="templatetags.html" title="Template Tags"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="behaviors">
+<h1>Behaviors<a class="headerlink" href="#behaviors" title="Permalink to this headline">¶</a></h1>
+<p>Behaviors are cool</p>
+<span class="target" id="module-fusionbox.behaviors"></span><dl class="class">
+<dt id="fusionbox.behaviors.Behavior">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Behavior</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Behavior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Behavior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all Behaviors</p>
+<p>Behaviors are implemented through model inheritance, and support
+multi-inheritance as well.  Each behavior adds a set of default fields
+and/or methods to the model.  Field names can be customized like example B.</p>
+<p>EXAMPLE A:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">FooBehavior</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">MyModel</span></tt> will have whatever fields <tt class="docutils literal"><span class="pre">FooBehavior</span></tt> adds with default
+field names.</p>
+<p>EXAMPLE B:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">FooBehavior</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">FooBehavior</span><span class="p">:</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="s">&quot;qux&quot;</span>
+        <span class="n">baz</span> <span class="o">=</span> <span class="s">&quot;quux&quot;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">MyModel</span></tt> will have the fields from <tt class="docutils literal"><span class="pre">FooBehavior</span></tt> added, but the field
+names will be &#8220;qux&#8221; and &#8220;quux&#8221; respectively.</p>
+<p>EXAMPLE C:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">FooBehavior</span><span class="p">,</span> <span class="n">BarBehavior</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">MyModel</span></tt> will have the fields from both <tt class="docutils literal"><span class="pre">FooBehavior</span></tt> and
+<tt class="docutils literal"><span class="pre">BarBehavior</span></tt>, each with default field names.  To customizing field names
+can be done just like it was in example B.</p>
+<dl class="classmethod">
+<dt id="fusionbox.behaviors.Behavior.merge_parent_settings">
+<em class="property">classmethod </em><tt class="descname">merge_parent_settings</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Behavior.merge_parent_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Behavior.merge_parent_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Every behavior&#8217;s settings are stored in an inner class whose name
+matches its behavior&#8217;s name. This method implements inheritance for
+those inner classes.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="fusionbox.behaviors.Behavior.modify_schema">
+<em class="property">classmethod </em><tt class="descname">modify_schema</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Behavior.modify_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Behavior.modify_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for behaviors to modify their model class just after it&#8217;s created</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.behaviors.MetaBehavior">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">MetaBehavior</tt><a class="reference internal" href="_modules/fusionbox/behaviors.html#MetaBehavior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.MetaBehavior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Metaclass for Behaviors</p>
+<dl class="staticmethod">
+<dt id="fusionbox.behaviors.MetaBehavior.__new__">
+<em class="property">static </em><tt class="descname">__new__</tt><big>(</big><em>name</em>, <em>bases</em>, <em>attrs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#MetaBehavior.__new__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.MetaBehavior.__new__" title="Permalink to this definition">¶</a></dt>
+<dd><p>This allows declarative field definition in behaviors, just like in a
+regular model definition, while still allowing field names to be
+customized. Given a behavior:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">FooBehavior</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
+    <span class="n">some_column</span> <span class="o">=</span> <span class="n">IntegerField</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A child class declaring:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">FooBehavior</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">FooBehavior</span><span class="p">:</span>
+        <span class="n">some_column</span> <span class="o">=</span> <span class="s">&#39;another_name&#39;</span>
+</pre></div>
+</div>
+<p>will be able to change the name of <tt class="docutils literal"><span class="pre">some_column</span></tt> to <tt class="docutils literal"><span class="pre">another_name</span></tt>.</p>
+<p>To do this, we rip out all instances of <tt class="xref py py-class docutils literal"><span class="pre">model.Field</span></tt>, and wait for
+<a class="reference internal" href="#fusionbox.behaviors.Behavior.modify_schema" title="fusionbox.behaviors.Behavior.modify_schema"><tt class="xref py py-func docutils literal"><span class="pre">Behavior.modify_schema()</span></tt></a> to add them back in once all config classes are
+merged.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="templatetags.html"
+                        title="previous chapter">Template Tags</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/behaviors.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="templatetags.html" title="Template Tags"
+             >previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gavin Wahl, Aaron Merriam, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Template Tags &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Behaviors" href="behaviors.html" />
+    <link rel="prev" title="The Middlewares" href="middleware.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="behaviors.html" title="Behaviors"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="middleware.html" title="The Middlewares"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="template-tags">
+<h1>Template Tags<a class="headerlink" href="#template-tags" title="Permalink to this headline">¶</a></h1>
+<p>The <tt class="xref py py-mod docutils literal"><span class="pre">fusionbox_tags</span></tt> library contains several useful template tags. Use
+<tt class="docutils literal"><span class="pre">{%</span> <span class="pre">load</span> <span class="pre">fusionbox_tags</span> <span class="pre">%}</span></tt> to use these.</p>
+</div>
+<div class="section" id="highlight-here">
+<h1><tt class="docutils literal"><span class="pre">highlight_here</span></tt><a class="headerlink" href="#highlight-here" title="Permalink to this headline">¶</a></h1>
+<p>Filter the subnode&#8217;s output to add a class to every anchor where
+appropriate, based on startswith matching. By default the class is <tt class="docutils literal"><span class="pre">here</span></tt>,
+but you can override by passing an argument to the tag.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This requires BeautifulSoup to do the HTML parsing</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Given:</p>
+<div class="highlight-html"><div class="highlight"><pre>{% highlight_here %}
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+{% endhighlight %}
+</pre></div>
+</div>
+<p>If request.url is <tt class="docutils literal"><span class="pre">/</span></tt>, the output is:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home here&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+</pre></div>
+</div>
+<p>On <tt class="docutils literal"><span class="pre">/blog/</span></tt>, it is:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span> <span class="na">class=</span><span class="s">&quot;here&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-fusionbox.templatetags.fusionbox_tags">
+<span id="code"></span><h2>Code<a class="headerlink" href="#module-fusionbox.templatetags.fusionbox_tags" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fusionbox.templatetags.fusionbox_tags.HighlightHereNode">
+<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">HighlightHereNode</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlightHereNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlightHereNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the subnode&#8217;s output to add a &#8216;here&#8217; class to every anchor where
+appropriate, based on startswith matching.</p>
+<p>Given:</p>
+<div class="highlight-html"><div class="highlight"><pre>{% highlight_here %}
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+{% endhighlight %}
+</pre></div>
+</div>
+<p>If request.url is <tt class="docutils literal"><span class="pre">/</span></tt>, the output is:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home here&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+</pre></div>
+</div>
+<p>On <tt class="docutils literal"><span class="pre">/blog/</span></tt>, it is:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span> <span class="na">class=</span><span class="s">&quot;here&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="fusionbox.templatetags.fusionbox_tags.is_here">
+<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">is_here</tt><big>(</big><em>current</em>, <em>url</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#is_here"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.is_here" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if current is &#8216;underneath&#8217; url.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Template Tags</a></li>
+<li><a class="reference internal" href="#highlight-here"><tt class="docutils literal"><span class="pre">highlight_here</span></tt></a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#module-fusionbox.templatetags.fusionbox_tags">Code</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="middleware.html"
+                        title="previous chapter">The Middlewares</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="behaviors.html"
+                        title="next chapter">Behaviors</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/templatetags.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="behaviors.html" title="Behaviors"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="middleware.html" title="The Middlewares"
+             >previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gavin Wahl, Aaron Merriam, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

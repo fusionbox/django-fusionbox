@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fusionbox.behaviors &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for fusionbox.behaviors</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.db.models.base</span> <span class="kn">import</span> <span class="n">ModelBase</span>
+
+
+<span class="k">class</span> <span class="nc">EmptyObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="MetaBehavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior">[docs]</a><span class="k">class</span> <span class="nc">MetaBehavior</span><span class="p">(</span><span class="n">ModelBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base Metaclass for Behaviors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MetaBehavior.__new__"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior.__new__">[docs]</a>    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This allows declarative field definition in behaviors, just like in a</span>
+<span class="sd">        regular model definition, while still allowing field names to be</span>
+<span class="sd">        customized. Given a behavior::</span>
+
+<span class="sd">            class FooBehavior(Behavior):</span>
+<span class="sd">                some_column = IntegerField()</span>
+
+<span class="sd">        A child class declaring::</span>
+
+<span class="sd">            class MyModel(FooBehavior):</span>
+<span class="sd">                class FooBehavior:</span>
+<span class="sd">                    some_column = &#39;another_name&#39;</span>
+
+<span class="sd">        will be able to change the name of ``some_column`` to ``another_name``.</span>
+
+<span class="sd">        To do this, we rip out all instances of :class:`model.Field`, and wait for</span>
+<span class="sd">        :func:`Behavior.modify_schema` to add them back in once all config classes are</span>
+<span class="sd">        merged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">declared_fields</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Meta&#39;</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">()),</span> <span class="s">&#39;abstract&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">property_name</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="n">property_name</span><span class="p">],</span> <span class="n">models</span><span class="o">.</span><span class="n">Field</span><span class="p">):</span>
+                    <span class="n">declared_fields</span><span class="p">[</span><span class="n">property_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="n">property_name</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">declared_fields</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">attrs</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+
+        <span class="n">attrs</span><span class="p">[</span><span class="s">&#39;declared_fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">declared_fields</span>
+
+        <span class="n">new_class</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MetaBehavior</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="n">new_class</span><span class="o">.</span><span class="n">merge_parent_settings</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_class</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+            <span class="n">new_class</span><span class="o">.</span><span class="n">modify_schema</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># make sure abstract classes have an inner settings class</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">new_class</span><span class="p">,</span> <span class="n">new_class</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">new_class</span><span class="p">,</span> <span class="n">new_class</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">new_class</span>
+</div></div>
+<div class="viewcode-block" id="Behavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior">[docs]</a><span class="k">class</span> <span class="nc">Behavior</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all Behaviors</span>
+
+<span class="sd">    Behaviors are implemented through model inheritance, and support</span>
+<span class="sd">    multi-inheritance as well.  Each behavior adds a set of default fields</span>
+<span class="sd">    and/or methods to the model.  Field names can be customized like example B.</span>
+
+<span class="sd">    EXAMPLE A::</span>
+
+<span class="sd">        class MyModel(FooBehavior):</span>
+<span class="sd">            pass</span>
+
+<span class="sd">    ``MyModel`` will have whatever fields ``FooBehavior`` adds with default</span>
+<span class="sd">    field names.</span>
+
+<span class="sd">    EXAMPLE B::</span>
+
+<span class="sd">        class MyModel(FooBehavior):</span>
+<span class="sd">            class FooBehavior:</span>
+<span class="sd">                bar = &quot;qux&quot;</span>
+<span class="sd">                baz = &quot;quux&quot;</span>
+
+<span class="sd">    ``MyModel`` will have the fields from ``FooBehavior`` added, but the field</span>
+<span class="sd">    names will be &quot;qux&quot; and &quot;quux&quot; respectively.</span>
+
+<span class="sd">    EXAMPLE C::</span>
+
+<span class="sd">        class MyModel(FooBehavior, BarBehavior):</span>
+<span class="sd">            pass</span>
+
+<span class="sd">    ``MyModel`` will have the fields from both ``FooBehavior`` and</span>
+<span class="sd">    ``BarBehavior``, each with default field names.  To customizing field names</span>
+<span class="sd">    can be done just like it was in example B.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">MetaBehavior</span>
+
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Behavior.modify_schema"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.modify_schema">[docs]</a>    <span class="k">def</span> <span class="nf">modify_schema</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hook for behaviors to modify their model class just after it&#39;s created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Everything in declared_fields was pulled out by our metaclass, time</span>
+        <span class="c"># to add them back in</span>
+        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">declared_fields</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">declared_fields</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c"># Model itself doesn&#39;t have declared_fields</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">declared_fields</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">new_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="n">new_name</span> <span class="o">=</span> <span class="n">name</span>
+                    <span class="c"># put the column name in the behavior&#39;s config, so it&#39;s always there</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">),</span> <span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+                    <span class="n">cls</span><span class="o">.</span><span class="n">add_to_class</span><span class="p">(</span><span class="n">new_name</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Behavior.merge_parent_settings"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.merge_parent_settings">[docs]</a>    <span class="k">def</span> <span class="nf">merge_parent_settings</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Every behavior&#39;s settings are stored in an inner class whose name</span>
+<span class="sd">        matches its behavior&#39;s name. This method implements inheritance for</span>
+<span class="sd">        those inner classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[</span><span class="n">behavior</span><span class="o">.</span><span class="n">__name__</span> <span class="k">for</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">base_behaviors</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">behaviors</span><span class="p">:</span>
+                <span class="n">parent_settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+                <span class="n">child_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span><span class="o">.</span><span class="n">__dict__</span>
+                <span class="n">parent_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child_settings</span><span class="p">)</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">)</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="n">parent_settings</span>
+</div>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">base_behaviors</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
+                <span class="n">behaviors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">behaviors</span>
+
+</div>
+<span class="k">class</span> <span class="nc">TimeStampable</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for adding timestamping behavior to a model.</span>
+
+<span class="sd">    Added Fields:</span>
+<span class="sd">        Field 1:</span>
+<span class="sd">            field: DateTimeField(auto_now_add=True)</span>
+<span class="sd">            description: Timestamps set at the creation of the instance</span>
+<span class="sd">            default_name: created_at</span>
+<span class="sd">        Field 2:</span>
+<span class="sd">            field: DateTimeField(auto_now_add=True)</span>
+<span class="sd">            description: Timestamps set each time the save method is called on the instance</span>
+<span class="sd">            default_name: updated_at</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
+    <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">SEO</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for adding seo behavior to a model.</span>
+
+<span class="sd">    Added Fields:</span>
+<span class="sd">        Field 1:</span>
+<span class="sd">            field: CharField(max_length = 255)</span>
+<span class="sd">            description: Char field intended for use in html &lt;title&gt; tag.</span>
+<span class="sd">            validation: Max Length 255 Characters</span>
+<span class="sd">            default_name: seo_title</span>
+<span class="sd">        Field 2:</span>
+<span class="sd">            field: TextField()</span>
+<span class="sd">            description: Text field intended for use in html &lt;meta name=&quot;description&quot;&gt; tag.</span>
+<span class="sd">            default_name: seo_description</span>
+<span class="sd">        Field 3:</span>
+<span class="sd">            field: TextField()</span>
+<span class="sd">            description: Text field intended for use in html &lt;meta name=&quot;keywords&quot;&gt; tag.</span>
+<span class="sd">            validation: comma separated text strings</span>
+<span class="sd">            default_name: seo_keywords</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">seo_title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">seo_description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">seo_keywords</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">formatted_seo_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">keywords</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A string containing the model&#39;s SEO data marked up and ready for output</span>
+<span class="sd">        in HTML.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="kn">import</span> <span class="n">mark_safe</span>
+        <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="kn">import</span> <span class="n">escape</span>
+
+        <span class="n">escaped_data</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">escape</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SEO</span><span class="o">.</span><span class="n">seo_title</span><span class="p">,</span> <span class="n">title</span><span class="p">),</span>
+             <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SEO</span><span class="o">.</span><span class="n">seo_description</span><span class="p">,</span> <span class="n">description</span><span class="p">),</span>
+             <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SEO</span><span class="o">.</span><span class="n">seo_keywords</span><span class="p">,</span> <span class="n">keywords</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="s">&#39;&lt;title&gt;</span><span class="si">%s</span><span class="s">&lt;/title&gt;</span><span class="se">\n</span><span class="s">&lt;meta name=&quot;description&quot; value=&quot;</span><span class="si">%s</span><span class="s">&quot;/&gt;</span><span class="se">\n</span><span class="s">&lt;meta name=&quot;keywords&quot; value=&quot;</span><span class="si">%s</span><span class="s">&quot;/&gt;&#39;</span> <span class="o">%</span> <span class="n">escaped_data</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Gavin Wahl, Aaron Merriam, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
