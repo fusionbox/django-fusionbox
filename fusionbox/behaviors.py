@@ -74,11 +74,11 @@ class Behavior(models.Model):
     EXAMPLE B
     class MyModel(FooBehavior):
         class FooBehavior:
-            bar = "qux"
-            baz = "quux"
+            bar = 'qux'
+            baz = 'quux'
 
     MyModel will have the fields from FooBehavior added, but the field names
-    will be "qux" and "quux" respectively.
+    will be 'qux' and 'quux' respectively.
 
     EXAMPLE C
     class MyModel(FooBehavior, BarBehavior):
@@ -253,3 +253,39 @@ class SEO(Behavior):
              getattr(self, self.SEO.seo_description, description),
              getattr(self, self.SEO.seo_keywords, keywords))))
         return mark_safe('<title>%s</title>\n<meta name="description" value="%s"/>\n<meta name="keywords" value="%s"/>' % escaped_data)
+
+class Orderable(Behavior):
+    """
+    Base class for adding arbitrary ordering behavior to a model.
+
+    Added Fields:
+        Field 1:
+            field: PositiveIntegerField()
+            description: PositiveIntegerField used for ordering
+            default_name: order
+    """
+    class Meta:
+        abstract = True
+        ordering = ('order',)
+
+    order = models.PositiveIntegerField(editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            object_list = self.__class__.objects.order_by('-' + self.Orderable.order)
+            if not object_list.exists():
+                self.order = 0
+            else:
+                self.order = object_list[0].order + 1
+        super(Orderable, self).save(*args, **kwargs)
+
+    def swap(self, placement):
+        other_query = self.__class__.objects.extra(where=['`{order_field}` = {placement}'.format(
+            order_field = self.Orderable.order,
+            placement = placement)])
+        if not other_query:
+            return
+        other = other_query.get()
+        self.order, other.order = other.order, self.order
+        self.save()
+        other.save()
