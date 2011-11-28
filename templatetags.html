@@ -111,6 +111,57 @@ appropriate, based on startswith matching.</p>
 </div>
 </dd></dl>
 
+<dl class="class">
+<dt id="fusionbox.templatetags.fusionbox_tags.HighlightHereParentNode">
+<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">HighlightHereParentNode</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlightHereParentNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlightHereParentNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a here class to the parent of the anchor link.  Useful for nested navs
+where highlight style might bubble upwards.</p>
+<p>Given:</p>
+<div class="highlight-html"><div class="highlight"><pre>{% highlight_here_parent %}
+ <span class="nt">&lt;ul&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">id=</span><span class="s">&quot;navHome&quot;</span> <span class="na">class=</span><span class="s">&quot;parent_home&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">id=</span><span class="s">&quot;navblog&quot;</span> <span class="na">class=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/li&gt;</span>
+ <span class="nt">&lt;/ul&gt;</span>
+{% endhighlight %}
+</pre></div>
+</div>
+<p>If request.url is <tt class="docutils literal"><span class="pre">/</span></tt>, the output is:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;ul&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">id=</span><span class="s">&quot;navHome&quot;</span> <span class="na">class=</span><span class="s">&quot;parent_home here&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;ul&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.templatetags.fusionbox_tags.HighlighterBase">
+<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">HighlighterBase</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlighterBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlighterBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for templatetags that highlight specific DOM elements.</p>
+<p>Child classes must implement a <tt class="docutils literal"><span class="pre">elems_to_highlight</span></tt> method, which should
+return a iterable of elements to modify.  Optionally, they can override the
+<tt class="docutils literal"><span class="pre">highlight</span></tt> method, which by default simply adds a class to the DOM
+elements.</p>
+<p>Each templatetag accepts an optional <tt class="docutils literal"><span class="pre">self.highlight_class</span></tt> parameter and
+all other options are stored in <tt class="docutils literal"><span class="pre">self.options</span></tt>.  This behavior can be
+overriden by implementing the <tt class="docutils literal"><span class="pre">parse_options</span></tt> method.</p>
+<dl class="method">
+<dt id="fusionbox.templatetags.fusionbox_tags.HighlighterBase.elems_to_highlight">
+<tt class="descname">elems_to_highlight</tt><big>(</big><em>soup</em>, <em>context</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlighterBase.elems_to_highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlighterBase.elems_to_highlight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterable of all DOM elements to be highlighted.</p>
+<p>Accepts a BeautifulSoup object of the HTML</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="fusionbox.templatetags.fusionbox_tags.is_here">
 <tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">is_here</tt><big>(</big><em>current</em>, <em>url</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#is_here"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.is_here" title="Permalink to this definition">¶</a></dt>
@@ -150,7 +201,7 @@ appropriate, based on startswith matching.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -184,7 +235,7 @@ appropriate, based on startswith matching.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Gavin Wahl, Aaron Merriam, Fusionbox.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

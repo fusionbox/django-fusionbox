@@ -46,15 +46,21 @@
           <div class="body">
             
   <h1>Source code for fusionbox.templatetags.fusionbox_tags</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
-
 <span class="kn">from</span> <span class="nn">BeautifulSoup</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">simplejson</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="kn">import</span> <span class="n">mark_safe</span>
 
 <span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
 
-<div class="viewcode-block" id="is_here"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.is_here">[docs]</a><span class="k">def</span> <span class="nf">is_here</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">addclass</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">cls</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span>
+
+<span class="k">def</span> <span class="nf">is_here</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine if current is &#39;underneath&#39; url.</span>
+<div class="viewcode-block" id="is_here"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.is_here">[docs]</a><span class="sd">    Determine if current is &#39;underneath&#39; url.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">url</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">current</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span>
@@ -62,10 +68,63 @@
         <span class="k">return</span> <span class="bp">True</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">False</span>
-</div>
-<div class="viewcode-block" id="HighlightHereNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlightHereNode">[docs]</a><span class="k">class</span> <span class="nc">HighlightHereNode</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Filter the subnode&#39;s output to add a &#39;here&#39; class to every anchor where</span>
+
+
+<span class="k">class</span> <span class="nc">HighlighterBase</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="HighlighterBase"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlighterBase">[docs]</a><span class="sd">    Base class for templatetags that highlight specific DOM elements.</span>
+
+<span class="sd">    Child classes must implement a ``elems_to_highlight`` method, which should</span>
+<span class="sd">    return a iterable of elements to modify.  Optionally, they can override the</span>
+<span class="sd">    ``highlight`` method, which by default simply adds a class to the DOM</span>
+<span class="sd">    elements.</span>
+
+<span class="sd">    Each templatetag accepts an optional ``self.highlight_class`` parameter and</span>
+<span class="sd">    all other options are stored in ``self.options``.  This behavior can be</span>
+<span class="sd">    overriden by implementing the ``parse_options`` method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_options</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">split_contents</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">((</span><span class="s">&#39;endhighlight&#39;</span><span class="p">,))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">delete_first_token</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">parse_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">elems_to_highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soup</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="HighlighterBase.elems_to_highlight"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlighterBase.elems_to_highlight">[docs]</a><span class="sd">        Returns an iterable of all DOM elements to be highlighted.</span>
+
+<span class="sd">        Accepts a BeautifulSoup object of the HTML</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="nf">build_soup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">soup</span>
+
+    <span class="k">def</span> <span class="nf">highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">):</span>
+        <span class="n">addclass</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_soup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems_to_highlight</span><span class="p">(</span><span class="n">soup</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">soup</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">HighlightHereNode</span><span class="p">(</span><span class="n">HighlighterBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="HighlightHereNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlightHereNode">[docs]</a><span class="sd">    Filter the subnode&#39;s output to add a &#39;here&#39; class to every anchor where</span>
 <span class="sd">    appropriate, based on startswith matching.</span>
 
 <span class="sd">    Given::</span>
@@ -87,26 +146,67 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">here_class</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">split_contents</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">here_class</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">here_class</span> <span class="o">=</span> <span class="s">&#39;here&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">((</span><span class="s">&#39;endhighlight&#39;</span><span class="p">,))</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">delete_first_token</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HighlightHereNode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span> <span class="ow">or</span> <span class="s">&#39;here&#39;</span>
 
-        <span class="k">for</span> <span class="n">anchor</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;href&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}):</span>
-            <span class="k">if</span> <span class="n">is_here</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="s">&#39;request&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">anchor</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">here_class</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="n">anchor</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">here_class</span>
+    <span class="k">def</span> <span class="nf">elems_to_highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soup</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">template</span><span class="o">.</span><span class="n">VariableDoesNotExist</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s">&#39;request&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;The request was not available in the context, please ensure that the request is made available in the context.&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">soup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">anchor</span> <span class="k">for</span> <span class="n">anchor</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;href&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span> <span class="k">if</span> <span class="n">is_here</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]))</span>
+
+
+<span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&quot;highlight_here&quot;</span><span class="p">,</span> <span class="n">HighlightHereNode</span><span class="p">)</span>
 </div>
-<span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&#39;highlight_here&#39;</span><span class="p">,</span> <span class="n">HighlightHereNode</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">HighlightHereParentNode</span><span class="p">(</span><span class="n">HighlightHereNode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="HighlightHereParentNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlightHereParentNode">[docs]</a><span class="sd">    Adds a here class to the parent of the anchor link.  Useful for nested navs</span>
+<span class="sd">    where highlight style might bubble upwards.</span>
+
+<span class="sd">    Given::</span>
+
+<span class="sd">        {% highlight_here_parent %}</span>
+<span class="sd">         &lt;ul&gt;</span>
+<span class="sd">            &lt;li id=&quot;navHome&quot; class=&quot;parent_home&quot;&gt;</span>
+<span class="sd">                &lt;a href=&quot;/&quot; class=&quot;home&quot;&gt;/&lt;/a&gt;</span>
+<span class="sd">            &lt;/li&gt;</span>
+<span class="sd">            &lt;li id=&quot;navblog&quot; class=&quot;&quot;&gt;</span>
+<span class="sd">                &lt;a href=&quot;/blog/&quot;&gt;blog&lt;/a&gt;</span>
+<span class="sd">            &lt;/li&gt;</span>
+<span class="sd">         &lt;/ul&gt;</span>
+<span class="sd">        {% endhighlight %}</span>
+
+<span class="sd">    If request.url is ``/``, the output is::</span>
+
+<span class="sd">        &lt;ul&gt;</span>
+<span class="sd">            &lt;li id=&quot;navHome&quot; class=&quot;parent_home here&quot;&gt;</span>
+<span class="sd">                &lt;a href=&quot;/&quot; class=&quot;home&quot;&gt;/&lt;/a&gt;</span>
+<span class="sd">            &lt;/li&gt;</span>
+<span class="sd">            &lt;li&gt;</span>
+<span class="sd">                &lt;a href=&quot;/blog/&quot;&gt;blog&lt;/a&gt;</span>
+<span class="sd">            &lt;/li&gt;</span>
+<span class="sd">        &lt;ul&gt;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">elems_to_highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soup</span><span class="p">,</span> <span class="n">href</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">anchor</span> <span class="ow">in</span> <span class="nb">super</span><span class="p">(</span><span class="n">HighlightHereParentNode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">elems_to_highlight</span><span class="p">(</span><span class="n">soup</span><span class="p">,</span> <span class="n">href</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">anchor</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&quot;highlight_here_parent&quot;</span><span class="p">,</span> <span class="n">HighlightHereParentNode</span><span class="p">)</span>
+</div>
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+<span class="n">json</span><span class="o">.</span><span class="n">is_safe</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
 
           </div>
@@ -117,7 +217,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -146,7 +246,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2011, Gavin Wahl, Aaron Merriam, Fusionbox.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

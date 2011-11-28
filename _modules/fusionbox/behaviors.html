@@ -46,22 +46,21 @@
           <div class="body">
             
   <h1>Source code for fusionbox.behaviors</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
-<span class="kn">from</span> <span class="nn">django.db.models.base</span> <span class="kn">import</span> <span class="n">ModelBase</span>
-
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
 
 <span class="k">class</span> <span class="nc">EmptyObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="MetaBehavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior">[docs]</a><span class="k">class</span> <span class="nc">MetaBehavior</span><span class="p">(</span><span class="n">ModelBase</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MetaBehavior</span><span class="p">(</span><span class="n">ModelBase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base Metaclass for Behaviors</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="MetaBehavior.__new__"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior.__new__">[docs]</a>    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<div class="viewcode-block" id="MetaBehavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior">[docs]</a><span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This allows declarative field definition in behaviors, just like in a</span>
-<span class="sd">        regular model definition, while still allowing field names to be</span>
+<div class="viewcode-block" id="MetaBehavior.__new__"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior.__new__">[docs]</a><span class="sd">        regular model definition, while still allowing field names to be</span>
 <span class="sd">        customized. Given a behavior::</span>
 
 <span class="sd">            class FooBehavior(Behavior):</span>
@@ -101,11 +100,11 @@
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">new_class</span><span class="p">,</span> <span class="n">new_class</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">new_class</span>
-</div></div>
-<div class="viewcode-block" id="Behavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior">[docs]</a><span class="k">class</span> <span class="nc">Behavior</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for all Behaviors</span>
 
+<span class="k">class</span> <span class="nc">Behavior</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all Behaviors</span></div></div>
+<div class="viewcode-block" id="Behavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior">[docs]</a>
 <span class="sd">    Behaviors are implemented through model inheritance, and support</span>
 <span class="sd">    multi-inheritance as well.  Each behavior adds a set of default fields</span>
 <span class="sd">    and/or methods to the model.  Field names can be customized like example B.</span>
@@ -144,10 +143,10 @@
 
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Behavior.modify_schema"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.modify_schema">[docs]</a>    <span class="k">def</span> <span class="nf">modify_schema</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">modify_schema</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Hook for behaviors to modify their model class just after it&#39;s created</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Behavior.modify_schema"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.modify_schema">[docs]</a><span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c"># Everything in declared_fields was pulled out by our metaclass, time</span>
         <span class="c"># to add them back in</span>
@@ -167,14 +166,14 @@
                     <span class="c"># put the column name in the behavior&#39;s config, so it&#39;s always there</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">),</span> <span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
-                    <span class="n">cls</span><span class="o">.</span><span class="n">add_to_class</span><span class="p">(</span><span class="n">new_name</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+                    <span class="n">cls</span><span class="o">.</span><span class="n">add_to_class</span><span class="p">(</span><span class="n">new_name</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">field</span><span class="p">))</span>
 
-</div>
+
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Behavior.merge_parent_settings"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.merge_parent_settings">[docs]</a>    <span class="k">def</span> <span class="nf">merge_parent_settings</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">merge_parent_settings</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span></div>
 <span class="sd">        Every behavior&#39;s settings are stored in an inner class whose name</span>
-<span class="sd">        matches its behavior&#39;s name. This method implements inheritance for</span>
+<div class="viewcode-block" id="Behavior.merge_parent_settings"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.merge_parent_settings">[docs]</a><span class="sd">        matches its behavior&#39;s name. This method implements inheritance for</span>
 <span class="sd">        those inner classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[</span><span class="n">behavior</span><span class="o">.</span><span class="n">__name__</span> <span class="k">for</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">base_behaviors</span><span class="p">()]</span>
@@ -184,19 +183,19 @@
                 <span class="n">child_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span><span class="o">.</span><span class="n">__dict__</span>
                 <span class="n">parent_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child_settings</span><span class="p">)</span>
                 <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">)</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="n">parent_settings</span>
-</div>
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">base_behaviors</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[]</span></div>
         <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
                 <span class="n">behaviors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">behaviors</span>
 
-</div>
-<span class="k">class</span> <span class="nc">TimeStampable</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">Timestampable</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for adding timestamping behavior to a model.</span>
+<span class="sd">    Base class for adding timestamping behavior to a model.</span></div>
 
 <span class="sd">    Added Fields:</span>
 <span class="sd">        Field 1:</span>
@@ -212,8 +211,53 @@
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
-    <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">PublishableManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manager for publishable behavior</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_query_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PublishableManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_query_set</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_published</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">publish_at__lte</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+
+<span class="k">class</span> <span class="nc">Publishable</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for adding publishable behavior to a model.</span>
+
+<span class="sd">    Added Fields:</span>
+<span class="sd">        Field 1:</span>
+<span class="sd">            field: DateTimeField(default=datetime.datetime.now, help_text=&#39;Selecting a future date will automatically publish to the live site on that date.&#39;)</span>
+<span class="sd">            description: The date that the model instance will be made available to the PublishableManager&#39;s query set</span>
+<span class="sd">            default_name: publish_at</span>
+<span class="sd">        Field 2:</span>
+<span class="sd">            field: DateTimeField(default=datetime.datetime.now, help_text=&#39;Selecting a future date will automatically publish to the live site on that date.&#39;)</span>
+<span class="sd">            description: setting to False will automatically draft the instance, making it unavailable to the PublishableManager&#39;s query set</span>
+<span class="sd">            default_name: is_published</span>
+
+<span class="sd">    Added Managers:</span>
+<span class="sd">        PublishableManager:</span>
+<span class="sd">            description: overwritten get_query_set() function to only fetch published instances.</span>
+<span class="sd">            name: published</span>
+<span class="sd">            usage: </span>
+<span class="sd">                class Blog(Publishable):</span>
+<span class="sd">                ...</span>
+
+<span class="sd">                all_blogs = Blog.objects.all()</span>
+<span class="sd">                published_blogs = Blog.published.all()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">publish_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s">&#39;Selecting a future date will automatically publish to the live site on that date.&#39;</span><span class="p">)</span>
+    <span class="n">is_published</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s">&#39;Unchecking this will take the entry off the live site regardless of publishing date&#39;</span><span class="p">)</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>
+    <span class="n">published</span> <span class="o">=</span> <span class="n">PublishableManager</span><span class="p">()</span>
 
 
 <span class="k">class</span> <span class="nc">SEO</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
@@ -267,7 +311,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -296,7 +340,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2011, Gavin Wahl, Aaron Merriam, Fusionbox.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>
