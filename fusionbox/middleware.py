@@ -69,3 +69,22 @@ class AutoErrorClassOnFormsMiddleware(object):
                             cls = cls.strip()
                         field.widget.attrs['class'] = cls
         return response
+
+class UserWrapper(object):
+    def __init__(self, user):
+        self.user = user
+
+    def __getattr__(self, name):
+        if hasattr(self.user, name):
+            return getattr(self.user, name)
+        elif hasattr(self.user.profile, name):
+            return getattr(self.user.profile, name)
+        elif hasattr(self, name):
+            return getattr(self, name)
+        else:
+            raise AttributeError('User has no attribute: {name}'.format(name=name))
+
+class FusionboxAuthMiddleware(object):
+    def process_request(self, request):
+        assert hasattr(request, 'user')
+        request.user = UserWrapper(request.user)
