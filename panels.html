@@ -66,36 +66,32 @@
 <li><p class="first">Add <tt class="docutils literal"><span class="pre">'fusionbox.panels.user_panel'</span></tt> to your <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt>:</p>
 <div class="highlight-python"><pre>INSTALLED_APPS = (
     ...
+
     'fusionbox.panels.user_panel',
+
     ...
 )</pre>
 </div>
 </li>
-<li><dl class="first docutils">
-<dt>Add <tt class="docutils literal"><span class="pre">fusionbox.panels.user_panel.panels.UserPanel</span></tt> to the <tt class="docutils literal"><span class="pre">DEBUG_TOOLBAR_PANELS</span></tt> setting::</dt>
-<dd><dl class="first docutils">
-<dt>DEBUG_TOOLBAR_PANELS = (</dt>
-<dd><p class="first last">...
-&#8216;fusionbox.panels.user_panel.panels.UserPanel&#8217;,
-...</p>
-</dd>
-</dl>
-<p class="last">)</p>
-</dd>
-</dl>
+<li><p class="first">Add <tt class="docutils literal"><span class="pre">fusionbox.panels.user_panel.panels.UserPanel</span></tt> to the <tt class="docutils literal"><span class="pre">DEBUG_TOOLBAR_PANELS</span></tt> setting:</p>
+<div class="highlight-python"><pre>DEBUG_TOOLBAR_PANELS = (
+    ...
+
+    'fusionbox.panels.user_panel.panels.UserPanel',
+
+    ...
+)</pre>
+</div>
 </li>
-<li><dl class="first docutils">
-<dt>Include <tt class="docutils literal"><span class="pre">fusionbox.panels.user_panel.urls</span></tt> somewhere in your url conf::</dt>
-<dd><dl class="first docutils">
-<dt>urlpatterns = patterns(&#8216;&#8217;,</dt>
-<dd><p class="first last">...
-url(r&#8217;&#8216;, include(&#8216;fusionbox.panels.user_panel.urls&#8217;)),
-...</p>
-</dd>
-</dl>
-<p class="last">)</p>
-</dd>
-</dl>
+<li><p class="first">Include <tt class="docutils literal"><span class="pre">fusionbox.panels.user_panel.urls</span></tt> somewhere in your url conf:</p>
+<div class="highlight-python"><pre>urlpatterns = patterns('',
+    ...
+
+    url(r'', include('fusionbox.panels.user_panel.urls')),
+
+    ...
+)</pre>
+</div>
 </li>
 </ul>
 </div>
