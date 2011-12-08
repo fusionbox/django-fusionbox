@@ -56,6 +56,18 @@
 <p><tt class="xref py py-class docutils literal"><span class="pre">GenericTemplateFinderMiddleware</span></tt> is useful during development to avoid
 having to write urlpatterns for every template.</p>
 <span class="target" id="module-fusionbox.middleware"></span><dl class="class">
+<dt id="fusionbox.middleware.AutoErrorClassOnFormsMiddleware">
+<em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">AutoErrorClassOnFormsMiddleware</tt><a class="reference internal" href="_modules/fusionbox/middleware.html#AutoErrorClassOnFormsMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.AutoErrorClassOnFormsMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Middleware which adds an error class to all form widgets that have a field
+error.</p>
+<p>Requires that views return a TemplateResponse object.</p>
+<p>Iterates through all values in the response context looking for anything
+which inherits from django&#8217;s BaseForm.  Any fields with field specific
+errors have the class &#8216;error&#8217; appended to their widget dictionary of
+attributes.</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="fusionbox.middleware.GenericTemplateFinderMiddleware">
 <em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">GenericTemplateFinderMiddleware</tt><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware" title="Permalink to this definition">¶</a></dt>
 <dd><p>Response middleware that uses <a class="reference internal" href="#fusionbox.middleware.generic_template_finder_view" title="fusionbox.middleware.generic_template_finder_view"><tt class="xref py py-func docutils literal"><span class="pre">generic_template_finder_view()</span></tt></a> to attempt to

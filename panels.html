@@ -1,0 +1,174 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Panels &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Email" href="mail.html" />
+    <link rel="prev" title="Contact" href="contact.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mail.html" title="Email"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="contact.html" title="Contact"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="panels">
+<h1>Panels<a class="headerlink" href="#panels" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="intro">
+<h2>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://pypi.python.org/pypi/django-debug-toolbar/">Django Debug Toolbar</a> allows hooking in extra panels.</p>
+</div>
+<div class="section" id="user-panel">
+<h2>User Panel<a class="headerlink" href="#user-panel" title="Permalink to this headline">¶</a></h2>
+<p>The user panel is derived from <a class="reference external" href="https://github.com/playfire/django-debug-toolbar-user-panel/">https://github.com/playfire/django-debug-toolbar-user-panel</a>.  The user panel allows for quick swapping between users.  This version has been modified to disable the panel unless the user logs in initially with a superuser.</p>
+<div class="section" id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">Add <tt class="docutils literal"><span class="pre">'fusionbox.panels.user_panel'</span></tt> to your <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt>:</p>
+<div class="highlight-python"><pre>INSTALLED_APPS = (
+    ...
+    'fusionbox.panels.user_panel',
+    ...
+)</pre>
+</div>
+</li>
+<li><dl class="first docutils">
+<dt>Add <tt class="docutils literal"><span class="pre">fusionbox.panels.user_panel.panels.UserPanel</span></tt> to the <tt class="docutils literal"><span class="pre">DEBUG_TOOLBAR_PANELS</span></tt> setting::</dt>
+<dd><dl class="first docutils">
+<dt>DEBUG_TOOLBAR_PANELS = (</dt>
+<dd><p class="first last">...
+&#8216;fusionbox.panels.user_panel.panels.UserPanel&#8217;,
+...</p>
+</dd>
+</dl>
+<p class="last">)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Include <tt class="docutils literal"><span class="pre">fusionbox.panels.user_panel.urls</span></tt> somewhere in your url conf::</dt>
+<dd><dl class="first docutils">
+<dt>urlpatterns = patterns(&#8216;&#8217;,</dt>
+<dd><p class="first last">...
+url(r&#8217;&#8216;, include(&#8216;fusionbox.panels.user_panel.urls&#8217;)),
+...</p>
+</dd>
+</dl>
+<p class="last">)</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Panels</a><ul>
+<li><a class="reference internal" href="#intro">Intro</a></li>
+<li><a class="reference internal" href="#user-panel">User Panel</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="contact.html"
+                        title="previous chapter">Contact</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mail.html"
+                        title="next chapter">Email</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/panels.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mail.html" title="Email"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="contact.html" title="Contact"
+             >previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

@@ -46,6 +46,7 @@
           <div class="body">
             
   <h1>Source code for fusionbox.middleware</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">Http404</span>
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render_to_response</span>
 
 
@@ -79,9 +80,41 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">process_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">generic_template_finder_view</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">generic_template_finder_view</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">Http404</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">response</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">response</span>
+
+<span class="k">class</span> <span class="nc">AutoErrorClassOnFormsMiddleware</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="AutoErrorClassOnFormsMiddleware"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.AutoErrorClassOnFormsMiddleware">[docs]</a><span class="sd">    Middleware which adds an error class to all form widgets that have a field</span>
+<span class="sd">    error. </span>
+<span class="sd">    </span>
+<span class="sd">    Requires that views return a TemplateResponse object.</span>
+
+<span class="sd">    Iterates through all values in the response context looking for anything</span>
+<span class="sd">    which inherits from django&#39;s BaseForm.  Any fields with field specific</span>
+<span class="sd">    errors have the class &#39;error&#39; appended to their widget dictionary of</span>
+<span class="sd">    attributes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">process_template_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">context_data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">BaseForm</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">_errors</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">_errors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="n">field</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                        <span class="n">cls</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="s">&#39;error&#39;</span> <span class="ow">in</span> <span class="n">cls</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">cls</span> <span class="o">+=</span> <span class="s">&#39; error&#39;</span>
+                            <span class="n">cls</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                        <span class="n">field</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span>
+        <span class="k">return</span> <span class="n">response</span>
 </pre></div></div>
 
           </div>
