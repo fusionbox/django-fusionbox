@@ -74,7 +74,7 @@ class ContactApp(FusionboxApp):
         else:
             form = self.contact_form(request)
 
-        env['form'] = form
+        env['contact_form'] = form
 
         return render(request, self.index_template, env)
 
