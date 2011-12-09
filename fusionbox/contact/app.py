@@ -1,6 +1,4 @@
 from django.shortcuts import render
-from django.contrib.sessions.backends.db import SessionStore
-from django.core.mail import EmailMessage
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
 
