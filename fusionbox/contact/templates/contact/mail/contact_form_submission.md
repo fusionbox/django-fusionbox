@@ -3,7 +3,7 @@ subject: "Contact Form Submission"
 ---
 Contact Form Submission
 
-{% for field in contact_form %}
+{% for field in submission %}
 **{{field.name}}:** {{field.value|linebreaks}}
 
 {% endfor %}
