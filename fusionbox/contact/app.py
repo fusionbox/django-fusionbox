@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.contrib.sessions.backends.db import SessionStore
-from django.core.urlresolvers import reverse
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
@@ -73,7 +72,7 @@ class ContactApp(FusionboxApp):
                             self.email_template,
                             env,
                             to = recipients,)
-                return HttpResponseSeeOther(reverse('contact_success'))
+                return HttpResponseSeeOther(self.reverse('contact_success'))
         else:
             form = self.contact_form_class(request)
 
