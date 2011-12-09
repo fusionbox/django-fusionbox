@@ -28,13 +28,15 @@ class ContactApp(FusionboxApp):
         fusionbox.contact,
         ...
 
-    Extenstions:
+    Extending example:
         my_site.my_contact.app:
 
             from .forms import MyContactForm
+            from .models import MyRecipient
 
             class MyContactApp(fusionbox.contact.app.ContactApp):
                 contact_form = MyContactForm
+                recipient_model_class = MyRecipient
 
             contact_app = MyContactApp()
 
@@ -42,11 +44,12 @@ class ContactApp(FusionboxApp):
 
     app_name = 'contact'
     namespace = 'contact'
-    contact_form = ContactForm
+    contact_form_class = ContactForm
+    recipient_model_class = Recipient
 
     index_template = 'contact/index.html'
     success_template = 'contact/success.html'
-    email_template = 'mail/contact_form_submission.md'
+    email_template = 'mail/contact/contact_form_submission.md'
 
     def index(self, request, extra_context={}):
         """
@@ -55,24 +58,24 @@ class ContactApp(FusionboxApp):
         env = extra_context
 
         if request.method == 'POST':
-            form = self.contact_form(request, request.POST)
+            form = self.contact_form_class_class(request, request.POST)
             if form.is_valid():
                 submission = form.save()
                 try:
                     recipients = settings.CONTACT_FORM_RECIPIENTS
                 except AttributeError:
-                    recipients = Recipient.objects.filter(is_active = True).values_list('email', flat=True)
+                    recipients = self.recipient_model_class.objects.filter(is_active = True).values_list('email', flat=True)
                 env = {}
                 env['submission'] = submission
                 env['host'] = request.get_host()
-                if recipeints:
+                if recipients:
                     send_markdown_mail(
                             self.email_template,
                             env,
                             to = recipients,)
                 return HttpResponseSeeOther(reverse('contact_success'))
         else:
-            form = self.contact_form(request)
+            form = self.contact_form_class(request)
 
         env['contact_form'] = form
 
