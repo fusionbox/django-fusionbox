@@ -9,6 +9,10 @@ fusionbox/contact/forms.py
 fusionbox/contact/models.py
 fusionbox/contact/static
 fusionbox/contact/static/contact.css
+fusionbox/contact/templates
+fusionbox/contact/templates/contact
+fusionbox/contact/templates/contact/index.html
+fusionbox/contact/templates/contact/base.html
 fusionbox/contact/urls.py
 fusionbox/contact/views.py
 fusionbox/forms
