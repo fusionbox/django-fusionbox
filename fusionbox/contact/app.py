@@ -49,7 +49,7 @@ class ContactApp(FusionboxApp):
 
     index_template = 'contact/index.html'
     success_template = 'contact/success.html'
-    email_template = 'mail/contact/contact_form_submission.md'
+    email_template = 'contact/mail/contact_form_submission.md'
 
     def index(self, request, extra_context={}):
         """
