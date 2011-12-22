@@ -53,10 +53,8 @@
 <span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">addclass</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s">&#39;class&#39;</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">:</span>
-        <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">cls</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span>
+    <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">cls</span> <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="n">cls</span>
 
 <span class="k">def</span> <span class="nf">is_here</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -203,6 +201,12 @@
 
 <span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&quot;highlight_here_parent&quot;</span><span class="p">,</span> <span class="n">HighlightHereParentNode</span><span class="p">)</span>
 </div>
+<span class="nd">@register.filter_function</span>
+<span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">arg1</span><span class="p">):</span>
+    <span class="n">att</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">arg1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
+    <span class="n">obj</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">att</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">obj</span>
+
 <span class="nd">@register.filter</span>
 <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>

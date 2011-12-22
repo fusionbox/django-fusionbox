@@ -121,8 +121,8 @@
 
 <span class="sd">        class MyModel(FooBehavior):</span>
 <span class="sd">            class FooBehavior:</span>
-<span class="sd">                bar = &quot;qux&quot;</span>
-<span class="sd">                baz = &quot;quux&quot;</span>
+<span class="sd">                bar = &#39;qux&#39;</span>
+<span class="sd">                baz = &#39;quux&#39;</span>
 
 <span class="sd">    ``MyModel`` will have the fields from ``FooBehavior`` added, but the field</span>
 <span class="sd">    names will be &quot;qux&quot; and &quot;quux&quot; respectively.</span>
@@ -199,11 +199,11 @@
 
 <span class="sd">    Added Fields:</span>
 <span class="sd">        Field 1:</span>
-<span class="sd">            field: DateTimeField(auto_now_add=True)</span>
+<span class="sd">            field: DateTimeField(default=datetime.datetime.now)</span>
 <span class="sd">            description: Timestamps set at the creation of the instance</span>
 <span class="sd">            default_name: created_at</span>
 <span class="sd">        Field 2:</span>
-<span class="sd">            field: DateTimeField(auto_now_add=True)</span>
+<span class="sd">            field: DateTimeField(auto_now=True)</span>
 <span class="sd">            description: Timestamps set each time the save method is called on the instance</span>
 <span class="sd">            default_name: updated_at</span>
 
@@ -211,7 +211,7 @@
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
     <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 

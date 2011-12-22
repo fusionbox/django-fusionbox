@@ -1,0 +1,137 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Shortcuts &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="shortcuts">
+<h1>Shortcuts<a class="headerlink" href="#shortcuts" title="Permalink to this headline">¶</a></h1>
+<p>The package <tt class="docutils literal"><span class="pre">'fusionbox.shortcuts'</span></tt> has various helper functions.</p>
+<div class="section" id="get-permission-or-403">
+<h2>get_permission_or_403<a class="headerlink" href="#get-permission-or-403" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>get_permission_or_403(callable[, *args][, **kwargs])</strong></dt>
+<dd><p class="first">Calls <tt class="docutils literal"><span class="pre">callable(*args,</span> <span class="pre">**kwargs)</span></tt> and raises a django <tt class="docutils literal"><span class="pre">PermissionDenied</span></tt> exception if callable returns <tt class="xref docutils literal"><span class="pre">False</span></tt>.</p>
+<p>Required Argument:</p>
+<ul class="last simple">
+<li><tt class="docutils literal"><span class="pre">callable</span></tt>: A callable that returns <tt class="xref docutils literal"><span class="pre">True</span></tt> or <tt class="xref docutils literal"><span class="pre">False</span></tt> and may optionally accept any number of named and unnamed arguments.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="get-object-page-or-throw">
+<h2>get_object_page_or_throw<a class="headerlink" href="#get-object-page-or-throw" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>get_object_page_or_throw(queryset, request[, page_param=&#8217;page&#8217;][, page_size_param=&#8217;page_size&#8217;][, page_size_default=10])</strong></dt>
+<dd><p class="first">Paginates a queryset, returning the requested object page or raising exceptions for malformed requests.</p>
+<p>Given a non-integer page number, a <tt class="docutils literal"><span class="pre">HttpResponseBadRequest</span></tt> will be raised.</p>
+<p>Given a page number greater than 1 that returns an empty page, a <tt class="docutils literal"><span class="pre">HttpResponseNotFound</span></tt> will be raised.</p>
+<p>If <tt class="docutils literal"><span class="pre">pure_pagination</span></tt> is found in the <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt>, this function will use <tt class="docutils literal"><span class="pre">pure_pagination.Paginator</span></tt> as opposed to the default <tt class="docutils literal"><span class="pre">django.core.paginator.Paginator</span></tt>.</p>
+<p>Required Arguments:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">queryset</span></tt>: The queryset of objects to be paginated</li>
+<li><tt class="docutils literal"><span class="pre">request</span></tt>: A request object, from which page and page_size values will be extracted</li>
+</ul>
+<p class="last">Optional Arguments:
+*  <tt class="docutils literal"><span class="pre">page_param</span></tt>: The url parameter name for the page number.  Defaults to <tt class="docutils literal"><span class="pre">page</span></tt>
+*  <tt class="docutils literal"><span class="pre">page_size_param</span></tt>: The url parameter name for the page size.  Defaults to <tt class="docutils literal"><span class="pre">page_size</span></tt>
+*  <tt class="docutils literal"><span class="pre">page_size_param</span></tt>: The default page size if no page size is present in the url.  Defaults to <tt class="docutils literal"><span class="pre">10</span></tt></p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Shortcuts</a><ul>
+<li><a class="reference internal" href="#get-permission-or-403">get_permission_or_403</a></li>
+<li><a class="reference internal" href="#get-object-page-or-throw">get_object_page_or_throw</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/shortcuts.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>
