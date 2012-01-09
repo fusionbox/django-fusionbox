@@ -1,0 +1,122 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Form Fields &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
+    <link rel="prev" title="Email" href="mail.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mail.html" title="Email"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-fusionbox.forms.fields">
+<span id="form-fields"></span><h1>Form Fields<a class="headerlink" href="#module-fusionbox.forms.fields" title="Permalink to this headline">¶</a></h1>
+<p>Common form fields</p>
+<p>These can also be accessed from <tt class="docutils literal"><span class="pre">fusionbox.forms</span></tt>.</p>
+<dl class="class">
+<dt id="fusionbox.forms.fields.MonthField">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.fields.</tt><tt class="descname">MonthField</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/fields.html#MonthField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.fields.MonthField" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#fusionbox.forms.fields.MonthField" title="fusionbox.forms.fields.MonthField"><tt class="xref py py-class docutils literal"><span class="pre">MonthField</span></tt></a> is a <tt class="xref py py-class docutils literal"><span class="pre">TypedChoiceField</span></tt> that selects a month.
+Its python value is a 1-indexed month number.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.forms.fields.FutureYearField">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.fields.</tt><tt class="descname">FutureYearField</tt><big>(</big><em>number_of_years=6</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/fields.html#FutureYearField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.fields.FutureYearField" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#fusionbox.forms.fields.FutureYearField" title="fusionbox.forms.fields.FutureYearField"><tt class="xref py py-class docutils literal"><span class="pre">FutureYearField</span></tt></a> is a <tt class="xref py py-class docutils literal"><span class="pre">TypedChoiceField</span></tt> that selects a
+year a defined period in the future. Useful for credit card expiration
+dates.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mail.html"
+                        title="previous chapter">Email</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/forms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mail.html" title="Email"
+             >previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

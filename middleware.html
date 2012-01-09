@@ -72,6 +72,15 @@ attributes.</p>
 <em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">GenericTemplateFinderMiddleware</tt><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware" title="Permalink to this definition">¶</a></dt>
 <dd><p>Response middleware that uses <a class="reference internal" href="#fusionbox.middleware.generic_template_finder_view" title="fusionbox.middleware.generic_template_finder_view"><tt class="xref py py-func docutils literal"><span class="pre">generic_template_finder_view()</span></tt></a> to attempt to
 autolocate a template for otherwise 404 responses.</p>
+<p>This is only intended for development.  It will not work with DEBUG set to
+False.</p>
+<dl class="method">
+<dt id="fusionbox.middleware.GenericTemplateFinderMiddleware.process_view">
+<tt class="descname">process_view</tt><big>(</big><em>request</em>, <em>view_func</em>, <em>view_args</em>, <em>view_kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware.process_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware.process_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Informs <tt class="xref py py-func docutils literal"><span class="pre">process_response()</span></tt> that there was a view for this url and that
+it threw a real 404.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">
