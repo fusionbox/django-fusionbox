@@ -8,7 +8,7 @@ Useful stuff for django
 
 """
 
-version = '0.0.1'
+version = '0.0.2'
 
 setup(name='django-fusionbox',
     version=version,
@@ -18,13 +18,14 @@ setup(name='django-fusionbox',
     keywords='django boilerplate',
     long_description=__doc__,
     url='https://github.com/fusionbox/django-fusionbox',
-    packages=['fusionbox', 'fusionbox.templatetags'],
+    packages=['fusionbox', 'fusionbox.contact', 'fusionbox.db', 'fusionbox.forms', 'fusionbox.panels', 'fusionbox.panels.user_panel', 'fusionbox.templatetags', 'fusionbox.management', 'fusionbox.management.commands'],
+    package_data={'fusionbox.panels.user_panel': ['templates/*',]},
     platforms = "any",
     license='BSD',
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
     ],
-    install_requires = ['BeautifulSoup'],
-    requires = ['BeautifulSoup'],
+    install_requires = ['BeautifulSoup', 'PyYAML', 'markdown'],
+    requires = ['BeautifulSoup', 'PyYAML', 'markdown'],
 )

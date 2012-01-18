@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models.base import ModelBase
 
 import copy
@@ -27,12 +28,22 @@ class MetaBehavior(ModelBase):
                 class FooBehavior:
                     some_column = 'another_name'
 
-        will be able to change the name of some_column to another_name.
+        will be able to change the name of ``some_column`` to ``another_name``.
 
-        To do this, we rip out all instances of model.Field, and wait for
-        Behavior.modify_schema to add them back in once all config classes are
+        To do this, we rip out all instances of :class:`model.Field`, and wait for
+        :func:`Behavior.modify_schema` to add them back in once all config classes are
         merged.
         """
+        found_django_meta_without_behavior = False
+        for base in bases:
+            if not issubclass(object, base):
+                continue
+            mro = base.mro()
+            if found_django_meta_without_behavior and Behavior in mro:
+                raise ImproperlyConfigured(u'Any model inheriting from a behavior cannot have a model which inherits from models.Model ahead of it in the parent classes')
+            mro_modules = [klass.__module__ for klass in mro]
+            if not 'fusionbox.behaviors' in mro_modules and models.Model in mro:
+                found_django_meta_without_behavior = True
 
         declared_fields = {}
 
@@ -64,29 +75,32 @@ class Behavior(models.Model):
     multi-inheritance as well.  Each behavior adds a set of default fields
     and/or methods to the model.  Field names can be customized like example B.
 
-    EXAMPLE A
-    class MyModel(FooBehavior):
-        pass
+    EXAMPLE A::
 
-    MyModel will have whatever fields FooBehavior adds with default field
-    names.
+        class MyModel(FooBehavior):
+            pass
 
-    EXAMPLE B
-    class MyModel(FooBehavior):
-        class FooBehavior:
-            bar = 'qux'
-            baz = 'quux'
+    ``MyModel`` will have whatever fields ``FooBehavior`` adds with default
+    field names.
 
-    MyModel will have the fields from FooBehavior added, but the field names
-    will be 'qux' and 'quux' respectively.
+    EXAMPLE B::
 
-    EXAMPLE C
-    class MyModel(FooBehavior, BarBehavior):
-        pass
+        class MyModel(FooBehavior):
+            class FooBehavior:
+                bar = 'qux'
+                baz = 'quux'
 
-    MyModel will have the fields from both FooBehavior and BarBehavior, each
-    with default field names.  To customizing field names can be done just like
-    it was in example B.
+    ``MyModel`` will have the fields from ``FooBehavior`` added, but the field
+    names will be "qux" and "quux" respectively.
+
+    EXAMPLE C::
+
+        class MyModel(FooBehavior, BarBehavior):
+            pass
+
+    ``MyModel`` will have the fields from both ``FooBehavior`` and
+    ``BarBehavior``, each with default field names.  To customizing field names
+    can be done just like it was in example B.
 
     """
     class Meta:
@@ -151,11 +165,11 @@ class Timestampable(Behavior):
 
     Added Fields:
         Field 1:
-            field: DateTimeField(auto_now_add=True)
+            field: DateTimeField(default=datetime.datetime.now)
             description: Timestamps set at the creation of the instance
             default_name: created_at
         Field 2:
-            field: DateTimeField(auto_now_add=True)
+            field: DateTimeField(auto_now=True)
             description: Timestamps set each time the save method is called on the instance
             default_name: updated_at
 
@@ -163,7 +177,7 @@ class Timestampable(Behavior):
     class Meta:
         abstract = True
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=datetime.datetime.now)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -182,11 +196,11 @@ class Publishable(models.Model):
 
     Added Fields:
         Field 1:
-            field: DateTimeField(default=datetime.datetime.now(), help_text='Selecting a future date will automatically publish to the live site on that date.')
+            field: DateTimeField(default=datetime.datetime.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
             description: The date that the model instance will be made available to the PublishableManager's query set
             default_name: publish_at
         Field 2:
-            field: DateTimeField(default=datetime.datetime.now(), help_text='Selecting a future date will automatically publish to the live site on that date.')
+            field: DateTimeField(default=datetime.datetime.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
             description: setting to False will automatically draft the instance, making it unavailable to the PublishableManager's query set
             default_name: is_published
 
@@ -205,7 +219,7 @@ class Publishable(models.Model):
     class Meta:
         abstract = True
 
-    publish_at = models.DateTimeField(default=datetime.datetime.now(), help_text='Selecting a future date will automatically publish to the live site on that date.')
+    publish_at = models.DateTimeField(default=datetime.datetime.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
     is_published = models.BooleanField(default=True, help_text='Unchecking this will take the entry off the live site regardless of publishing date')
 
     objects = models.Manager()
