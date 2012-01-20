@@ -1,6 +1,9 @@
 from django.db import models
-from django.core.exceptions import ImproperlyConfigured
 from django.db.models.base import ModelBase
+from django.core.exceptions import ImproperlyConfigured
+from django.contrib.contenttypes import generic
+from django.contrib.comments.models import Comment
+from django.contrib.comments.moderation import moderator, CommentModerator
 
 import copy
 import datetime
@@ -208,7 +211,7 @@ class Publishable(models.Model):
         PublishableManager:
             description: overwritten get_query_set() function to only fetch published instances.
             name: published
-            usage: 
+            usage:
                 class Blog(Publishable):
                 ...
 
@@ -224,6 +227,97 @@ class Publishable(models.Model):
 
     objects = models.Manager()
     published = PublishableManager()
+
+
+class Commentable(Behavior):
+    """
+    Base class for generic comments to an object.
+
+    To use:
+
+        `settings.py`
+
+        ~~~
+
+        INSTALLED_APPS = (
+            ...
+            'django.contrib.contenttypes',
+            ...
+            'django.contrib.comments',
+            ...
+            )
+
+        ~~~
+
+        `myapp.models.py`
+
+        ~~~
+        from django.contrib.comments import moderator
+
+        ...
+
+        class MyCommentableModel(Commentable):
+            pass
+
+
+        moderator.register(MyCommentableModel, MyCommentableModel.EnableCommentMod)
+
+        ~~~
+
+    Added Fields:
+        Field 1:
+            field: GenericRelation(Comment)
+            description: Generic relationship to content_type "comment"
+        Field 2:
+            field: BooleanField
+            description: Allows basic moderation for comments ( turning on and off )
+
+    """
+    comments = generic.GenericRelation(Comment,
+            content_type_field='content_type', object_id_field='object_pk')
+    enable_comments = models.BooleanField(default=False)
+
+    class NoModeration(CommentModerator):
+        """
+        Uses all default values for Comment moderation,
+        """
+        pass
+
+    class SimpleModerator(CommentModerator):
+        """
+        Only turns on email notifications after a comment is made.
+
+        Email notifications are sent to the site staff by default.
+
+        This level of moderation will always directly publish a comment
+        after it has been submitted by a user.
+        """
+        email_notification = True
+
+    class BasicModerator(SimpleModerator):
+        """
+        Turns on email notifications and sets the enable comments field
+        to allow for turning on and off comments for an object.
+
+        This level of moderation will always directly publish a comment
+        after is has been submitted by a user.
+        """
+        enable_field = "enable_comments"
+
+    class StrictModerator(BasicModerator):
+        """
+        Requires PublishableBehavior.
+
+        This will automatically set is_public to False for all incoming
+        comments.
+
+        Requires direct approval from a site staff member to enable publishing.
+        """
+        moderate_after = 0
+        auto_moderate_field = "publish_at"
+
+    class Meta:
+        abstract = True
 
 
 class SEO(Behavior):
