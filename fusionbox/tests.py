@@ -417,6 +417,16 @@ class TestDecorators(unittest.TestCase):
         response = myview(Request())
         self.assertEqual(json.dumps(self.test_dict), response.content)
 
+    def test_json_response_cls(self):
+
+        @json_response(cls=self.encoder)
+        def myview(request, *args, **kwargs):
+            return  self.irregular_dict
+
+        response = myview(Request())
+        self.assertEqual(json.dumps(self.irregular_dict, cls=self.encoder),
+                response.content)
+
     def test_json_exception(self):
 
         @json_response()
