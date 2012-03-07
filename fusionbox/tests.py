@@ -427,14 +427,14 @@ class TestDecorators(unittest.TestCase):
         self.assertEqual(json.dumps(self.irregular_dict, cls=self.encoder),
                 response.content)
 
-    def test_json_exception(self):
+    def test_json_singleton(self):
 
         @json_response()
         def myview(request, *args, **kwargs):
-            return "ab"
+            return "OK"
 
-        with self.assertRaises(TypeError):
-            response = myview(Request())
+        response = myview(Request())
+        self.assertEqual(json.dumps("OK"), response.content)
 
     def test_jsonp(self):
 
@@ -461,19 +461,20 @@ class TestDecorators(unittest.TestCase):
 
         @jsonp()
         def myview(request, *args, **kwargs):
-            return "ab"
+            return "OK"
 
         with self.assertRaises(TypeError):
             response = myview(Request())
 
-    def test_jsonp_non_iter_content(self):
+    def test_jsonp_singleton_content(self):
 
         @jsonp()
         def myview(request, *args, **kwargs):
-            return self.test_dict, self.callback
+            return self.callback, "OK"
 
-        with self.assertRaises(TypeError):
-            response = myview(Request())
+        response = myview(Request())
+        self.assertEqual(self.callback + "("+json.dumps("OK")+");",
+                response.content)
 
 class TestHighlightHereTags(unittest.TestCase):
     request = Request()
