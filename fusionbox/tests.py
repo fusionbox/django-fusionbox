@@ -1,4 +1,5 @@
 from pprint import pprint
+from decimal import *
 
 from django.db import models
 from django.utils import unittest
@@ -394,9 +395,22 @@ class TestDecorators(unittest.TestCase):
                     }
     callback = 'console.log'
 
+    irregular_dict = {
+            "decimal": Decimal("5.2")
+            }
+
+    class DecimalEncoder(json.JSONEncoder):
+
+        def default(self, obj):
+            if isinstance(obj, Decimal):
+                return float(obj)
+            return json.JSONEncoder.default(self, obj)
+
+    encoder = DecimalEncoder
+
     def test_json_response(self):
 
-        @json_response
+        @json_response()
         def myview(request, *args, **kwargs):
             return self.test_dict
 
@@ -405,7 +419,7 @@ class TestDecorators(unittest.TestCase):
 
     def test_json_exception(self):
 
-        @json_response
+        @json_response()
         def myview(request, *args, **kwargs):
             return "ab"
 
@@ -414,7 +428,7 @@ class TestDecorators(unittest.TestCase):
 
     def test_jsonp(self):
 
-        @jsonp
+        @jsonp()
         def myview(request, *args, **kwargs):
             return  self.callback, self.test_dict
 
@@ -422,9 +436,20 @@ class TestDecorators(unittest.TestCase):
         self.assertEqual(self.callback + "("+json.dumps(self.test_dict)+");",
                 response.content)
 
+    def test_jsonp_cls(self):
+
+        @jsonp(cls=self.encoder)
+        def myview(request, *args, **kwargs):
+            return  self.callback, self.irregular_dict
+
+        response = myview(Request())
+        self.assertEqual(self.callback + "("+json.dumps(self.irregular_dict,
+            cls=self.encoder)+");",
+                response.content)
+
     def test_jsonp_exception(self):
 
-        @jsonp
+        @jsonp()
         def myview(request, *args, **kwargs):
             return "ab"
 
@@ -433,7 +458,7 @@ class TestDecorators(unittest.TestCase):
 
     def test_jsonp_non_iter_content(self):
 
-        @jsonp
+        @jsonp()
         def myview(request, *args, **kwargs):
             return self.test_dict, self.callback
 
