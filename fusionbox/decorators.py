@@ -5,9 +5,9 @@ import json
 from django.http import HttpResponse
 
 
-def json_response(view, cls=None):
+def json_response(cls=None):
     """
-    Decorator that accepts an obj that has an __iter__ method and encodes it
+    Decorator that accepts an obj and encodes it
     into json based on specified decoder.
 
     Usage:
@@ -23,16 +23,18 @@ def json_response(view, cls=None):
 
     """
 
-    def inner(request, *args, **kwargs):
-        response = view(request, *args, **kwargs)
-        if not getattr(response, "__iter__", False):
-            raise TypeError(response + " is not iterable")
-        json_content = json.dumps(response, cls=cls)
-        return HttpResponse(json_content, content_type="application/json")
-    return inner
+    def outer(view):
+        def inner(request, *args, **kwargs):
+            response = view(request, *args, **kwargs)
+            if not getattr(response, "__iter__", False):
+                raise TypeError(response + " is not iterable")
+            json_content = json.dumps(response, cls=cls)
+            return HttpResponse(json_content, content_type="application/json")
+        return inner
+    return outer
 
 
-def jsonp(view, cls=None, content_type="text/javascript"):
+def jsonp(cls=None, content_type="text/javascript"):
     """
     Decorator that accepts an indexable obj (hint: `(str, dict)`) and returns a
     json-p string. The response can allow for any obj that has an __iter__
@@ -54,18 +56,20 @@ def jsonp(view, cls=None, content_type="text/javascript"):
 
     """
 
-    def inner(request, *args, **kwargs):
-        response = view(request, *args, **kwargs)
-        try:
-            callback = response[0]
-            content = response[1]
-        except IndexError:
-            raise TypeError("The user defined view did not return an\
-                    indexable obj with at least two values.")
-        if not getattr(content, "__iter__", False):
-            raise TypeError(response + " is not iterable")
-        json_content = json.dumps(content, cls=cls)
-        jsonp_response = "{callback}({json});".format(callback=callback,
-                json=json_content)
-        return HttpResponse(jsonp_response, content_type=content_type)
-    return inner
+    def outer(view):
+        def inner(request, *args, **kwargs):
+            response = view(request, *args, **kwargs)
+            try:
+                callback = response[0]
+                content = response[1]
+            except IndexError:
+                raise TypeError("The user defined view did not return an\
+                        indexable obj with at least two values.")
+            if not getattr(content, "__iter__", False):
+                raise TypeError(response + " is not iterable")
+            json_content = json.dumps(content, cls=cls)
+            jsonp_response = "{callback}({json});".format(callback=callback,
+                    json=json_content)
+            return HttpResponse(jsonp_response, content_type=content_type)
+        return inner
+    return outer
