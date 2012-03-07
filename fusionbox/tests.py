@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 
 from fusionbox.behaviors import *
 from fusionbox.templatetags import fusionbox_tags
+from fusionbox.decorators import *
 
 
 class TestObject(object):
@@ -382,6 +383,62 @@ class TestTwoBehaviors(unittest.TestCase):
         self.assertTrue(isinstance(fields['created_at'], models.DateTimeField))
         self.assertTrue(isinstance(fields['updated_at'], models.DateTimeField))
 
+
+class TestDecorators(unittest.TestCase):
+
+    test_dict = {
+                   "int": 1,
+                    "str": "a",
+                    "arr": [1,2,3],
+                    "ob": {1: "a", 2: "b"},
+                    }
+    callback = 'console.log'
+
+    def test_json_response(self):
+
+        @json_response
+        def myview(request, *args, **kwargs):
+            return self.test_dict
+
+        response = myview(Request())
+        self.assertEqual(json.dumps(self.test_dict), response.content)
+
+    def test_json_exception(self):
+
+        @json_response
+        def myview(request, *args, **kwargs):
+            return "ab"
+
+        with self.assertRaises(TypeError):
+            response = myview(Request())
+
+    def test_jsonp(self):
+
+        @jsonp
+        def myview(request, *args, **kwargs):
+            return  self.callback, self.test_dict
+
+        response = myview(Request())
+        self.assertEqual(self.callback + "("+json.dumps(self.test_dict)+");",
+                response.content)
+
+    def test_jsonp_exception(self):
+
+        @jsonp
+        def myview(request, *args, **kwargs):
+            return "ab"
+
+        with self.assertRaises(TypeError):
+            response = myview(Request())
+
+    def test_jsonp_non_iter_content(self):
+
+        @jsonp
+        def myview(request, *args, **kwargs):
+            return self.test_dict, self.callback
+
+        with self.assertRaises(TypeError):
+            response = myview(Request())
 
 class TestHighlightHereTags(unittest.TestCase):
     request = Request()
