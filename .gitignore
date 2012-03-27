@@ -4,3 +4,5 @@ doc/_build
 django_fusionbox.egg-info/
 build/
 dist/
+sqlite_database
+tmp/
