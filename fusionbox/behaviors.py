@@ -342,3 +342,102 @@ class Validation(Behavior):
             if hasattr(e, 'message_dict'):
                 return e.message_dict
             return {NON_FIELD_ERRORS: e.messages}
+
+from django.db.models import fields
+from django.db.models import signals
+from django.db.models.fields.related import add_lazy_relation
+from django.utils.functional import curry
+
+class Touchable(Timestampable):
+    @classmethod
+    def modify_schema(cls):
+        super(Touchable, cls).modify_schema()
+
+        # A new model is being created. Let's loop through all our fields and
+        # see what [outgoing] relationships we have. When we find one, register
+        # a `post_save` signal handler to update our model's timestamp. We need
+        # to use `add_lazy_relation`, for when fields are passed a string
+        # instead of model class (`ForeignKey('Foo')`), because `Foo` may not
+        # exist yet.
+
+        # Our own foreign keys
+        for field in cls._meta.fields:
+            if isinstance(field, fields.related.ForeignKey):
+                add_lazy_relation(cls, field, field.rel.to, lambda field, rel, _cls: signals.post_save.connect(
+                    curry(cls.outward_foreign_key_saved, field.related),
+                    weak=False,
+                    sender=field.related.parent_model))
+        # our m2m
+        for field in cls._meta.many_to_many:
+            add_lazy_relation(cls, field, field.rel.to, lambda field, rel, _cls: signals.post_save.connect(
+                    curry(cls.many_to_many_saved, field.related),
+                    weak=False,
+                    sender=field.related.parent_model))
+
+
+        # Next, check for _incoming_ relationships, like foreign keys pointing
+        # to us. This is hard, because we don't know what they are at class
+        # creation time. Conceptually, we will have to wait until _all_ models
+        # have been prepared.
+
+        def add_reverse_foreign_key(*args, **kwargs):
+            try:
+                # Related objects are cached _once_ by default. If
+                # get_all_related_objects is called too early, the cache will
+                # always be empty.
+                del cls._meta._related_objects_cache
+            except AttributeError:
+                pass
+            # Foreign keys pointing to us
+            for related_obj in cls._meta.get_all_related_objects():
+                add_lazy_relation(cls, related_obj.field, related_obj.field.rel.to, lambda field, rel, _cls: signals.post_save.connect(
+                        curry(cls.inward_foreign_key_saved, related_obj),
+                        weak=False,
+                        sender=related_obj.model))
+        # We don't know who might be pointing to us yet, check every time a
+        # class is prepared.
+        signals.class_prepared.connect(add_reverse_foreign_key, weak=False)
+
+
+        # m2m pointing to us
+        for related_obj in cls._meta.get_all_related_many_to_many_objects():
+            add_lazy_relation(cls, related_obj.field, related_obj.field.rel.to, lambda field, rel, _cls: signals.post_save.connect(
+                    curry(cls.inward_many_to_many_saved, related_obj),
+                    weak=False,
+                    sender=related_obj.model))
+
+
+    @classmethod
+    def outward_foreign_key_saved(cls, relation, sender, instance, created, raw, **kwargs):
+        try:
+            objects = getattr(instance, relation.get_accessor_name())
+        except cls.DoesNotExist:
+            # OneToOneField with no reverse object
+            return
+        if isinstance(objects, models.Model):
+            # Existing OneToOneField
+            objects = [objects]
+        else:
+            # Regular ForeignKey
+            objects = objects.all()
+        for parent_instance in objects:
+            parent_instance.save()
+
+    @classmethod
+    def inward_foreign_key_saved(cls, relation, sender, instance, created, raw, **kwargs):
+        for parent_instance in cls._default_manager.filter(pk=relation.field.value_from_object(instance)):
+            parent_instance.save()
+
+    @classmethod
+    def many_to_many_saved(cls, relation, sender, instance, created, raw, **kwargs):
+        for parent_instance in cls._default_manager.filter(**{relation.field.name: instance}):
+            parent_instance.save()
+
+    @classmethod
+    def inward_many_to_many_saved(cls, relation, sender, instance, created, raw, **kwargs):
+        for parent_instance in relation.field.value_from_object(instance):
+            parent_instance.save()
+
+
+    class Meta:
+        abstract = True
