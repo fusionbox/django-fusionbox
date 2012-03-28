@@ -93,6 +93,13 @@ def render_template(template, context, layout):
     raw = t.render(context)
     meta, md = extract_frontmatter(raw)
 
+    if settings.DEBUG:
+        md += "\n\n# DEBUG #\nTemplate: `%s`\n\nContext: \n\n" % template
+        for dict in context.dicts:
+            for k, v in dict.iteritems():
+                md += "`%s`\n:     `%s`\n\n" % (k, v)
+
+
     context.push()
     context['content'] = mark_safe(markdown.markdown(md, ['extra']))
 
