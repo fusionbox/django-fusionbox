@@ -14,6 +14,13 @@ try:
 except ImportError:
     pass
 
+inflect = None
+try:
+    import inflect
+    inflect = inflect.engine()
+except ImportError:
+    pass
+
 from django import template
 from django.conf import settings
 
@@ -385,6 +392,7 @@ def add_commas(value, round=0):
     # Super gross, but it works for both 2.6 and 2.7.
     return locale.format("%." + str(round) + "f", value, grouping=True)
 
+
 @register.filter
 def naturalduration(time, show_minutes=None):
     """
@@ -414,13 +422,13 @@ def naturalduration(time, show_minutes=None):
     return ', '.join(display)
 
 
-
 @register.filter
 def pluralize_with(count, noun):
     """
     Pluralizes ``noun`` depending on ``count``.  Returns only the
     noun, either pluralized or not pluralized.
 
+<<<<<<< HEAD
     Usage::
 
         {{ number_of_cats|pluralize_with:"cat" }}
@@ -429,6 +437,15 @@ def pluralize_with(count, noun):
         # number_of_cats == 0: "0 cats"
         # number_of_cats == 1: "1 cat"
         # number_of_cats == 2: "2 cats"
+=======
+    Usage:
+        {{ number_of_cats|pluralize_with:"cat" }}
+
+    Outputs:
+        number_of_cats == 0: "0 cats"
+        number_of_cats == 1: "1 cat"
+        number_of_cats == 2: "2 cats"
+>>>>>>> pluralize_with filter, uses inflect module's inflect.engine().pluralize method
 
     Requires the ``inflect`` module.  If it isn't available, this filter
     will not be loaded.
