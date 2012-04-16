@@ -1,12 +1,11 @@
-import tempfile
-import shutil
-from StringIO import StringIO
-
 from contextlib import contextmanager as _contextmanager
 
 from fabric.api import *
 from fabric.contrib.console import *
-from fabric.contrib.project import rsync_project
+
+
+env.tld = '.com'
+env.use_ssh_config = True
 
 
 @_contextmanager
@@ -26,29 +25,29 @@ def files_changed(version, files):
     return "diff" in local("git diff %s HEAD -- %s" % (version, files), capture=True)
 
 
-def update_git(branch):
+def is_repo_clean():
     """
-    Updates the remote git repo to ``branch``. Returns the previous remote git
-    version.
+    Checks if a remote repo has uncommitted changes.
     """
     with settings(warn_only=True):
-        remote_head = run("cat static/.git_version.txt")
-        if remote_head.failed:
-            remote_head = None
-    try:
-        loc = tempfile.mkdtemp()
-        put(StringIO(local('git rev-parse %s' % branch, capture=True) + "\n"), 'static/.git_version.txt', mode=0775)
-        local("git archive %s | tar xf - -C %s" % (branch, loc))
-        # env.cwd is documented as private, but I'm not sure how else to do this
-        with settings(warn_only=True):
-            loc = loc + '/' # without this, the temp directory will get uploaded instead of just its contents
-            rsync_project(env.cwd, loc, extra_opts='--chmod=g=rwX,a+rX')
-    finally:
-        shutil.rmtree(loc)
+        return run("git status 2>&1 | grep 'nothing to commit' > /dev/null").succeeded
+
+
+def update_git(branch):
+    """
+    Checks out and updates ``branch`` on the remote git repo.  Returns the
+    previous commit hash for ``branch`` on remote before update.
+    """
+    if not is_repo_clean():
+        if not confirm("Remote repo is not clean.  Stash and continue?"):
+            abort("Remote repo dirty.  Aborting.")
+        run("git stash")
+    run("git checkout %s" % branch)
+    remote_head = run("git rev-list --no-merges --max-count=1 HEAD")
+    run("git pull origin %s" % branch)
     return remote_head
 
 
-env.tld = '.com'
 def stage(pip=False, migrate=False, syncdb=False, branch=None):
     """
     stage will update the remote git version to your local HEAD, collectstatic, migrate and
@@ -57,8 +56,10 @@ def stage(pip=False, migrate=False, syncdb=False, branch=None):
     Set ``env.project_name`` and ``env.short_name`` appropriately to use.
     ``env.tld`` defaults to ``.com``
     """
+    branch = branch or local('git branch | grep "^\*" | sed "s/^\* //"', capture=True)
+
     with cd('/var/www/%s%s' % (env.project_name, env.tld)):
-        version = update_git(branch or 'HEAD')
+        version = update_git(branch)
         update_pip = pip or files_changed(version, "requirements.txt")
         migrate = migrate or files_changed(version, "*/migrations/* %s/settings.py requirements.txt" % env.project_name)
         syncdb = syncdb or files_changed(version, "*/settings.py")
@@ -72,6 +73,7 @@ def stage(pip=False, migrate=False, syncdb=False, branch=None):
                 run("./manage.py migrate")
             run("./manage.py collectstatic --noinput")
         run("sudo touch /etc/vassals/%s.ini" % env.short_name)
+
 
 def deploy():
     """
