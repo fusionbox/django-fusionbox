@@ -38,6 +38,7 @@ UserChangeForm.base_fields['username'].widget.attrs['maxlength'] = 255
 UserChangeForm.base_fields['username'].validators[0].limit_value = 255
 UserChangeForm.base_fields['username'].help_text = _("Required. 255 characters or fewer. Must be a valid email address")
 
+
 UserChangeForm.base_fields['email'].max_length = 255
 UserChangeForm.base_fields['email'].widget.attrs['maxlength'] = 255
 UserChangeForm.base_fields['email'].validators[0].limit_value = 255
