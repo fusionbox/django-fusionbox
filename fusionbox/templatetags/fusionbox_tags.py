@@ -4,6 +4,7 @@ from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 import locale
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
+import datetime
 import re
 import warnings
 
@@ -207,6 +208,30 @@ def more_json(obj):
     """
     if isinstance(obj, Decimal):
         return float(obj)
+    if isinstance(obj, datetime.datetime):
+        return {
+            '__class__': 'datetime.datetime',
+            'year': obj.year,
+            'month': obj.month,
+            'day': obj.day,
+            'hour': obj.hour,
+            'minute': obj.minute,
+            'second': obj.second,
+            }
+    if isinstance(obj, datetime.time):
+        return {
+            '__class__': 'datetime.time',
+            'hour': obj.hour,
+            'minute': obj.minute,
+            'second': obj.second,
+            }
+    if isinstance(obj, datetime.date):
+        return {
+            '__class__': 'datetime.date',
+            'year': obj.year,
+            'month': obj.month,
+            'day': obj.day,
+            }
     if hasattr(obj, 'to_json'):
         return obj.to_json()
     raise TypeError("%r is not JSON serializable" % (obj,))
@@ -428,7 +453,6 @@ def pluralize_with(count, noun):
     Pluralizes ``noun`` depending on ``count``.  Returns only the
     noun, either pluralized or not pluralized.
 
-<<<<<<< HEAD
     Usage::
 
         {{ number_of_cats|pluralize_with:"cat" }}
@@ -437,15 +461,6 @@ def pluralize_with(count, noun):
         # number_of_cats == 0: "0 cats"
         # number_of_cats == 1: "1 cat"
         # number_of_cats == 2: "2 cats"
-=======
-    Usage:
-        {{ number_of_cats|pluralize_with:"cat" }}
-
-    Outputs:
-        number_of_cats == 0: "0 cats"
-        number_of_cats == 1: "1 cat"
-        number_of_cats == 2: "2 cats"
->>>>>>> pluralize_with filter, uses inflect module's inflect.engine().pluralize method
 
     Requires the ``inflect`` module.  If it isn't available, this filter
     will not be loaded.
