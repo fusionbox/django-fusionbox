@@ -74,6 +74,7 @@ def stage(pip=False, migrate=False, syncdb=False, branch=None):
             run("./manage.py collectstatic --noinput")
         run("sudo touch /etc/vassals/%s.ini" % env.short_name)
 
+
 def deploy():
     """
     Like stage, but always migrates, pips, and uses the live branch
