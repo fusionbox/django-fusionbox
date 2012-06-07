@@ -1,0 +1,17 @@
+
+.timeStepper .stepper {
+  background: url('../image/stepper.png');
+  display: block;
+  width: 13px;
+  height: 23px;
+  background-position: -13px 0px;
+  background-repeat: no-repeat;
+}
+
+.timeStepper .stepper.stepperUp {
+  background-position: 0px 0px;
+}
+
+.timeStepper .stepper.stepperDown {
+  background-position: -26px 0px;
+}
