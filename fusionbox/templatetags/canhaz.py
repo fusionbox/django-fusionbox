@@ -39,7 +39,7 @@ class CanHazNode(template.Node):
             raise IndexError('"id" is a required argument to canhaz')
 
         if tokens:
-            raise IndexError('Unknown tokens "{}" in canhaz block'.format(', '.join(tokens)))
+            raise IndexError('Unknown tokens "{0}" in canhaz block'.format(', '.join(tokens)))
 
         self.nodelist = parser.parse((closer,))
         parser.delete_first_token()
@@ -105,7 +105,7 @@ class MustacheNode(template.Node):
             self.tag_closer = '%>'
 
         if tokens:
-            raise IndexError('Unknown tokens "{}" in mustache block'.format(', '.join(tokens)))
+            raise IndexError('Unknown tokens "{0}" in mustache block'.format(', '.join(tokens)))
 
         self.nodelist = parser.parse((closer,))
         parser.delete_first_token()
