@@ -6,7 +6,11 @@ from django.db import models
 from django.core.exceptions import ImproperlyConfigured, ValidationError, NON_FIELD_ERRORS
 from django.db.models.base import ModelBase
 from django.db.models.query import QuerySet
-from django.contrib.admin.util import lookup_needs_distinct
+
+try:
+    from django.contrib.admin.util import lookup_needs_distinct
+except ImportError:
+    from fusionbox.utils import lookup_needs_distinct
 
 
 from fusionbox.db.models import QuerySetManager

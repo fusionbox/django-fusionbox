@@ -1,4 +1,9 @@
 from django.core import urlresolvers
+try:
+    from django.core.urlresolvers import reverse_lazy
+except ImportError:
+    from fusionbox.utils import reverse_lazy
+
 from django.contrib.syndication.views import Feed
 from django.contrib.auth.models import User
 from django.http import Http404
@@ -9,7 +14,7 @@ from fusionbox.blog.models import Blog
 
 class BlogFeed(Feed):
     title = "Blog"
-    link = urlresolvers.reverse_lazy('blog:blog_index')
+    link = reverse_lazy('blog:blog_index')
 
     def items(self, obj):
         if isinstance(obj, User):
