@@ -46,15 +46,36 @@
           <div class="body">
             
   <h1>Source code for fusionbox.templatetags.fusionbox_tags</h1><div class="highlight"><pre>
+<span class="c"># `setlocale` is not threadsafe</span>
+<span class="kn">import</span> <span class="nn">locale</span>
+<span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">&#39;en_US.UTF-8&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="n">inflect</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">inflect</span>
+    <span class="n">inflect</span> <span class="o">=</span> <span class="n">inflect</span><span class="o">.</span><span class="n">engine</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+
 <span class="kn">from</span> <span class="nn">BeautifulSoup</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 <span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">simplejson</span>
 <span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="kn">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">django.contrib.humanize.templatetags.humanize</span> <span class="kn">import</span> <span class="n">intcomma</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ImproperlyConfigured</span>
 
 <span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+
 
 <span class="k">def</span> <span class="nf">addclass</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
     <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
     <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">cls</span> <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="n">cls</span>
+
 
 <span class="k">def</span> <span class="nf">is_here</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -90,7 +111,7 @@
     <span class="k">def</span> <span class="nf">parse_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">highlight_class</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -114,8 +135,17 @@
     <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="n">soup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_soup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems_to_highlight</span><span class="p">(</span><span class="n">soup</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">highlight</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems_to_highlight</span><span class="p">(</span><span class="n">soup</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">highlight</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ImproperlyConfigured</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># This is because the django 500 error view does not use a</span>
+                <span class="c"># request context. We still need to be able to render some kind</span>
+                <span class="c"># of error page, so we&#39;ll just return our contents unchanged.</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">soup</span><span class="p">)</span>
 
@@ -157,7 +187,8 @@
             <span class="k">if</span> <span class="s">&#39;request&#39;</span> <span class="ow">in</span> <span class="n">context</span><span class="p">:</span>
                 <span class="n">path</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s">&#39;request&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;The request was not available in the context, please ensure that the request is made available in the context.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span>
+                        <span class="s">&quot;The request was not available in the context, please ensure that the request is made available in the context.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">anchor</span> <span class="k">for</span> <span class="n">anchor</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;href&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span> <span class="k">if</span> <span class="n">is_here</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]))</span>
 
@@ -201,17 +232,255 @@
 
 <span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&quot;highlight_here_parent&quot;</span><span class="p">,</span> <span class="n">HighlightHereParentNode</span><span class="p">)</span>
 </div>
+
 <span class="nd">@register.filter_function</span>
 <span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">arg1</span><span class="p">):</span>
     <span class="n">att</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">arg1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
     <span class="n">obj</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">att</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="k">return</span> <span class="n">obj</span>
 
+
+<span class="k">def</span> <span class="nf">more_json</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="more_json"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.more_json">[docs]</a><span class="sd">    Allows decimals and objects with `to_json` methods to be serialized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;to_json&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%r</span><span class="s"> is not JSON serializable&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,))</span>
+
+
 <span class="nd">@register.filter</span>
-<span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="n">a</span><span class="p">):</span></div>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="json"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.json">[docs]</a><span class="sd">    Output the json encoding of its argument.</span>
+
+<span class="sd">    This will escape all the HTML/XML special characters with their unicode</span>
+<span class="sd">    escapes, so it is safe to be output anywhere except for inside a tag</span>
+<span class="sd">    attribute.</span>
+
+<span class="sd">    If the output needs to be put in an attribute, entitize the output of this</span>
+<span class="sd">    filter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">json_str</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">more_json</span><span class="p">)</span>
+
+    <span class="c"># Escape all the XML/HTML special characters.</span>
+    <span class="n">escapes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;&#39;</span><span class="p">,]</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">escapes</span><span class="p">:</span>
+        <span class="n">json_str</span> <span class="o">=</span> <span class="n">json_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s">r&#39;\u</span><span class="si">%04x</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+    <span class="c"># now it&#39;s safe to use mark_safe</span>
+    <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
 <span class="n">json</span><span class="o">.</span><span class="n">is_safe</span> <span class="o">=</span> <span class="bp">True</span>
-</pre></div>
+</div>
+
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">currency</span><span class="p">(</span><span class="n">dollars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="currency"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.currency">[docs]</a><span class="sd">    Takes a number and prints it as a price, with a dollar sign and two decimal</span>
+<span class="sd">    places.</span>
+
+<span class="sd">    Taken from:</span>
+<span class="sd">    http://stackoverflow.com/a/2180209/1013960</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dollars</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dollars</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s">&quot;$</span><span class="si">%s%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">intcomma</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">dollars</span><span class="p">)),</span> <span class="p">(</span><span class="s">&quot;</span><span class="si">%0.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">dollars</span><span class="p">)[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>
+
+
+<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;FORMAT_TAG_ERROR_VALUE&#39;</span><span class="p">):</span>
+    <span class="n">FORMAT_TAG_ERROR_VALUE</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">FORMAT_TAG_ERROR_VALUE</span></div>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">FORMAT_TAG_ERROR_VALUE</span> <span class="o">=</span> <span class="s">&#39;error&#39;</span>
+
+
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">us_dollars</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="us_dollars"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_dollars">[docs]</a><span class="sd">    Returns the value formatted as whole US dollars.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        if value = -20000</span>
+<span class="sd">        {{ value|us_dollars }} =&gt; -$20,000</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Try to convert to Decimal</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">),</span> <span class="n">rounding</span><span class="o">=</span><span class="n">ROUND_HALF_UP</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">InvalidOperation</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;Invalid literal for Decimal&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+    <span class="c"># Format as currency value</span>
+    <span class="k">return</span> <span class="n">locale</span><span class="o">.</span><span class="n">currency</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">grouping</span><span class="o">=</span><span class="bp">True</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+
+
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">us_cents</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span></div>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="us_cents"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_cents">[docs]</a><span class="sd">    Returns the value formatted as US cents.  May specify decimal places for</span>
+<span class="sd">    fractional cents.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        where c means cents symbol:</span>
+
+<span class="sd">        if value = -20.125</span>
+<span class="sd">        {{ value|us_cents }} =&gt; -20.1 \u00a2</span>
+
+<span class="sd">        if value = 0.082</span>
+<span class="sd">        {{ value|us_cents:3 }} =&gt; 0.082 \u00a2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Try to convert to float</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;invalid literal for float&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+    <span class="c"># Require places &gt;= 0</span>
+    <span class="n">places</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">places</span><span class="p">)</span>
+    <span class="c"># Get negative sign</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="s">u&#39;-&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s">u&#39;&#39;</span>
+    <span class="c"># Get formatted value</span>
+    <span class="n">formatted</span> <span class="o">=</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="s">&#39;%0.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">places</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;f&#39;</span><span class="p">,</span>
+        <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+        <span class="n">grouping</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="p">))</span>
+    <span class="c"># Return value with sign and cents symbol</span>
+    <span class="k">return</span> <span class="n">sign</span> <span class="o">+</span> <span class="n">formatted</span> <span class="o">+</span> <span class="s">u&#39;</span><span class="se">\u00a2</span><span class="s">&#39;</span>
+
+
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">us_dollars_and_cents</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cent_places</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span></div>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="us_dollars_and_cents"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_dollars_and_cents">[docs]</a><span class="sd">    Returns the value formatted as US dollars with cents.  May optionally</span>
+<span class="sd">    include extra digits for fractional cents.  This is common when displaying</span>
+<span class="sd">    utility rates, for instance.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        if value = -20000.125</span>
+<span class="sd">        {{ value|us_dollars_and_cents }} =&gt; -$20,000.13</span>
+
+<span class="sd">        if value = 0.082  (8.2 cents)</span>
+<span class="sd">        {{ value|us_dollars_and_cents:3 }} =&gt; $0.082</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Try to convert to Decimal</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="s">&#39;1.&#39;</span> <span class="o">+</span> <span class="s">&#39;0&#39;</span> <span class="o">*</span> <span class="n">cent_places</span><span class="p">),</span> <span class="n">rounding</span><span class="o">=</span><span class="n">ROUND_HALF_UP</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">InvalidOperation</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;Invalid literal for Decimal&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+    <span class="c"># Require cent_places &gt;= 2</span>
+    <span class="k">if</span> <span class="n">cent_places</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">cent_places</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="c"># Get extra cent places if needed</span>
+    <span class="k">if</span> <span class="n">cent_places</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">extra_places</span> <span class="o">=</span> <span class="n">cent_places</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="n">extra_places</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)[</span><span class="o">-</span><span class="n">extra_places</span><span class="p">:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extra_places</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="c"># Format as currency value</span>
+    <span class="k">return</span> <span class="n">locale</span><span class="o">.</span><span class="n">currency</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">grouping</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="o">+</span> <span class="n">extra_places</span>
+
+
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">add_commas</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span></div>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="add_commas"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.add_commas">[docs]</a><span class="sd">    Add commas to a numeric value, while rounding it to a specific number of</span>
+<span class="sd">    places.  Humanize&#39;s intcomma is not adequate since it does not allow</span>
+<span class="sd">    formatting of real numbers.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        if value = 20000</span>
+<span class="sd">        {{ value|add_commas }} =&gt; 20,000</span>
+<span class="sd">        {{ value|add_commas:3 }} =&gt; 20,000.000</span>
+
+<span class="sd">        if value = 1234.5678</span>
+<span class="sd">        {{ value|add_commas:2 }} =&gt; 1,234.57</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Decimals honor locale settings correctly</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+    <span class="k">except</span> <span class="n">InvalidOperation</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&#39;Invalid literal for Decimal&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FORMAT_TAG_ERROR_VALUE</span>
+    <span class="c"># Round the value</span>
+    <span class="k">if</span> <span class="nb">round</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">format</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s">&#39;1.&#39;</span> <span class="o">+</span> <span class="nb">round</span> <span class="o">*</span> <span class="s">&#39;0&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">format</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="n">ROUND_HALF_UP</span><span class="p">)</span>
+    <span class="c"># Locale settings properly format Decimals with commas</span>
+    <span class="c"># Super gross, but it works for both 2.6 and 2.7.</span>
+    <span class="k">return</span> <span class="n">locale</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;%.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">grouping</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">naturalduration</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">show_minutes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span></div>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="naturalduration"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.naturalduration">[docs]</a><span class="sd">    Displays a time delta in a form that is more human-readable.  Accepts a</span>
+<span class="sd">    datetime.timedelta object.  Microseconds in timedelta objects are ignored.</span>
+<span class="sd">    The `show_minutes` argument specifies whether or not to include the number</span>
+<span class="sd">    of minutes in the display.  If it evaluates to false, minutes are not</span>
+<span class="sd">    included and are rounded into the number of hours.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        if time = datetime.timedelta(2, 7280, 142535)</span>
+<span class="sd">        {{ time|naturalduration }} =&gt; 2 days, 2 hours</span>
+<span class="sd">        {{ time|naturalduration:&quot;minutes&quot; }} =&gt; 2 days, 2 hours, 1 minute</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">days</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">days</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">seconds</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">)</span> <span class="k">if</span> <span class="n">show_minutes</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">seconds</span> <span class="o">/</span> <span class="mf">3600.0</span><span class="p">))</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">seconds</span> <span class="o">%</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span> <span class="k">if</span> <span class="n">show_minutes</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="n">display</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">days</span><span class="p">:</span>
+        <span class="n">display</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;{0} days&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">days</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">hours</span><span class="p">:</span>
+        <span class="n">display</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;{0} hours&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hours</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">minutes</span><span class="p">:</span>
+        <span class="n">display</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;{0} minutes&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">minutes</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">display</span><span class="p">)</span>
+
+
+<span class="nd">@register.filter</span>
+<span class="k">def</span> <span class="nf">pluralize_with</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">noun</span><span class="p">):</span></div>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="pluralize_with"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.pluralize_with">[docs]</a><span class="sd">    Pluralizes ``noun`` depending on ``count``.  Returns only the</span>
+<span class="sd">    noun, either pluralized or not pluralized.</span>
+
+<span class="sd">    Usage:</span>
+<span class="sd">        {{ number_of_cats|pluralize_with:&quot;cat&quot; }}</span>
+
+<span class="sd">    Outputs:</span>
+<span class="sd">        number_of_cats == 0: &quot;0 cats&quot;</span>
+<span class="sd">        number_of_cats == 1: &quot;1 cat&quot;</span>
+<span class="sd">        number_of_cats == 2: &quot;2 cats&quot;</span>
+
+<span class="sd">    Requires the ``inflect`` module.  If it isn&#39;t available, this filter</span>
+<span class="sd">    will not be loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">inflect</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s">&#39;&quot;inflect&quot; module is not available.  Install using `pip install inflect`.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">inflect</span><span class="o">.</span><span class="n">plural</span><span class="p">(</span><span class="n">noun</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</pre></div></div>
 
           </div>
         </div>

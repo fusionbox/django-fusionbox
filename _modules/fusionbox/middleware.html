@@ -46,18 +46,29 @@
           <div class="body">
             
   <h1>Source code for fusionbox.middleware</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">Http404</span>
+<span class="kn">import</span> <span class="nn">urlparse</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">django.forms.forms</span> <span class="kn">import</span> <span class="n">BaseForm</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.template</span> <span class="kn">import</span> <span class="n">TemplateDoesNotExist</span><span class="p">,</span> <span class="n">RequestContext</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">Http404</span><span class="p">,</span> <span class="n">HttpResponse</span>
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render_to_response</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.csrf</span> <span class="kn">import</span> <span class="n">requires_csrf_token</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ImproperlyConfigured</span>
 
 
-<span class="k">def</span> <span class="nf">generic_template_finder_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="nd">@requires_csrf_token</span>
+<span class="k">def</span> <span class="nf">generic_template_finder_view</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">base_path</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="generic_template_finder_view"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.generic_template_finder_view">[docs]</a><span class="sd">    Find a template based on the request url and render it.</span>
 
 <span class="sd">    * ``/`` -&gt; ``index.html``</span>
 <span class="sd">    * ``/foo/`` -&gt; ``foo.html`` OR ``foo/index.html``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">base_path</span> <span class="o">+</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">+=</span> <span class="s">&#39;/&#39;</span>
     <span class="n">possibilities</span> <span class="o">=</span> <span class="p">(</span>
@@ -79,19 +90,29 @@
 <span class="sd">    autolocate a template for otherwise 404 responses.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">process_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;_generic_template_finder_middleware_view_found&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">generic_template_finder_view</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">Http404</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">response</span>
+            <span class="k">except</span> <span class="ne">UnicodeEncodeError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">response</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">response</span>
 
+    <span class="k">def</span> <span class="nf">process_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view_func</span><span class="p">,</span> <span class="n">view_args</span><span class="p">,</span> <span class="n">view_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="GenericTemplateFinderMiddleware.process_view"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.GenericTemplateFinderMiddleware.process_view">[docs]</a><span class="sd">        Informs :func:`process_response` that there was a view for this url and that</span>
+<span class="sd">        it threw a real 404.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">_generic_template_finder_middleware_view_found</span> <span class="o">=</span> <span class="bp">True</span>
+
+
 <span class="k">class</span> <span class="nc">AutoErrorClassOnFormsMiddleware</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div>
+    <span class="sd">&quot;&quot;&quot;</span></div></div>
 <div class="viewcode-block" id="AutoErrorClassOnFormsMiddleware"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.AutoErrorClassOnFormsMiddleware">[docs]</a><span class="sd">    Middleware which adds an error class to all form widgets that have a field</span>
-<span class="sd">    error. </span>
-<span class="sd">    </span>
+<span class="sd">    error.</span>
+
 <span class="sd">    Requires that views return a TemplateResponse object.</span>
 
 <span class="sd">    Iterates through all values in the response context looking for anything</span>
@@ -115,6 +136,184 @@
                             <span class="n">cls</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                         <span class="n">field</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span>
         <span class="k">return</span> <span class="n">response</span>
+
+
+<span class="k">def</span> <span class="nf">get_redirect</span><span class="p">(</span><span class="n">redirects</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">full_uri</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">full_uri</span> <span class="ow">in</span> <span class="n">redirects</span><span class="p">:</span></div>
+        <span class="n">redirect</span> <span class="o">=</span> <span class="n">redirects</span><span class="p">[</span><span class="n">full_uri</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">redirects</span><span class="p">:</span>
+        <span class="n">redirect</span> <span class="o">=</span> <span class="n">redirects</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="c">#target = redirec[&#39;target&#39;]</span>
+    <span class="c">#status_code = redirec[&#39;status_code&#39;]</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">redirect</span><span class="o">.</span><span class="n">target</span>
+    <span class="n">status_code</span> <span class="o">=</span> <span class="n">redirect</span><span class="o">.</span><span class="n">status_code</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status_code</span><span class="p">)</span>
+    <span class="n">response</span><span class="p">[</span><span class="s">&#39;Location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span> <span class="ow">or</span> <span class="bp">None</span>
+
+    <span class="k">return</span> <span class="n">response</span>
+
+
+<span class="k">def</span> <span class="nf">scrape_redirects</span><span class="p">(</span><span class="n">redirect_path</span><span class="p">):</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">redirect_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.csv&#39;</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">redirect_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">),</span> <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;source&#39;</span><span class="p">,</span> <span class="s">&#39;target&#39;</span><span class="p">,</span> <span class="s">&#39;status_code&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">):</span>
+                <span class="n">line</span><span class="p">[</span><span class="s">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+                <span class="n">line</span><span class="p">[</span><span class="s">&#39;line_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lines</span>
+
+
+<span class="k">class</span> <span class="nc">Redirect</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Redirect"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.Redirect">[docs]</a><span class="sd">    Encapulates all of the information about a redirect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">status_code</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">line_number</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsed_source</span> <span class="o">=</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsed_target</span> <span class="o">=</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">status_code</span> <span class="ow">or</span> <span class="mi">301</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="mi">410</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_number</span> <span class="o">=</span> <span class="n">line_number</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span>
+
+    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_errors</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">300</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">&gt;</span> <span class="mi">399</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">410</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span>
+                    <span class="s">&#39;status_code&#39;</span><span class="p">,</span> 
+                    <span class="s">&quot;ERROR: {redirect.filename}:{redirect.line_number} - Non 3xx/410 status code({redirect.status_code})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">redirect</span><span class="o">=</span><span class="bp">self</span><span class="p">),</span>
+                    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">preprocess_redirects</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">raise_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="preprocess_redirects"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.preprocess_redirects">[docs]</a><span class="sd">    Takes a list of dictionaries read from the csv redirect files, creates</span>
+<span class="sd">    Redirect objects from them, and validates the redirects, returning a</span>
+<span class="sd">    dictionary of Redirect objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">error_messages</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> 
+    <span class="n">warning_messages</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="n">processed_redirects</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">redirect</span> <span class="o">=</span> <span class="n">Redirect</span><span class="p">(</span><span class="o">**</span><span class="n">line</span><span class="p">)</span>
+        <span class="c"># Runs internal validation on the redirect</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">redirect</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">redirect</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">error_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="n">message</span>
+
+        <span class="c"># Catch duplicate declaration of source urls.</span>
+        <span class="k">if</span> <span class="n">redirect</span><span class="o">.</span><span class="n">source</span> <span class="ow">in</span> <span class="n">processed_redirects</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">processed_redirects</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span>
+            <span class="n">warning_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;WARNING: {filename}:{line_number} -  Duplicate declaration of url&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">line</span><span class="p">))</span>
+        <span class="n">processed_redirects</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="n">redirect</span>
+
+    <span class="k">def</span> <span class="nf">validate_redirect</span><span class="p">(</span><span class="n">redirect</span><span class="p">,</span> <span class="n">with_slash</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds circular and possible circular redirects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">to_url</span> <span class="o">=</span> <span class="n">redirect</span><span class="o">.</span><span class="n">parsed_target</span>
+        <span class="k">if</span> <span class="n">with_slash</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">to_url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+                <span class="n">to_url</span> <span class="o">=</span> <span class="n">to_url</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">to_url</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span>
+        <span class="k">if</span> <span class="n">redirect</span><span class="o">.</span><span class="n">target</span> <span class="ow">in</span> <span class="n">processed_redirects</span> <span class="ow">or</span> <span class="n">redirect</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="n">redirect</span><span class="o">.</span><span class="n">parsed_source</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">error_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;ERROR: {redirect.filename}:{redirect.line_number} - Circular redirect: {redirect.source} =&gt; {redirect.target}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">redirect</span><span class="o">=</span><span class="n">redirect</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">urljoin</span><span class="p">(</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">to_url</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">processed_redirects</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">redirect</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">410</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">to_url</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
+                <span class="n">error_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;ERROR: {redirect.filename}:{redirect.line_number} - Circular redirect: {redirect.source} =&gt; {redirect.target}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">redirect</span><span class="o">=</span><span class="n">redirect</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">to_url</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">redirect</span><span class="o">.</span><span class="n">parsed_source</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
+                <span class="n">warning_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;WARNING: {redirect.filename}:{redirect.line_number}: - Possible circular redirect if hosting on domain {redirect.parsed_target.netloc}: {redirect.source} =&gt; {redirect.target}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">redirect</span><span class="o">=</span><span class="n">redirect</span><span class="p">))</span>
+    
+    <span class="c"># Check for circular redirects.</span>
+    <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">redirect</span> <span class="ow">in</span> <span class="n">processed_redirects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">validate_redirect</span><span class="p">(</span><span class="n">redirect</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">APPEND_SLASH</span><span class="p">:</span>
+            <span class="n">validate_redirect</span><span class="p">(</span><span class="n">redirect</span><span class="p">,</span> <span class="n">with_slash</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="c"># Now that we&#39;re done, either raise an exception if an error was raised and</span>
+    <span class="c"># we are not just running in validation mode</span>
+    <span class="k">if</span> <span class="n">error_messages</span> <span class="ow">and</span> <span class="n">raise_errors</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span><span class="s">&#39;There were errors while parsing redirects.  Run ./manage.py validate_redirects for error details&#39;</span><span class="p">)</span>
+    <span class="c"># Output warnings for all errors and warnings found.</span>
+    <span class="k">for</span> <span class="n">messages</span> <span class="ow">in</span> <span class="n">warning_messages</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="o">+</span> <span class="n">error_messages</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">processed_redirects</span>
+
+
+<span class="k">class</span> <span class="nc">RedirectFallbackMiddleware</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="RedirectFallbackMiddleware"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.RedirectFallbackMiddleware">[docs]</a><span class="sd">    This middleware handles 3xx redirects and 410s.</span>
+
+<span class="sd">    Only 404 responses will be redirected, so if something else is returning a</span>
+<span class="sd">    non 404 error, this middleware will not produce a redirect</span>
+
+<span class="sd">    Redirects should be formatted in CSV files located in either</span>
+<span class="sd">    `&lt;project_path&gt;/redirects/` or an absolute path declared in</span>
+<span class="sd">    `settings.REDIRECTS_DIRECTORY`.</span>
+
+<span class="sd">    CSV files should not contain any headers, and be in the format `source_url,</span>
+<span class="sd">    target_url, status_code` where `status_code` is optional and defaults to 301.</span>
+<span class="sd">    To issue a 410, leave off target url and status code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">raise_errors</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;raise_errors&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RedirectFallbackMiddleware</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">raw_redirects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_redirects</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redirects</span> <span class="o">=</span> <span class="n">preprocess_redirects</span><span class="p">(</span><span class="n">raw_redirects</span><span class="p">,</span> <span class="n">raise_errors</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_redirects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Get redirect directory</span>
+        <span class="n">redirect_path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;REDIRECTS_DIRECTORY&#39;</span><span class="p">,</span>
+                               <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">PROJECT_PATH</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;redirects&#39;</span><span class="p">))</span>
+
+        <span class="c"># Crawl the REDIRECTS_DIRECTORY scraping any CSV files found</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">scrape_redirects</span><span class="p">(</span><span class="n">redirect_path</span><span class="p">)</span>
+
+        <span class="c">#redirects = preprocess_redirects(lines)</span>
+        <span class="k">return</span> <span class="n">lines</span>
+
+    <span class="k">def</span> <span class="nf">process_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span>  <span class="c"># No need to check for a redirect for non-404 responses.</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_full_path</span><span class="p">()</span>
+        <span class="n">full_uri</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">build_absolute_uri</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">get_redirect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redirects</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">full_uri</span><span class="p">)</span> <span class="ow">or</span> <span class="n">response</span>
 </pre></div></div>
 
           </div>

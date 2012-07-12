@@ -12,12 +12,16 @@ Contents:
    :maxdepth: 2
 
    intro
+   auth
    middleware
    templatetags
    behaviors
    contact
    panels
    mail
+   forms
+   newsletter
+   fabric
 
 Indices and tables
 ==================

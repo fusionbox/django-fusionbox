@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
     <link rel="next" title="Template Tags" href="templatetags.html" />
-    <link rel="prev" title="Intro" href="intro.html" /> 
+    <link rel="prev" title="Auth" href="auth.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,7 +40,7 @@
           <a href="templatetags.html" title="Template Tags"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Intro"
+          <a href="auth.html" title="Auth"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -72,16 +72,51 @@ attributes.</p>
 <em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">GenericTemplateFinderMiddleware</tt><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware" title="Permalink to this definition">¶</a></dt>
 <dd><p>Response middleware that uses <a class="reference internal" href="#fusionbox.middleware.generic_template_finder_view" title="fusionbox.middleware.generic_template_finder_view"><tt class="xref py py-func docutils literal"><span class="pre">generic_template_finder_view()</span></tt></a> to attempt to
 autolocate a template for otherwise 404 responses.</p>
+<dl class="method">
+<dt id="fusionbox.middleware.GenericTemplateFinderMiddleware.process_view">
+<tt class="descname">process_view</tt><big>(</big><em>request</em>, <em>view_func</em>, <em>view_args</em>, <em>view_kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware.process_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware.process_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Informs <tt class="xref py py-func docutils literal"><span class="pre">process_response()</span></tt> that there was a view for this url and that
+it threw a real 404.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.middleware.Redirect">
+<em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">Redirect</tt><big>(</big><em>source</em>, <em>target</em>, <em>status_code</em>, <em>filename</em>, <em>line_number</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#Redirect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.Redirect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encapulates all of the information about a redirect.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.middleware.RedirectFallbackMiddleware">
+<em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">RedirectFallbackMiddleware</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#RedirectFallbackMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.RedirectFallbackMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>This middleware handles 3xx redirects and 410s.</p>
+<p>Only 404 responses will be redirected, so if something else is returning a
+non 404 error, this middleware will not produce a redirect</p>
+<p>Redirects should be formatted in CSV files located in either
+<cite>&lt;project_path&gt;/redirects/</cite> or an absolute path declared in
+<cite>settings.REDIRECTS_DIRECTORY</cite>.</p>
+<p>CSV files should not contain any headers, and be in the format <cite>source_url,
+target_url, status_code</cite> where <cite>status_code</cite> is optional and defaults to 301.
+To issue a 410, leave off target url and status code.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="fusionbox.middleware.generic_template_finder_view">
-<tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">generic_template_finder_view</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#generic_template_finder_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.generic_template_finder_view" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">generic_template_finder_view</tt><big>(</big><em>request</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#generic_template_finder_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.generic_template_finder_view" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find a template based on the request url and render it.</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">/</span></tt> -&gt; <tt class="docutils literal"><span class="pre">index.html</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">/foo/</span></tt> -&gt; <tt class="docutils literal"><span class="pre">foo.html</span></tt> OR <tt class="docutils literal"><span class="pre">foo/index.html</span></tt></li>
 </ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="fusionbox.middleware.preprocess_redirects">
+<tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">preprocess_redirects</tt><big>(</big><em>lines</em>, <em>raise_errors=True</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#preprocess_redirects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.preprocess_redirects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of dictionaries read from the csv redirect files, creates
+Redirect objects from them, and validates the redirects, returning a
+dictionary of Redirect objects.</p>
 </dd></dl>
 
 </div>
@@ -93,8 +128,8 @@ autolocate a template for otherwise 404 responses.</p>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="previous chapter">Intro</a></p>
+  <p class="topless"><a href="auth.html"
+                        title="previous chapter">Auth</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="templatetags.html"
                         title="next chapter">Template Tags</a></p>
@@ -133,7 +168,7 @@ autolocate a template for otherwise 404 responses.</p>
           <a href="templatetags.html" title="Template Tags"
              >next</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Intro"
+          <a href="auth.html" title="Auth"
              >previous</a> |</li>
         <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
       </ul>

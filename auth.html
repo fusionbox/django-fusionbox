@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Python Module Index &mdash; django-fusionbox v0.0.1 documentation</title>
+    <title>Auth &mdash; django-fusionbox v0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,9 +23,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
- 
-
-
+    <link rel="next" title="The Middlewares" href="middleware.html" />
+    <link rel="prev" title="Intro" href="intro.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,8 +34,14 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="#" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="middleware.html" title="The Middlewares"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Intro"
+             accesskey="P">previous</a> |</li>
         <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -46,64 +51,21 @@
         <div class="bodywrapper">
           <div class="body">
             
-
-   <h1>Python Module Index</h1>
-
-   <div class="modindex-jumpbox">
-   <a href="#cap-f"><strong>f</strong></a>
-   </div>
-
-   <table class="indextable modindextable" cellspacing="0" cellpadding="2">
-     <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
-     <tr class="cap" id="cap-f"><td></td><td>
-       <strong>f</strong></td><td></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-       <td>
-       <tt class="xref">fusionbox</tt></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="behaviors.html#module-fusionbox.behaviors"><tt class="xref">fusionbox.behaviors</tt></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="fabric.html#module-fusionbox.fabric_helpers"><tt class="xref">fusionbox.fabric_helpers</tt></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="forms.html#module-fusionbox.forms.fields"><tt class="xref">fusionbox.forms.fields</tt></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="forms.html#module-fusionbox.forms.forms"><tt class="xref">fusionbox.forms.forms</tt></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="mail.html#module-fusionbox.mail"><tt class="xref">fusionbox.mail</tt></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="middleware.html#module-fusionbox.middleware"><tt class="xref">fusionbox.middleware</tt></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="newsletter.html#module-fusionbox.newsletter"><tt class="xref">fusionbox.newsletter</tt></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="templatetags.html#module-fusionbox.templatetags.fusionbox_tags"><tt class="xref">fusionbox.templatetags.fusionbox_tags</tt></a></td><td>
-       <em></em></td></tr>
-   </table>
+  <div class="section" id="auth">
+<h1>Auth<a class="headerlink" href="#auth" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="intro">
+<h2>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h2>
+<p>Authentication backend to allow you to insert your own user model into the
+built in django authentication backend.</p>
+</div>
+<div class="section" id="installation-and-usage">
+<h2>Installation and Usage<a class="headerlink" href="#installation-and-usage" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Add <tt class="docutils literal"><span class="pre">'fusionbox.auth.backends.CustomModelBackend'</span></tt> to your <tt class="docutils literal"><span class="pre">AUTHENTICATION_BACKENDS</span></tt> setting in <tt class="docutils literal"><span class="pre">settings.py</span></tt></li>
+<li>Set <tt class="docutils literal"><span class="pre">CUSTOM_USER_MODEL</span></tt> in your <tt class="docutils literal"><span class="pre">settings.py</span></tt> file to a fully qualified path to your custom user model.</li>
+</ul>
+</div>
+</div>
 
 
           </div>
@@ -111,6 +73,26 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Auth</a><ul>
+<li><a class="reference internal" href="#intro">Intro</a></li>
+<li><a class="reference internal" href="#installation-and-usage">Installation and Usage</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Intro</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="middleware.html"
+                        title="next chapter">The Middlewares</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/auth.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -135,8 +117,14 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="#" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="middleware.html" title="The Middlewares"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Intro"
+             >previous</a> |</li>
         <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>

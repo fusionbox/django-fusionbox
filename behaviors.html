@@ -53,8 +53,26 @@
             
   <div class="section" id="behaviors">
 <h1>Behaviors<a class="headerlink" href="#behaviors" title="Permalink to this headline">¶</a></h1>
-<p>Behaviors are cool</p>
-<span class="target" id="module-fusionbox.behaviors"></span><dl class="class">
+<div class="section" id="usage-notes">
+<h2>Usage Notes<a class="headerlink" href="#usage-notes" title="Permalink to this headline">¶</a></h2>
+<p>Because behaviors are ultimately implemented using a special metaclass, any model inheritance involving behaviors must come before any other parent class which inherits from Django&#8217;s built in metaclass.</p>
+<p>Example Correct and Incorrect Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyBaseModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="c"># Incorrect Usage</span>
+<span class="k">class</span> <span class="nc">MyChildModel</span><span class="p">(</span><span class="n">MyBaseModel</span><span class="p">,</span> <span class="n">Timestampable</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="c"># Correct Usage</span>
+<span class="k">class</span> <span class="nc">MyChildModel</span><span class="p">(</span><span class="n">Timestampable</span><span class="p">,</span> <span class="n">MyBaseModel</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-fusionbox.behaviors">
+<span id="built-in-behaviors"></span><h2>Built in Behaviors<a class="headerlink" href="#module-fusionbox.behaviors" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
 <dt id="fusionbox.behaviors.Behavior">
 <em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Behavior</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Behavior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Behavior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for all Behaviors</p>
@@ -76,7 +94,7 @@ field names.</p>
 </pre></div>
 </div>
 <p><tt class="docutils literal"><span class="pre">MyModel</span></tt> will have the fields from <tt class="docutils literal"><span class="pre">FooBehavior</span></tt> added, but the field
-names will be &#8220;qux&#8221; and &#8220;quux&#8221; respectively.</p>
+names will be &#8216;qux&#8217; and &#8216;quux&#8217; respectively.</p>
 <p>EXAMPLE C:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">FooBehavior</span><span class="p">,</span> <span class="n">BarBehavior</span><span class="p">):</span>
     <span class="k">pass</span>
@@ -99,6 +117,81 @@ those inner classes.</p>
 <dd><p>Hook for behaviors to modify their model class just after it&#8217;s created</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.behaviors.Timestampable">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Timestampable</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Timestampable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Timestampable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for adding timestamping behavior to a model.</p>
+<dl class="docutils">
+<dt>Added Fields:</dt>
+<dd><dl class="first last docutils">
+<dt>Field 1:</dt>
+<dd>field: DateTimeField(default=datetime.datetime.now)
+description: Timestamps set at the creation of the instance
+default_name: created_at</dd>
+<dt>Field 2:</dt>
+<dd>field: DateTimeField(auto_now=True)
+description: Timestamps set each time the save method is called on the instance
+default_name: updated_at</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.behaviors.SEO">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">SEO</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#SEO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.SEO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for adding seo behavior to a model.</p>
+<dl class="docutils">
+<dt>Added Fields:</dt>
+<dd><dl class="first last docutils">
+<dt>Field 1:</dt>
+<dd>field: CharField(max_length = 255)
+description: Char field intended for use in html &lt;title&gt; tag.
+validation: Max Length 255 Characters
+default_name: seo_title</dd>
+<dt>Field 2:</dt>
+<dd>field: TextField()
+description: Text field intended for use in html &lt;meta name=&#8217;description&#8217;&gt; tag.
+default_name: seo_description</dd>
+<dt>Field 3:</dt>
+<dd>field: TextField()
+description: Text field intended for use in html &lt;meta name=&#8217;keywords&#8217;&gt; tag.
+validation: comma separated text strings
+default_name: seo_keywords</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fusionbox.behaviors.SEO.formatted_seo_data">
+<tt class="descname">formatted_seo_data</tt><big>(</big><em>title=''</em>, <em>description=''</em>, <em>keywords=''</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#SEO.formatted_seo_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.SEO.formatted_seo_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string containing the model&#8217;s SEO data marked up and ready for output
+in HTML.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.behaviors.Validation">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Validation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Validation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Validation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for adding complex validation behavior to a model.</p>
+<p>By inheriting from Validation, your model can have <tt class="docutils literal"><span class="pre">validate</span></tt> and <tt class="docutils literal"><span class="pre">validate_field</span></tt> methods.</p>
+<p><tt class="docutils literal"><span class="pre">validate</span></tt> is for generic validations, and for <tt class="docutils literal"><span class="pre">NON_FIELD_ERRORS</span></tt>, errors that do not belong to any
+one field.  In this method you can raise a ValidationError that contains a single error message, a list of
+errors, or - if the messages <strong>are</strong> associated with a field - a dictionary of field-names to message-list.</p>
+<p>You can also write <tt class="docutils literal"><span class="pre">validate_field</span></tt> methods for any columns that need custom validation.  This is for convience,
+since it is easier and more intuitive to raise an &#8216;invalid value&#8217; from within one of these methods, and have it
+automatically associated with the correct field.</p>
+<p>Even if you don&#8217;t implement custom validation methods, Validation changes the normal behavior of <tt class="docutils literal"><span class="pre">save</span></tt> so that
+validation <strong>always</strong> occurs.  This makes it easy to write APIs without having to understand the <tt class="docutils literal"><span class="pre">clean</span></tt>, <tt class="docutils literal"><span class="pre">full_clean</span></tt>,
+and <tt class="docutils literal"><span class="pre">clean_fields</span></tt> methods that must called in django.  If a validation error occurs, the exception will <strong>not</strong> be
+caught, it is up to you to catch it in your view or API.</p>
+<p>For convience, two additional methods are added to your model.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">validation_errors</span></tt> returns a dictionary of errors</li>
+<li><tt class="docutils literal"><span class="pre">is_valid</span></tt> returns True or False</li>
+</ul>
 </dd></dl>
 
 <dl class="class">
@@ -130,6 +223,7 @@ merged.</p>
 </dd></dl>
 
 </div>
+</div>
 
 
           </div>
@@ -137,6 +231,15 @@ merged.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Behaviors</a><ul>
+<li><a class="reference internal" href="#usage-notes">Usage Notes</a></li>
+<li><a class="reference internal" href="#module-fusionbox.behaviors">Built in Behaviors</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="templatetags.html"
                         title="previous chapter">Template Tags</a></p>

@@ -75,7 +75,6 @@ import markdown
 
 from django.template.loader import get_template
 from django.template import Context
-from django.core.mail import send_mail
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.utils.safestring import mark_safe
@@ -87,38 +86,48 @@ try:
 except AttributeError:
     EMAIL_LAYOUT = None
 
-def send_markdown_mail(template,
+
+def create_markdown_mail(template,
                        context,
-<div class="viewcode-block" id="send_markdown_mail"><a class="viewcode-back" href="../../mail.html#fusionbox.mail.send_markdown_mail">[docs]</a>                       to=None,
+                       to=None,
                        subject=None,
                        from_address=settings.SERVER_EMAIL,
                        layout=EMAIL_LAYOUT):
-
     """
-    The top-level email-sending function.
+    Creates a message from a markdown template and returns it as an
+    `EmailMultiAlternatives` object.
     """
-
     if layout is None:
         raise ValueError('layout was not defined by settings.EMAIL_LAYOUT and none was provided')
 
     meta, raw, html = render_template(template, context, layout)
 
-    # these let the template override the caller, should it be the
-    # other way around?
+    # this lets the template override the caller
     subject = meta.get('subject', subject)
     if not subject:
         raise Exception("Template didn't give a subject and neither did you")
 
     to = meta.get('to', to)
-    if not subject:
+    if not to:
         raise Exception("Template didn't give a to and neither did you")
+    if isinstance(to, basestring):
+        to = (to,)
 
     from_address = meta.get('from', from_address)
 
     msg = EmailMultiAlternatives(subject, raw, from_address, to)
     msg.attach_alternative(html, 'text/html')
 
+    return msg
+
+
+def send_markdown_mail(*args, **kwargs):
+    """
+<div class="viewcode-block" id="send_markdown_mail"><a class="viewcode-back" href="../../mail.html#fusionbox.mail.send_markdown_mail">[docs]</a>    Creates a message and sends it.
+    """
+    msg = create_markdown_mail(*args, **kwargs)
     return msg.send()
+
 
 def render_template(template, context, layout):
     """</div>
@@ -148,7 +157,9 @@ def render_template(template, context, layout):
     return (meta, md, html)
 
 front_matter_re = re.compile('(\s*\n)?^---\n(.*)\n---$\n*', re.MULTILINE | re.DOTALL)
-def extract_frontmatter(str):</div>
+</div>
+
+def extract_frontmatter(str):
     r"""
 <div class="viewcode-block" id="extract_frontmatter"><a class="viewcode-back" href="../../mail.html#fusionbox.mail.extract_frontmatter">[docs]</a>    Given a string with YAML style front matter, returns the parsed header and
     the rest of the string in a 2-tuple.

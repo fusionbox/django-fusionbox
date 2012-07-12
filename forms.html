@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Forms Module &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Newsletter" href="newsletter.html" />
+    <link rel="prev" title="Email" href="mail.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="newsletter.html" title="Newsletter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mail.html" title="Email"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="forms-module">
+<h1>Forms Module<a class="headerlink" href="#forms-module" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-fusionbox.forms.forms">
+<span id="forms"></span><h2>Forms<a class="headerlink" href="#module-fusionbox.forms.forms" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fusionbox.forms.forms.BaseChangeListForm">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.forms.</tt><tt class="descname">BaseChangeListForm</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#BaseChangeListForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.BaseChangeListForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all <cite>ChangeListForms</cite>.</p>
+<dl class="method">
+<dt id="fusionbox.forms.forms.BaseChangeListForm.get_queryset">
+<tt class="descname">get_queryset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#BaseChangeListForm.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.BaseChangeListForm.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form was initialized with a queryset, this method returns that
+queryset.  Otherwise it returns <cite>Model.objects.all()</cite> for whatever
+model was defined for the form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.forms.forms.SearchForm">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.forms.</tt><tt class="descname">SearchForm</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SearchForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SearchForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base form class for implementing searching on a model.</p>
+<p># Example Usage</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>class UserSearchForm(SearchForm):</dt>
+<dd>SEARCH_FIELDS = (&#8216;username&#8217;, &#8216;email&#8217;, &#8216;profile__role&#8217;)
+model = User</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">form</span> <span class="o">=</span> <span class="n">UserSearchForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_active</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span>
+<span class="go">&lt;accounts.forms.UserSearchForm object at 0x102ea18d0&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
+<span class="go">[&lt;User: admin&gt;, &lt;User: test@test.com&gt;, &lt;User: test2@test.com&gt;]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><cite>SEARCH_FIELDS</cite> should be an iterable of valid django queryset field lookups.
+Lookups can span foreign key relationships.</p>
+<p>By default, searches will be case insensitive.  Set <cite>CASE_SENSITIVE</cite> to
+<cite>True</cite> to make searches case sensitive.</p>
+<dl class="method">
+<dt id="fusionbox.forms.forms.SearchForm.get_queryset">
+<tt class="descname">get_queryset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SearchForm.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SearchForm.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs an &#8216;__contains&#8217; or &#8216;__icontains&#8217; filter across all of the
+fields listed in <cite>SEARCH_FIELDS</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.forms.forms.SearchForm.post_search">
+<tt class="descname">post_search</tt><big>(</big><em>qs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SearchForm.post_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SearchForm.post_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for modifying the queryset after the search.  Will not be called
+on an invalid form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.forms.forms.SearchForm.pre_search">
+<tt class="descname">pre_search</tt><big>(</big><em>qs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SearchForm.pre_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SearchForm.pre_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for modifying the queryset prior to the search</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.forms.forms.FilterForm">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.forms.</tt><tt class="descname">FilterForm</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#FilterForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.FilterForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for implementing filtering on a model.</p>
+<p># Example Usage</p>
+<dl class="docutils">
+<dt>class UserFilterForm(FilterForm):</dt>
+<dd><dl class="first docutils">
+<dt>FILTERS = {</dt>
+<dd>&#8216;active&#8217;: &#8216;is_active&#8217;,
+&#8216;date_joined&#8217;: &#8216;date_joined__gte&#8217;,
+&#8216;published&#8217;: None, # Custom filtering
+}</dd>
+</dl>
+<p>model = User</p>
+<dl class="docutils">
+<dt>PUBLISHED_CHOICES = (</dt>
+<dd>(&#8216;&#8217;, &#8216;All&#8217;),
+(&#8216;before&#8217;, &#8216;Before Today&#8217;),
+(&#8216;after&#8217;, &#8216;After Today&#8217;),
+)</dd>
+</dl>
+<p>active = forms.BooleanField(required=False)
+date_joined = forms.DateTimeField(required=False)
+published = forms.ChoiceField(choices=PUBLISHED_CHOICES, widget=forms.HiddenInput())</p>
+<dl class="last docutils">
+<dt>def pre_filter(self, queryset):</dt>
+<dd><p class="first">published = self.cleaned_data.get(&#8216;published&#8217;)
+if published == &#8216;&#8217;:</p>
+<blockquote>
+<div>return queryset</div></blockquote>
+<dl class="last docutils">
+<dt>elif published == &#8216;before&#8217;:</dt>
+<dd>return queryset.filter(published_at__lte=datetime.datetime.now())</dd>
+<dt>elif published == &#8216;after&#8217;:</dt>
+<dd>return queryset.filter(published_at__gte=datetime.datetime.now())</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><cite>FILTERS</cite> defines a mapping of form fields to queryset filters.</p>
+<p>When displaying in the template, this form also provides you with url querystrings for all of your filters.</p>
+<p><cite>form.filters</cite> is a dictionary of all of the filters defined on your form.</p>
+<p>In the example above, you could do the following in the template for display links for the published filter</p>
+<dl class="docutils">
+<dt>{% for choice in form.filters.published %}</dt>
+<dd><dl class="first docutils">
+<dt>{% if choice.active %}</dt>
+<dd>{{ choice.display }} (&lt;a href=&#8217;?{{ choice.remove }}&#8217;&gt;remove&lt;/a&gt;)</dd>
+<dt>{% else %}</dt>
+<dd>&lt;a href=&#8217;?{{ choice.querystring }}&#8217;&gt;{{ choice.display }}&lt;/a&gt;</dd>
+</dl>
+<p class="last">{% endif %}</p>
+</dd>
+</dl>
+<p>{% endfor %}</p>
+<dl class="attribute">
+<dt id="fusionbox.forms.forms.FilterForm.filters">
+<tt class="descname">filters</tt><a class="reference internal" href="_modules/fusionbox/forms/forms.html#FilterForm.filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.FilterForm.filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a dictionary of filters with proper queryset links to
+maintian multiple filters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.forms.forms.FilterForm.post_filter">
+<tt class="descname">post_filter</tt><big>(</big><em>qs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#FilterForm.post_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.FilterForm.post_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing post-filter modification to the queryset.  This is also
+the place where any custom filtering should take place.  Will not be
+called on an invalid form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.forms.forms.FilterForm.pre_filter">
+<tt class="descname">pre_filter</tt><big>(</big><em>qs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#FilterForm.pre_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.FilterForm.pre_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing pre-filter modification to the queryset</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.forms.forms.SortForm">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.forms.</tt><tt class="descname">SortForm</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SortForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SortForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for implementing sorting on a model.</p>
+<p># Example Usage</p>
+<dl class="docutils">
+<dt>class UserSortForm(SortForm):</dt>
+<dd><dl class="first docutils">
+<dt>HEADERS = (</dt>
+<dd>{&#8216;column&#8217;: &#8216;username&#8217;, &#8216;title&#8217;: &#8216;Username&#8217;, &#8216;sortable&#8217;: True},
+{&#8216;column&#8217;: &#8216;email&#8217;, &#8216;title&#8217;: &#8216;Email Address&#8217;, &#8216;sortable&#8217;: True},
+{&#8216;column&#8217;: &#8216;is_active&#8217;, &#8216;title&#8217;: &#8216;Active&#8217;, &#8216;sortable&#8217;: False},</dd>
+</dl>
+<p class="last">model = User</p>
+</dd>
+</dl>
+<p>The sort field for this form defaults to a HiddenInput widget which should
+be output within your form to preserve sorting accross any form
+submissions.</p>
+<p>From within your template, this form gives access to very useful methods
+for producing table headers and links for progressive or singular
+searching.</p>
+<dl class="docutils">
+<dt>{{ form.headers }}</dt>
+<dd><ul class="first last simple">
+<li>iterable of headers</li>
+</ul>
+</dd>
+<dt>{{ header.title }}</dt>
+<dd><ul class="first last simple">
+<li>title declared for this header</li>
+</ul>
+</dd>
+<dt>{{ header.sortable }}</dt>
+<dd><ul class="first last simple">
+<li>boolean for whether this header is sortable</li>
+</ul>
+</dd>
+<dt>{{ header.active }}</dt>
+<dd><ul class="first last simple">
+<li>boolean for whether the queryset is currently being sorted by this header</li>
+</ul>
+</dd>
+<dt>{{ header.classes }}</dt>
+<dd><ul class="first last simple">
+<li>list of css classes for this header. (active, ascending|descending)</li>
+</ul>
+</dd>
+<dt>{{ header.priority }}</dt>
+<dd><ul class="first last simple">
+<li>numeric index for which place this header is being used for ordering.</li>
+</ul>
+</dd>
+<dt>{{ header.querystring }}</dt>
+<dd><ul class="first last simple">
+<li>querystring for use with progressive sorting (sorting by multiple fields)</li>
+</ul>
+</dd>
+<dt>{{ header.remove }}</dt>
+<dd><ul class="first last simple">
+<li>querystring which can be used to remove this header from sorting</li>
+</ul>
+</dd>
+<dt>{{ header.singular }}</dt>
+<dd><ul class="first last simple">
+<li>querystring which can be used to sort only by this header</li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fusionbox.forms.forms.SortForm.get_queryset">
+<tt class="descname">get_queryset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SortForm.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SortForm.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an ordered queryset, sorted based on the values submitted in
+the sort parameter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.forms.forms.SortForm.headers">
+<tt class="descname">headers</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SortForm.headers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SortForm.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access to the headers template object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.forms.forms.SortForm.post_sort">
+<tt class="descname">post_sort</tt><big>(</big><em>qs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SortForm.post_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SortForm.post_sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing post-sort modification of the queryset.  Will not be
+called on an invalid form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.forms.forms.SortForm.pre_sort">
+<tt class="descname">pre_sort</tt><big>(</big><em>qs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#SortForm.pre_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.SortForm.pre_sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing pre-sort modification of the queryset</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.forms.forms.CsvForm">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.forms.</tt><tt class="descname">CsvForm</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#CsvForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.CsvForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for implementing csv generation on a model.</p>
+<p>Example:</p>
+<p># Given this class...
+class UserFilterForm(FilterForm):</p>
+<blockquote>
+<div><p>model = User</p>
+<dl class="docutils">
+<dt>CSV_COLUMNS = (</dt>
+<dd>{&#8216;column&#8217;: &#8216;id&#8217;, &#8216;title&#8217;: &#8216;Id&#8217;},
+{&#8216;column&#8217;: &#8216;username&#8217;, &#8216;title&#8217;: &#8216;Username&#8217;},
+{&#8216;column&#8217;: &#8216;email__domain_name&#8217;, &#8216;title&#8217;: &#8216;Email Domain&#8217;},
+)</dd>
+<dt>FILTERS = {</dt>
+<dd>&#8216;active&#8217;: &#8216;is_active&#8217;,
+&#8216;date_joined&#8217;: &#8216;date_joined__gte&#8217;,
+&#8216;published&#8217;: None, # Custom filtering
+}</dd>
+<dt>PUBLISHED_CHOICES = (</dt>
+<dd>(&#8216;&#8217;, &#8216;All&#8217;),
+(&#8216;before&#8217;, &#8216;Before Today&#8217;),
+(&#8216;after&#8217;, &#8216;After Today&#8217;),
+)</dd>
+</dl>
+<p>active = forms.BooleanField(required=False)
+date_joined = forms.DateTimeField(required=False)
+published = forms.ChoiceField(choices=PUBLISHED_CHOICES, widget=forms.HiddenInput())</p>
+<dl class="docutils">
+<dt>def pre_filter(self, queryset):</dt>
+<dd><p class="first">published = self.cleaned_data.get(&#8216;published&#8217;)
+if published == &#8216;&#8217;:</p>
+<blockquote>
+<div>return queryset</div></blockquote>
+<dl class="last docutils">
+<dt>elif published == &#8216;before&#8217;:</dt>
+<dd>return queryset.filter(published_at__lte=datetime.datetime.now())</dd>
+<dt>elif published == &#8216;after&#8217;:</dt>
+<dd>return queryset.filter(published_at__gte=datetime.datetime.now())</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># This code in a repl will produce a string buffer with csv output for</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># the form&#39;s queryset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span> <span class="o">=</span> <span class="n">UserFilterForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">form</span><span class="o">.</span><span class="n">csv_content</span><span class="p">()</span>
+<span class="go">&lt;StringIO.StringO object at 0x102fd2f48&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p><cite>CSV_COLUMNS</cite> defines a list of properties to fetch from each obj in the
+queryset which will be output in the csv content.  The <cite>column</cite> key defines
+the lookup path for the property.  This can lookup a field, property
+method, or method on the model which may span relationships.  The <cite>title</cite>
+key defines the column header to use for that property in the csv content.</p>
+<p>The <cite>csv_content</cite> method returns a string buffer with csv content for the
+form&#8217;s queryset.</p>
+<dl class="method">
+<dt id="fusionbox.forms.forms.CsvForm.csv_content">
+<tt class="descname">csv_content</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#CsvForm.csv_content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.CsvForm.csv_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the objects in the form&#8217;s current queryset as csv content.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fusionbox.forms.fields">
+<span id="fields"></span><h2>Fields<a class="headerlink" href="#module-fusionbox.forms.fields" title="Permalink to this headline">¶</a></h2>
+<p>Common form fields</p>
+<p>These can also be accessed from <tt class="docutils literal"><span class="pre">fusionbox.forms</span></tt>.</p>
+<dl class="class">
+<dt id="fusionbox.forms.fields.MonthField">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.fields.</tt><tt class="descname">MonthField</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/fields.html#MonthField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.fields.MonthField" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#fusionbox.forms.fields.MonthField" title="fusionbox.forms.fields.MonthField"><tt class="xref py py-class docutils literal"><span class="pre">MonthField</span></tt></a> is a <tt class="xref py py-class docutils literal"><span class="pre">TypedChoiceField</span></tt> that selects a month.
+Its python value is a 1-indexed month number.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.forms.fields.FutureYearField">
+<em class="property">class </em><tt class="descclassname">fusionbox.forms.fields.</tt><tt class="descname">FutureYearField</tt><big>(</big><em>number_of_years=6</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/fields.html#FutureYearField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.fields.FutureYearField" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#fusionbox.forms.fields.FutureYearField" title="fusionbox.forms.fields.FutureYearField"><tt class="xref py py-class docutils literal"><span class="pre">FutureYearField</span></tt></a> is a <tt class="xref py py-class docutils literal"><span class="pre">TypedChoiceField</span></tt> that selects a
+year a defined period in the future. Useful for credit card expiration
+dates.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Forms Module</a><ul>
+<li><a class="reference internal" href="#module-fusionbox.forms.forms">Forms</a></li>
+<li><a class="reference internal" href="#module-fusionbox.forms.fields">Fields</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mail.html"
+                        title="previous chapter">Email</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="newsletter.html"
+                        title="next chapter">Newsletter</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/forms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="newsletter.html" title="Newsletter"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mail.html" title="Email"
+             >previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

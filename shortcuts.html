@@ -62,9 +62,8 @@
 <h2>get_object_page_or_throw<a class="headerlink" href="#get-object-page-or-throw" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt><strong>get_object_page_or_throw(queryset, request[, page_param=&#8217;page&#8217;][, page_size_param=&#8217;page_size&#8217;][, page_size_default=10])</strong></dt>
-<dd><p class="first">Paginates a queryset, returning the requested object page or raising exceptions for malformed requests.</p>
-<p>Given a non-integer page number, a <tt class="docutils literal"><span class="pre">HttpResponseBadRequest</span></tt> will be raised.</p>
-<p>Given a page number greater than 1 that returns an empty page, a <tt class="docutils literal"><span class="pre">HttpResponseNotFound</span></tt> will be raised.</p>
+<dd><p class="first">Paginates a queryset, returning the requested object page or returning an http response if an error occurs.</p>
+<p>Given a non-integer page number, or a page number greater than 1 raises a <tt class="docutils literal"><span class="pre">django.http.Http404</span></tt> exception.</p>
 <p>If <tt class="docutils literal"><span class="pre">pure_pagination</span></tt> is found in the <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt>, this function will use <tt class="docutils literal"><span class="pre">pure_pagination.Paginator</span></tt> as opposed to the default <tt class="docutils literal"><span class="pre">django.core.paginator.Paginator</span></tt>.</p>
 <p>Required Arguments:</p>
 <ul class="simple">

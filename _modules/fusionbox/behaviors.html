@@ -46,21 +46,28 @@
           <div class="body">
             
   <h1>Source code for fusionbox.behaviors</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">django.db.models.base</span> <span class="kn">import</span> <span class="n">ModelBase</span>
+<span class="kn">from</span> <span class="nn">django.db.models.query</span> <span class="kn">import</span> <span class="n">QuerySet</span>
+
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 
+<span class="kn">from</span> <span class="nn">fusionbox.db.models</span> <span class="kn">import</span> <span class="n">QuerySetManager</span>
+
+
 <span class="k">class</span> <span class="nc">EmptyObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
 
 
 <span class="k">class</span> <span class="nc">MetaBehavior</span><span class="p">(</span><span class="n">ModelBase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base Metaclass for Behaviors</span>
-<div class="viewcode-block" id="MetaBehavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior">[docs]</a><span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MetaBehavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior">[docs]</a><span class="sd">    Base Metaclass for Behaviors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This allows declarative field definition in behaviors, just like in a</span>
-<div class="viewcode-block" id="MetaBehavior.__new__"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior.__new__">[docs]</a><span class="sd">        regular model definition, while still allowing field names to be</span>
+<div class="viewcode-block" id="MetaBehavior.__new__"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior.__new__">[docs]</a><span class="sd">        This allows declarative field definition in behaviors, just like in a</span>
+<span class="sd">        regular model definition, while still allowing field names to be</span>
 <span class="sd">        customized. Given a behavior::</span>
 
 <span class="sd">            class FooBehavior(Behavior):</span>
@@ -78,6 +85,16 @@
 <span class="sd">        :func:`Behavior.modify_schema` to add them back in once all config classes are</span>
 <span class="sd">        merged.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found_django_meta_without_behavior</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">mro</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">mro</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">found_django_meta_without_behavior</span> <span class="ow">and</span> <span class="n">Behavior</span> <span class="ow">in</span> <span class="n">mro</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ImproperlyConfigured</span><span class="p">(</span><span class="s">u&#39;Any model inheriting from a behavior cannot have a model which inherits from models.Model ahead of it in the parent classes&#39;</span><span class="p">)</span>
+            <span class="n">mro_modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">klass</span><span class="o">.</span><span class="n">__module__</span> <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="n">mro</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;fusionbox.behaviors&#39;</span> <span class="ow">in</span> <span class="n">mro_modules</span> <span class="ow">and</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span> <span class="ow">in</span> <span class="n">mro</span><span class="p">:</span>
+                <span class="n">found_django_meta_without_behavior</span> <span class="o">=</span> <span class="bp">True</span>
 
         <span class="n">declared_fields</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -101,10 +118,11 @@
 
         <span class="k">return</span> <span class="n">new_class</span>
 
+
 <span class="k">class</span> <span class="nc">Behavior</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for all Behaviors</span></div></div>
-<div class="viewcode-block" id="Behavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior">[docs]</a>
+    <span class="sd">&quot;&quot;&quot;</span></div></div>
+<div class="viewcode-block" id="Behavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior">[docs]</a><span class="sd">    Base class for all Behaviors</span>
+
 <span class="sd">    Behaviors are implemented through model inheritance, and support</span>
 <span class="sd">    multi-inheritance as well.  Each behavior adds a set of default fields</span>
 <span class="sd">    and/or methods to the model.  Field names can be customized like example B.</span>
@@ -125,7 +143,7 @@
 <span class="sd">                baz = &#39;quux&#39;</span>
 
 <span class="sd">    ``MyModel`` will have the fields from ``FooBehavior`` added, but the field</span>
-<span class="sd">    names will be &quot;qux&quot; and &quot;quux&quot; respectively.</span>
+<span class="sd">    names will be &#39;qux&#39; and &#39;quux&#39; respectively.</span>
 
 <span class="sd">    EXAMPLE C::</span>
 
@@ -141,12 +159,11 @@
         <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">MetaBehavior</span>
 
-
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">modify_schema</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Hook for behaviors to modify their model class just after it&#39;s created</span>
-<div class="viewcode-block" id="Behavior.modify_schema"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.modify_schema">[docs]</a><span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Behavior.modify_schema"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.modify_schema">[docs]</a><span class="sd">        Hook for behaviors to modify their model class just after it&#39;s created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c"># Everything in declared_fields was pulled out by our metaclass, time</span>
         <span class="c"># to add them back in</span>
@@ -168,34 +185,76 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
                     <span class="n">cls</span><span class="o">.</span><span class="n">add_to_class</span><span class="p">(</span><span class="n">new_name</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">field</span><span class="p">))</span>
 
-
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">merge_parent_settings</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<span class="sd">        Every behavior&#39;s settings are stored in an inner class whose name</span>
-<div class="viewcode-block" id="Behavior.merge_parent_settings"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.merge_parent_settings">[docs]</a><span class="sd">        matches its behavior&#39;s name. This method implements inheritance for</span>
+    <span class="k">def</span> <span class="nf">merge_parent_settings</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Behavior.merge_parent_settings"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior.merge_parent_settings">[docs]</a><span class="sd">        Every behavior&#39;s settings are stored in an inner class whose name</span>
+<span class="sd">        matches its behavior&#39;s name. This method implements inheritance for</span>
 <span class="sd">        those inner classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[</span><span class="n">behavior</span><span class="o">.</span><span class="n">__name__</span> <span class="k">for</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">base_behaviors</span><span class="p">()]</span>
-        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">behaviors</span><span class="p">:</span>
-                <span class="n">parent_settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
-                <span class="n">child_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="n">EmptyObject</span><span class="p">())</span><span class="o">.</span><span class="n">__dict__</span>
-                <span class="n">parent_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child_settings</span><span class="p">)</span>
-                <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">)</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="n">parent_settings</span>
+        <span class="k">for</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">behaviors</span><span class="p">:</span>
+            <span class="n">parent_settings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__bases__</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+                <span class="n">parent_settings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">)]</span> <span class="o">+</span> <span class="n">parent_settings</span>
+            <span class="n">parent_settings</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">parent_settings</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parent_settings</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">behavior</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">parent_settings</span><span class="p">),</span> <span class="p">{}))</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">behavior</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">parent_settings</span> <span class="o">+</span> <span class="p">[</span><span class="nb">object</span><span class="p">]),</span> <span class="p">{}))</span>
+
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">base_behaviors</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[]</span></div>
+    <span class="k">def</span> <span class="nf">base_behaviors</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span></div>
+        <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
                 <span class="n">behaviors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">behaviors</span>
 
 
+<span class="k">class</span> <span class="nc">ManagedQuerySet</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    This behavior is meant to be used in conjunction with</span>
+<span class="sd">    `fusionbox.db.models.QuerySetManager`</span>
+
+<span class="sd">    A class which inherits from this class will any inner QuerySet classes</span>
+<span class="sd">    found in the `mro` merged into a single class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">QuerySetManager</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">QuerySet</span><span class="p">(</span><span class="n">QuerySet</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">merge_parent_settings</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merge QuerySet classes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># get a list of all of the inner QuerySet classes from the bases</span>
+        <span class="n">querysets</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s">&#39;QuerySet&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__bases__</span><span class="p">]</span>
+        <span class="c"># add in the inner QuerySet class defined on the child</span>
+        <span class="k">if</span> <span class="s">&#39;QuerySet&#39;</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="n">querysets</span> <span class="o">=</span> <span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">]</span> <span class="o">+</span> <span class="n">querysets</span>
+        <span class="c"># remove False values from the the list.</span>
+        <span class="n">querysets</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">querysets</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">querysets</span><span class="p">:</span>
+            <span class="c"># Create the new inner QuerySet class and put it on the new child.</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">QuerySet</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s">&#39;QuerySet&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">querysets</span><span class="p">),</span> <span class="p">{})</span>
+        <span class="c"># Conditional bailout since ManageQuerySet is not defined during it&#39;s instantiation</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;ManagedQuerySet&#39;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ManagedQuerySet</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">merge_parent_settings</span><span class="p">()</span>
+
+
 <span class="k">class</span> <span class="nc">Timestampable</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for adding timestamping behavior to a model.</span></div>
+<div class="viewcode-block" id="Timestampable"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Timestampable">[docs]</a><span class="sd">    Base class for adding timestamping behavior to a model.</span>
 
 <span class="sd">    Added Fields:</span>
 <span class="sd">        Field 1:</span>
@@ -216,7 +275,7 @@
 
 
 <span class="k">class</span> <span class="nc">PublishableManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
 <span class="sd">    Manager for publishable behavior</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -224,7 +283,8 @@
         <span class="n">queryset</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PublishableManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_query_set</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_published</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">publish_at__lte</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
 
-<span class="k">class</span> <span class="nc">Publishable</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">Publishable</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for adding publishable behavior to a model.</span>
 
@@ -242,7 +302,7 @@
 <span class="sd">        PublishableManager:</span>
 <span class="sd">            description: overwritten get_query_set() function to only fetch published instances.</span>
 <span class="sd">            name: published</span>
-<span class="sd">            usage: </span>
+<span class="sd">            usage:</span>
 <span class="sd">                class Blog(Publishable):</span>
 <span class="sd">                ...</span>
 
@@ -262,7 +322,7 @@
 
 <span class="k">class</span> <span class="nc">SEO</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for adding seo behavior to a model.</span>
+<div class="viewcode-block" id="SEO"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.SEO">[docs]</a><span class="sd">    Base class for adding seo behavior to a model.</span>
 
 <span class="sd">    Added Fields:</span>
 <span class="sd">        Field 1:</span>
@@ -272,11 +332,11 @@
 <span class="sd">            default_name: seo_title</span>
 <span class="sd">        Field 2:</span>
 <span class="sd">            field: TextField()</span>
-<span class="sd">            description: Text field intended for use in html &lt;meta name=&quot;description&quot;&gt; tag.</span>
+<span class="sd">            description: Text field intended for use in html &lt;meta name=&#39;description&#39;&gt; tag.</span>
 <span class="sd">            default_name: seo_description</span>
 <span class="sd">        Field 3:</span>
 <span class="sd">            field: TextField()</span>
-<span class="sd">            description: Text field intended for use in html &lt;meta name=&quot;keywords&quot;&gt; tag.</span>
+<span class="sd">            description: Text field intended for use in html &lt;meta name=&#39;keywords&#39;&gt; tag.</span>
 <span class="sd">            validation: comma separated text strings</span>
 <span class="sd">            default_name: seo_keywords</span>
 
@@ -284,13 +344,13 @@
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="n">seo_title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">seo_title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
     <span class="n">seo_description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">seo_keywords</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">formatted_seo_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">keywords</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">formatted_seo_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">keywords</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A string containing the model&#39;s SEO data marked up and ready for output</span>
+<div class="viewcode-block" id="SEO.formatted_seo_data"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.SEO.formatted_seo_data">[docs]</a><span class="sd">        A string containing the model&#39;s SEO data marked up and ready for output</span>
 <span class="sd">        in HTML.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="kn">import</span> <span class="n">mark_safe</span>
@@ -301,7 +361,82 @@
              <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SEO</span><span class="o">.</span><span class="n">seo_description</span><span class="p">,</span> <span class="n">description</span><span class="p">),</span>
              <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SEO</span><span class="o">.</span><span class="n">seo_keywords</span><span class="p">,</span> <span class="n">keywords</span><span class="p">))))</span>
         <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="s">&#39;&lt;title&gt;</span><span class="si">%s</span><span class="s">&lt;/title&gt;</span><span class="se">\n</span><span class="s">&lt;meta name=&quot;description&quot; value=&quot;</span><span class="si">%s</span><span class="s">&quot;/&gt;</span><span class="se">\n</span><span class="s">&lt;meta name=&quot;keywords&quot; value=&quot;</span><span class="si">%s</span><span class="s">&quot;/&gt;&#39;</span> <span class="o">%</span> <span class="n">escaped_data</span><span class="p">)</span>
-</pre></div>
+
+
+<span class="k">class</span> <span class="nc">Validation</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div></div>
+<div class="viewcode-block" id="Validation"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Validation">[docs]</a><span class="sd">    Base class for adding complex validation behavior to a model.</span>
+
+<span class="sd">    By inheriting from Validation, your model can have ``validate`` and ``validate_field`` methods.</span>
+
+<span class="sd">    ``validate`` is for generic validations, and for ``NON_FIELD_ERRORS``, errors that do not belong to any</span>
+<span class="sd">    one field.  In this method you can raise a ValidationError that contains a single error message, a list of</span>
+<span class="sd">    errors, or - if the messages **are** associated with a field - a dictionary of field-names to message-list.</span>
+
+<span class="sd">    You can also write ``validate_field`` methods for any columns that need custom validation.  This is for convience,</span>
+<span class="sd">    since it is easier and more intuitive to raise an &#39;invalid value&#39; from within one of these methods, and have it</span>
+<span class="sd">    automatically associated with the correct field.</span>
+
+<span class="sd">    Even if you don&#39;t implement custom validation methods, Validation changes the normal behavior of ``save`` so that</span>
+<span class="sd">    validation **always** occurs.  This makes it easy to write APIs without having to understand the ``clean``, ``full_clean``,</span>
+<span class="sd">    and ``clean_fields`` methods that must called in django.  If a validation error occurs, the exception will **not** be</span>
+<span class="sd">    caught, it is up to you to catch it in your view or API.</span>
+
+<span class="sd">    For convience, two additional methods are added to your model.</span>
+
+<span class="sd">    * ``validation_errors`` returns a dictionary of errors</span>
+<span class="sd">    * ``is_valid`` returns True or False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">clean_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Validation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean_fields</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">update_error_dict</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+
+        <span class="c"># &#39;generic&#39; validation.  you can raise a single error, a list of errors,</span>
+        <span class="c"># or a dictionary.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;validate&#39;</span><span class="p">):</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;validate&#39;</span><span class="p">)()</span>
+        <span class="k">except</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">update_error_dict</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+
+        <span class="c"># field validation.  Lists or a single message will be appended to the correct</span>
+        <span class="c"># entry.  Dictionaries will get merged in.</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;validate_&#39;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;validate_&#39;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)()</span>
+            <span class="k">except</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s">&#39;message_dict&#39;</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">message_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">errors</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">errors</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">messages</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Validation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_errors</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">validation_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">except</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s">&#39;message_dict&#39;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">message_dict</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">NON_FIELD_ERRORS</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">messages</span><span class="p">}</span>
+</pre></div></div>
 
           </div>
         </div>
