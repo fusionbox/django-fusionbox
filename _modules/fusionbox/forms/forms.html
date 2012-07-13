@@ -340,33 +340,34 @@
 
 <span class="sd">    # Example Usage</span>
 
-<span class="sd">    class UserFilterForm(FilterForm):</span>
-<span class="sd">        FILTERS = {</span>
-<span class="sd">            &#39;active&#39;: &#39;is_active&#39;,</span>
-<span class="sd">            &#39;date_joined&#39;: &#39;date_joined__gte&#39;,</span>
-<span class="sd">            &#39;published&#39;: None, # Custom filtering</span>
-<span class="sd">            }</span>
-<span class="sd">        model = User</span>
+<span class="sd">    ::</span>
 
-<span class="sd">        PUBLISHED_CHOICES = (</span>
-<span class="sd">                (&#39;&#39;, &#39;All&#39;),</span>
-<span class="sd">                (&#39;before&#39;, &#39;Before Today&#39;),</span>
-<span class="sd">                (&#39;after&#39;, &#39;After Today&#39;),</span>
-<span class="sd">                )</span>
+<span class="sd">        class UserFilterForm(FilterForm):</span>
+<span class="sd">            FILTERS = {</span>
+<span class="sd">                &#39;active&#39;: &#39;is_active&#39;,</span>
+<span class="sd">                &#39;date_joined&#39;: &#39;date_joined__gte&#39;,</span>
+<span class="sd">                &#39;published&#39;: None, # Custom filtering</span>
+<span class="sd">                }</span>
+<span class="sd">            model = User</span>
 
-<span class="sd">        active = forms.BooleanField(required=False)</span>
-<span class="sd">        date_joined = forms.DateTimeField(required=False)</span>
-<span class="sd">        published = forms.ChoiceField(choices=PUBLISHED_CHOICES, widget=forms.HiddenInput())</span>
+<span class="sd">            PUBLISHED_CHOICES = (</span>
+<span class="sd">                    (&#39;&#39;, &#39;All&#39;),</span>
+<span class="sd">                    (&#39;before&#39;, &#39;Before Today&#39;),</span>
+<span class="sd">                    (&#39;after&#39;, &#39;After Today&#39;),</span>
+<span class="sd">                    )</span>
 
-<span class="sd">        def pre_filter(self, queryset):</span>
-<span class="sd">            published = self.cleaned_data.get(&#39;published&#39;)</span>
-<span class="sd">            if published == &#39;&#39;:</span>
-<span class="sd">                return queryset</span>
-<span class="sd">            elif published == &#39;before&#39;:</span>
-<span class="sd">                return queryset.filter(published_at__lte=datetime.datetime.now())</span>
-<span class="sd">            elif published == &#39;after&#39;:</span>
-<span class="sd">                return queryset.filter(published_at__gte=datetime.datetime.now())</span>
+<span class="sd">            active = forms.BooleanField(required=False)</span>
+<span class="sd">            date_joined = forms.DateTimeField(required=False)</span>
+<span class="sd">            published = forms.ChoiceField(choices=PUBLISHED_CHOICES, widget=forms.HiddenInput())</span>
 
+<span class="sd">            def pre_filter(self, queryset):</span>
+<span class="sd">                published = self.cleaned_data.get(&#39;published&#39;)</span>
+<span class="sd">                if published == &#39;&#39;:</span>
+<span class="sd">                    return queryset</span>
+<span class="sd">                elif published == &#39;before&#39;:</span>
+<span class="sd">                    return queryset.filter(published_at__lte=datetime.datetime.now())</span>
+<span class="sd">                elif published == &#39;after&#39;:</span>
+<span class="sd">                    return queryset.filter(published_at__gte=datetime.datetime.now())</span>
 
 <span class="sd">    `FILTERS` defines a mapping of form fields to queryset filters.</span>
 

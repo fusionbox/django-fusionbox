@@ -122,42 +122,34 @@ on an invalid form.</p>
 <em class="property">class </em><tt class="descclassname">fusionbox.forms.forms.</tt><tt class="descname">FilterForm</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/forms/forms.html#FilterForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.forms.forms.FilterForm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for implementing filtering on a model.</p>
 <p># Example Usage</p>
-<dl class="docutils">
-<dt>class UserFilterForm(FilterForm):</dt>
-<dd><dl class="first docutils">
-<dt>FILTERS = {</dt>
-<dd>&#8216;active&#8217;: &#8216;is_active&#8217;,
-&#8216;date_joined&#8217;: &#8216;date_joined__gte&#8217;,
-&#8216;published&#8217;: None, # Custom filtering
-}</dd>
-</dl>
-<p>model = User</p>
-<dl class="docutils">
-<dt>PUBLISHED_CHOICES = (</dt>
-<dd>(&#8216;&#8217;, &#8216;All&#8217;),
-(&#8216;before&#8217;, &#8216;Before Today&#8217;),
-(&#8216;after&#8217;, &#8216;After Today&#8217;),
-)</dd>
-</dl>
-<p>active = forms.BooleanField(required=False)
-date_joined = forms.DateTimeField(required=False)
-published = forms.ChoiceField(choices=PUBLISHED_CHOICES, widget=forms.HiddenInput())</p>
-<dl class="last docutils">
-<dt>def pre_filter(self, queryset):</dt>
-<dd><p class="first">published = self.cleaned_data.get(&#8216;published&#8217;)
-if published == &#8216;&#8217;:</p>
-<blockquote>
-<div>return queryset</div></blockquote>
-<dl class="last docutils">
-<dt>elif published == &#8216;before&#8217;:</dt>
-<dd>return queryset.filter(published_at__lte=datetime.datetime.now())</dd>
-<dt>elif published == &#8216;after&#8217;:</dt>
-<dd>return queryset.filter(published_at__gte=datetime.datetime.now())</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">UserFilterForm</span><span class="p">(</span><span class="n">FilterForm</span><span class="p">):</span>
+    <span class="n">FILTERS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;active&#39;</span><span class="p">:</span> <span class="s">&#39;is_active&#39;</span><span class="p">,</span>
+        <span class="s">&#39;date_joined&#39;</span><span class="p">:</span> <span class="s">&#39;date_joined__gte&#39;</span><span class="p">,</span>
+        <span class="s">&#39;published&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="c"># Custom filtering</span>
+        <span class="p">}</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+
+    <span class="n">PUBLISHED_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;All&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;before&#39;</span><span class="p">,</span> <span class="s">&#39;Before Today&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;after&#39;</span><span class="p">,</span> <span class="s">&#39;After Today&#39;</span><span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="n">active</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">date_joined</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">published</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">PUBLISHED_CHOICES</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">HiddenInput</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">pre_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="n">published</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;published&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">published</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">queryset</span>
+        <span class="k">elif</span> <span class="n">published</span> <span class="o">==</span> <span class="s">&#39;before&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">published_at__lte</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">published</span> <span class="o">==</span> <span class="s">&#39;after&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">published_at__gte</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+</pre></div>
+</div>
 <p><cite>FILTERS</cite> defines a mapping of form fields to queryset filters.</p>
 <p>When displaying in the template, this form also provides you with url querystrings for all of your filters.</p>
 <p><cite>form.filters</cite> is a dictionary of all of the filters defined on your form.</p>
