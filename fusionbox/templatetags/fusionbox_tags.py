@@ -1,6 +1,5 @@
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 import locale
-import datetime
 import re
 
 inflect = None
@@ -10,11 +9,11 @@ try:
 except ImportError:
     pass
 
+from fusionbox.utils import to_json
 from django import template
 from django.conf import settings
 
 from BeautifulSoup import BeautifulSoup
-from django.utils import simplejson
 from django.utils.safestring import mark_safe
 from django.contrib.humanize.templatetags.humanize import intcomma
 
@@ -179,41 +178,9 @@ def attr(obj, arg1):
     return obj
 
 
-def more_json(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)
-    if isinstance(obj, datetime.datetime):
-        return {
-            '__class__': 'datetime.datetime',
-            'year': obj.year,
-            'month': obj.month,
-            'day': obj.day,
-            'hour': obj.hour,
-            'minute': obj.minute,
-            'second': obj.second,
-            }
-    if isinstance(obj, datetime.time):
-        return {
-            '__class__': 'datetime.time',
-            'hour': obj.hour,
-            'minute': obj.minute,
-            'second': obj.second,
-            }
-    if isinstance(obj, datetime.date):
-        return {
-            '__class__': 'datetime.date',
-            'year': obj.year,
-            'month': obj.month,
-            'day': obj.day,
-            }
-    if hasattr(obj, 'to_json'):
-        return obj.to_json()
-    raise TypeError("%r is not JSON serializable" % (obj,))
-
-
 @register.filter
 def json(a):
-    return mark_safe(simplejson.dumps(a, default=more_json))
+    return mark_safe(to_json(a))
 json.is_safe = True
 
 
