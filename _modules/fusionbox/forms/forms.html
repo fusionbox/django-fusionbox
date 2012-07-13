@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>fusionbox.forms.forms &mdash; django-fusionbox v0.0.1 documentation</title>
+    <title>fusionbox.forms.forms &mdash; django-fusionbox 0.0.1 documentation</title>
+    
     <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="../../../index.html" />
+    <link rel="top" title="django-fusionbox 0.0.1 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" /> 
   </head>
   <body>
@@ -35,7 +38,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../../index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">django-fusionbox 0.0.1 documentation</a> &raquo;</li>
           <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -46,6 +49,8 @@
           <div class="body">
             
   <h1>Source code for fusionbox.forms.forms</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">StringIO</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">import</span> <span class="nn">urllib</span>
 
@@ -66,9 +71,9 @@
             <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">BaseChangeListForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseChangeListForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.BaseChangeListForm">[docs]</a><span class="k">class</span> <span class="nc">BaseChangeListForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="BaseChangeListForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.BaseChangeListForm">[docs]</a><span class="sd">    Base class for all `ChangeListForms`.</span>
+<span class="sd">    Base class for all `ChangeListForms`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">error_css_class</span> <span class="o">=</span> <span class="s">&#39;error&#39;</span>
     <span class="n">required_css_class</span> <span class="o">=</span> <span class="s">&#39;required&#39;</span>
@@ -81,9 +86,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;queryset&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseChangeListForm.get_queryset"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.BaseChangeListForm.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="BaseChangeListForm.get_queryset"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.BaseChangeListForm.get_queryset">[docs]</a><span class="sd">        If the form was initialized with a queryset, this method returns that</span>
+<span class="sd">        If the form was initialized with a queryset, this method returns that</span>
 <span class="sd">        queryset.  Otherwise it returns `Model.objects.all()` for whatever</span>
 <span class="sd">        model was defined for the form.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -91,10 +96,10 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span>
 
-
-<span class="k">class</span> <span class="nc">SearchForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div></div>
-<div class="viewcode-block" id="SearchForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm">[docs]</a><span class="sd">    Base form class for implementing searching on a model.</span>
+</div></div>
+<div class="viewcode-block" id="SearchForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm">[docs]</a><span class="k">class</span> <span class="nc">SearchForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base form class for implementing searching on a model.</span>
 
 <span class="sd">    # Example Usage</span>
 
@@ -118,22 +123,22 @@
     <span class="n">CASE_SENSITIVE</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s">&quot;Search&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">pre_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
+<div class="viewcode-block" id="SearchForm.pre_search"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm.pre_search">[docs]</a>    <span class="k">def</span> <span class="nf">pre_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SearchForm.pre_search"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm.pre_search">[docs]</a><span class="sd">        Hook for modifying the queryset prior to the search</span>
+<span class="sd">        Hook for modifying the queryset prior to the search</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">qs</span>
-
-    <span class="k">def</span> <span class="nf">post_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="SearchForm.post_search"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm.post_search">[docs]</a><span class="sd">        Hook for modifying the queryset after the search.  Will not be called</span>
+</div>
+<div class="viewcode-block" id="SearchForm.post_search"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm.post_search">[docs]</a>    <span class="k">def</span> <span class="nf">post_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hook for modifying the queryset after the search.  Will not be called</span>
 <span class="sd">        on an invalid form.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">qs</span>
-
-    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="SearchForm.get_queryset"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm.get_queryset">[docs]</a><span class="sd">        Constructs an &#39;__contains&#39; or &#39;__icontains&#39; filter across all of the</span>
+</div>
+<div class="viewcode-block" id="SearchForm.get_queryset"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SearchForm.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs an &#39;__contains&#39; or &#39;__icontains&#39; filter across all of the</span>
 <span class="sd">        fields listed in `SEARCH_FIELDS`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">qs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SearchForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
@@ -163,10 +168,10 @@
 
         <span class="k">return</span> <span class="n">qs</span>
 
-
-<span class="k">class</span> <span class="nc">SortForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div></div>
-<div class="viewcode-block" id="SortForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm">[docs]</a><span class="sd">    Base class for implementing sorting on a model.</span>
+</div></div>
+<div class="viewcode-block" id="SortForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm">[docs]</a><span class="k">class</span> <span class="nc">SortForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for implementing sorting on a model.</span>
 
 <span class="sd">    # Example Usage</span>
 
@@ -236,9 +241,9 @@
 
         <span class="k">return</span> <span class="n">sorts</span>
 
-    <span class="k">def</span> <span class="nf">headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SortForm.headers"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.headers">[docs]</a>    <span class="k">def</span> <span class="nf">headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SortForm.headers"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.headers">[docs]</a><span class="sd">        Access to the headers template object.</span>
+<span class="sd">        Access to the headers template object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="n">IterDict</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
@@ -285,23 +290,23 @@
             <span class="c">#headers.append(header)</span>
             <span class="n">headers</span><span class="p">[</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">header</span><span class="p">[</span><span class="s">&#39;column&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">header</span>
         <span class="k">return</span> <span class="n">headers</span>
-
-    <span class="k">def</span> <span class="nf">pre_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="SortForm.pre_sort"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.pre_sort">[docs]</a><span class="sd">        Hook for doing pre-sort modification of the queryset</span>
+</div>
+<div class="viewcode-block" id="SortForm.pre_sort"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.pre_sort">[docs]</a>    <span class="k">def</span> <span class="nf">pre_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hook for doing pre-sort modification of the queryset</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">qs</span>
-
-    <span class="k">def</span> <span class="nf">post_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="SortForm.post_sort"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.post_sort">[docs]</a><span class="sd">        Hook for doing post-sort modification of the queryset.  Will not be</span>
+</div>
+<div class="viewcode-block" id="SortForm.post_sort"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.post_sort">[docs]</a>    <span class="k">def</span> <span class="nf">post_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hook for doing post-sort modification of the queryset.  Will not be</span>
 <span class="sd">        called on an invalid form.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">qs</span>
-
-    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="SortForm.get_queryset"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.get_queryset">[docs]</a><span class="sd">        Returns an ordered queryset, sorted based on the values submitted in</span>
+</div>
+<div class="viewcode-block" id="SortForm.get_queryset"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.SortForm.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an ordered queryset, sorted based on the values submitted in</span>
 <span class="sd">        the sort parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">qs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SortForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
@@ -328,10 +333,10 @@
 
         <span class="k">return</span> <span class="n">qs</span>
 
-
-<span class="k">class</span> <span class="nc">FilterForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div></div>
-<div class="viewcode-block" id="FilterForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm">[docs]</a><span class="sd">    Base class for implementing filtering on a model.</span>
+</div></div>
+<div class="viewcode-block" id="FilterForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm">[docs]</a><span class="k">class</span> <span class="nc">FilterForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for implementing filtering on a model.</span>
 
 <span class="sd">    # Example Usage</span>
 
@@ -382,9 +387,9 @@
     <span class="n">FILTERS</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FilterForm.filters"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm.filters">[docs]</a>    <span class="k">def</span> <span class="nf">filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="FilterForm.filters"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm.filters">[docs]</a><span class="sd">        Generates a dictionary of filters with proper queryset links to</span>
+<span class="sd">        Generates a dictionary of filters with proper queryset links to</span>
 <span class="sd">        maintian multiple filters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filters</span> <span class="o">=</span> <span class="n">IterDict</span><span class="p">()</span>
@@ -412,23 +417,23 @@
                 <span class="nb">filter</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">choice</span>
             <span class="n">filters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">filter</span>
         <span class="k">return</span> <span class="n">filters</span>
-
-    <span class="k">def</span> <span class="nf">pre_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="FilterForm.pre_filter"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm.pre_filter">[docs]</a><span class="sd">        Hook for doing pre-filter modification to the queryset</span>
+</div>
+<div class="viewcode-block" id="FilterForm.pre_filter"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm.pre_filter">[docs]</a>    <span class="k">def</span> <span class="nf">pre_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hook for doing pre-filter modification to the queryset</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">qs</span>
-
-    <span class="k">def</span> <span class="nf">post_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="FilterForm.post_filter"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm.post_filter">[docs]</a><span class="sd">        Hook for doing post-filter modification to the queryset.  This is also</span>
+</div>
+<div class="viewcode-block" id="FilterForm.post_filter"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.FilterForm.post_filter">[docs]</a>    <span class="k">def</span> <span class="nf">post_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hook for doing post-filter modification to the queryset.  This is also</span>
 <span class="sd">        the place where any custom filtering should take place.  Will not be</span>
 <span class="sd">        called on an invalid form.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">qs</span>
-
+</div>
     <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">qs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">FilterForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span></div>
+        <span class="n">qs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">FilterForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
 
         <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span>
 
@@ -445,9 +450,9 @@
 
         <span class="k">return</span> <span class="n">qs</span>
 
-
+</div>
 <span class="k">def</span> <span class="nf">csv_getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function for CsvForm class that gets an attribute from a model with</span>
 <span class="sd">    a custom exception.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -506,9 +511,9 @@
                 <span class="p">))</span>
 
 
-<span class="k">class</span> <span class="nc">CsvForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
+<div class="viewcode-block" id="CsvForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.CsvForm">[docs]</a><span class="k">class</span> <span class="nc">CsvForm</span><span class="p">(</span><span class="n">BaseChangeListForm</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="CsvForm"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.CsvForm">[docs]</a><span class="sd">    Base class for implementing csv generation on a model.</span>
+<span class="sd">    Base class for implementing csv generation on a model.</span>
 
 <span class="sd">    Example:</span>
 
@@ -565,9 +570,9 @@
 <span class="sd">    The `csv_content` method returns a string buffer with csv content for the</span>
 <span class="sd">    form&#39;s queryset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">csv_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CsvForm.csv_content"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.CsvForm.csv_content">[docs]</a>    <span class="k">def</span> <span class="nf">csv_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="CsvForm.csv_content"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.forms.CsvForm.csv_content">[docs]</a><span class="sd">        Returns the objects in the form&#39;s current queryset as csv content.</span>
+<span class="sd">        Returns the objects in the form&#39;s current queryset as csv content.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;CSV_COLUMNS&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Child classes of CsvForm must implement the CSV_COLUMNS constant&#39;</span><span class="p">)</span>
@@ -588,8 +593,8 @@
         <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">csv_data</span><span class="p">)</span>
         <span class="n">content</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">content</span>
-</pre></div></div></div>
+        <span class="k">return</span> <span class="n">content</span></div></div>
+</pre></div>
 
           </div>
         </div>
@@ -622,13 +627,13 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../../index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">django-fusionbox 0.0.1 documentation</a> &raquo;</li>
           <li><a href="../../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Fusionbox.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

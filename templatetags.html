@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Template Tags &mdash; django-fusionbox v0.0.1 documentation</title>
+    <title>Template Tags &mdash; django-fusionbox 0.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
+    <link rel="top" title="django-fusionbox 0.0.1 documentation" href="index.html" />
     <link rel="next" title="Behaviors" href="behaviors.html" />
     <link rel="prev" title="The Middlewares" href="middleware.html" /> 
   </head>
@@ -42,7 +45,7 @@
         <li class="right" >
           <a href="middleware.html" title="The Middlewares"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">django-fusionbox 0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -85,208 +88,8 @@ but you can override by passing an argument to the tag.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="module-fusionbox.templatetags.fusionbox_tags">
-<span id="code"></span><h2>Code<a class="headerlink" href="#module-fusionbox.templatetags.fusionbox_tags" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="fusionbox.templatetags.fusionbox_tags.HighlightHereNode">
-<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">HighlightHereNode</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlightHereNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlightHereNode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter the subnode&#8217;s output to add a &#8216;here&#8217; class to every anchor where
-appropriate, based on startswith matching.</p>
-<p>Given:</p>
-<div class="highlight-html"><div class="highlight"><pre>{% highlight_here %}
-    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
-{% endhighlight %}
-</pre></div>
-</div>
-<p>If request.url is <tt class="docutils literal"><span class="pre">/</span></tt>, the output is:</p>
-<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home here&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
-<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
-</pre></div>
-</div>
-<p>On <tt class="docutils literal"><span class="pre">/blog/</span></tt>, it is:</p>
-<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
-<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span> <span class="na">class=</span><span class="s">&quot;here&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="class">
-<dt id="fusionbox.templatetags.fusionbox_tags.HighlightHereParentNode">
-<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">HighlightHereParentNode</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlightHereParentNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlightHereParentNode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a here class to the parent of the anchor link.  Useful for nested navs
-where highlight style might bubble upwards.</p>
-<p>Given:</p>
-<div class="highlight-html"><div class="highlight"><pre>{% highlight_here_parent %}
- <span class="nt">&lt;ul&gt;</span>
-    <span class="nt">&lt;li</span> <span class="na">id=</span><span class="s">&quot;navHome&quot;</span> <span class="na">class=</span><span class="s">&quot;parent_home&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
-    <span class="nt">&lt;li</span> <span class="na">id=</span><span class="s">&quot;navblog&quot;</span> <span class="na">class=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
- <span class="nt">&lt;/ul&gt;</span>
-{% endhighlight %}
-</pre></div>
-</div>
-<p>If request.url is <tt class="docutils literal"><span class="pre">/</span></tt>, the output is:</p>
-<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;ul&gt;</span>
-    <span class="nt">&lt;li</span> <span class="na">id=</span><span class="s">&quot;navHome&quot;</span> <span class="na">class=</span><span class="s">&quot;parent_home here&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span> <span class="na">class=</span><span class="s">&quot;home&quot;</span><span class="nt">&gt;</span>/<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
-    <span class="nt">&lt;li&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/blog/&quot;</span><span class="nt">&gt;</span>blog<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
-<span class="nt">&lt;ul&gt;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="class">
-<dt id="fusionbox.templatetags.fusionbox_tags.HighlighterBase">
-<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">HighlighterBase</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlighterBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlighterBase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class for templatetags that highlight specific DOM elements.</p>
-<p>Child classes must implement a <tt class="docutils literal"><span class="pre">elems_to_highlight</span></tt> method, which should
-return a iterable of elements to modify.  Optionally, they can override the
-<tt class="docutils literal"><span class="pre">highlight</span></tt> method, which by default simply adds a class to the DOM
-elements.</p>
-<p>Each templatetag accepts an optional <tt class="docutils literal"><span class="pre">self.highlight_class</span></tt> parameter and
-all other options are stored in <tt class="docutils literal"><span class="pre">self.options</span></tt>.  This behavior can be
-overriden by implementing the <tt class="docutils literal"><span class="pre">parse_options</span></tt> method.</p>
-<dl class="method">
-<dt id="fusionbox.templatetags.fusionbox_tags.HighlighterBase.elems_to_highlight">
-<tt class="descname">elems_to_highlight</tt><big>(</big><em>soup</em>, <em>context</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlighterBase.elems_to_highlight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlighterBase.elems_to_highlight" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an iterable of all DOM elements to be highlighted.</p>
-<p>Accepts a BeautifulSoup object of the HTML</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.add_commas">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">add_commas</tt><big>(</big><em>value</em>, <em>round=0</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#add_commas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.add_commas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add commas to a numeric value, while rounding it to a specific number of
-places.  Humanize&#8217;s intcomma is not adequate since it does not allow
-formatting of real numbers.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd><p class="first">if value = 20000
-{{ value|add_commas }} =&gt; 20,000
-{{ value|add_commas:3 }} =&gt; 20,000.000</p>
-<p class="last">if value = 1234.5678
-{{ value|add_commas:2 }} =&gt; 1,234.57</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.currency">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">currency</tt><big>(</big><em>dollars</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#currency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.currency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes a number and prints it as a price, with a dollar sign and two decimal
-places.</p>
-<p>Taken from:
-<a class="reference external" href="http://stackoverflow.com/a/2180209/1013960">http://stackoverflow.com/a/2180209/1013960</a></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.is_here">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">is_here</tt><big>(</big><em>current</em>, <em>url</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#is_here"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.is_here" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine if current is &#8216;underneath&#8217; url.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.json">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">json</tt><big>(</big><em>a</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output the json encoding of its argument.</p>
-<p>This will escape all the HTML/XML special characters with their unicode
-escapes, so it is safe to be output anywhere except for inside a tag
-attribute.</p>
-<p>If the output needs to be put in an attribute, entitize the output of this
-filter.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.more_json">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">more_json</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#more_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.more_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Allows decimals and objects with <cite>to_json</cite> methods to be serialized.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.naturalduration">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">naturalduration</tt><big>(</big><em>time</em>, <em>show_minutes=None</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#naturalduration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.naturalduration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Displays a time delta in a form that is more human-readable.  Accepts a
-datetime.timedelta object.  Microseconds in timedelta objects are ignored.
-The <cite>show_minutes</cite> argument specifies whether or not to include the number
-of minutes in the display.  If it evaluates to false, minutes are not
-included and are rounded into the number of hours.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd>if time = datetime.timedelta(2, 7280, 142535)
-{{ time|naturalduration }} =&gt; 2 days, 2 hours
-{{ time|naturalduration:&#8221;minutes&#8221; }} =&gt; 2 days, 2 hours, 1 minute</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.pluralize_with">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">pluralize_with</tt><big>(</big><em>count</em>, <em>noun</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#pluralize_with"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.pluralize_with" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pluralizes <tt class="docutils literal"><span class="pre">noun</span></tt> depending on <tt class="docutils literal"><span class="pre">count</span></tt>.  Returns only the
-noun, either pluralized or not pluralized.</p>
-<dl class="docutils">
-<dt>Usage:</dt>
-<dd>{{ number_of_cats|pluralize_with:&#8221;cat&#8221; }}</dd>
-<dt>Outputs:</dt>
-<dd>number_of_cats == 0: &#8220;0 cats&#8221;
-number_of_cats == 1: &#8220;1 cat&#8221;
-number_of_cats == 2: &#8220;2 cats&#8221;</dd>
-</dl>
-<p>Requires the <tt class="docutils literal"><span class="pre">inflect</span></tt> module.  If it isn&#8217;t available, this filter
-will not be loaded.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.us_cents">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">us_cents</tt><big>(</big><em>value</em>, <em>places=1</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#us_cents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.us_cents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value formatted as US cents.  May specify decimal places for
-fractional cents.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd><p class="first">where c means cents symbol:</p>
-<p>if value = -20.125
-{{ value|us_cents }} =&gt; -20.1 u00a2</p>
-<p class="last">if value = 0.082
-{{ value|us_cents:3 }} =&gt; 0.082 u00a2</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.us_dollars">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">us_dollars</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#us_dollars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.us_dollars" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value formatted as whole US dollars.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd>if value = -20000
-{{ value|us_dollars }} =&gt; -$20,000</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="fusionbox.templatetags.fusionbox_tags.us_dollars_and_cents">
-<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">us_dollars_and_cents</tt><big>(</big><em>value</em>, <em>cent_places=2</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#us_dollars_and_cents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.us_dollars_and_cents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value formatted as US dollars with cents.  May optionally
-include extra digits for fractional cents.  This is common when displaying
-utility rates, for instance.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd><p class="first">if value = -20000.125
-{{ value|us_dollars_and_cents }} =&gt; -$20,000.13</p>
-<p class="last">if value = 0.082  (8.2 cents)
-{{ value|us_dollars_and_cents:3 }} =&gt; $0.082</p>
-</dd>
-</dl>
-</dd></dl>
-
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -301,7 +104,7 @@ utility rates, for instance.</p>
 <li><a class="reference internal" href="#">Template Tags</a></li>
 <li><a class="reference internal" href="#highlight-here"><tt class="docutils literal"><span class="pre">highlight_here</span></tt></a><ul>
 <li><a class="reference internal" href="#examples">Examples</a></li>
-<li><a class="reference internal" href="#module-fusionbox.templatetags.fusionbox_tags">Code</a></li>
+<li><a class="reference internal" href="#code">Code</a></li>
 </ul>
 </li>
 </ul>
@@ -349,12 +152,12 @@ utility rates, for instance.</p>
         <li class="right" >
           <a href="middleware.html" title="The Middlewares"
              >previous</a> |</li>
-        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">django-fusionbox 0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Fusionbox.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

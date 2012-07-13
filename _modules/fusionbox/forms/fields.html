@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>fusionbox.forms.fields &mdash; django-fusionbox v0.0.1 documentation</title>
+    <title>fusionbox.forms.fields &mdash; django-fusionbox 0.0.1 documentation</title>
+    
     <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="../../../index.html" />
+    <link rel="top" title="django-fusionbox 0.0.1 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" /> 
   </head>
   <body>
@@ -35,7 +38,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../../index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">django-fusionbox 0.0.1 documentation</a> &raquo;</li>
           <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -45,90 +48,92 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <h1>Source code for fusionbox.forms.fields</h1><pre>
+  <h1>Source code for fusionbox.forms.fields</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Common form fields</span>
 
 
-These can also be accessed from ``fusionbox.forms``.
-"""
+<span class="sd">These can also be accessed from ``fusionbox.forms``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-import calendar
-import datetime
-from functools import partial
+<span class="kn">import</span> <span class="nn">calendar</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 
-from django import forms
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
 
-from fusionbox.forms.widgets import MultiFileWidget
-
-
-class MonthField(forms.TypedChoiceField):
-    """
-<div class="viewcode-block" id="MonthField"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.fields.MonthField">[docs]</a>    :class:`MonthField` is a :class:`TypedChoiceField` that selects a month.
-    Its python value is a 1-indexed month number.
-    """
-    def __init__(self, *args, **kwargs):
-        super(MonthField, self).__init__(*args, **kwargs)
-        self.choices = [('', ' -- ')] + \
-                [(i, "%s - %s" % (i, calendar.month_name[i]))
-                        for i in range(1, 13)]
-        self.coerce = int
-
-class FutureYearField(forms.TypedChoiceField):
-    """</div>
-<div class="viewcode-block" id="FutureYearField"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.fields.FutureYearField">[docs]</a>    :class:`FutureYearField` is a :class:`TypedChoiceField` that selects a
-    year a defined period in the future. Useful for credit card expiration
-    dates.
-    """
-
-    def __init__(self, *args, **kwargs):
-        number_of_years = kwargs.pop('number_of_years', 6)
-        super(FutureYearField, self).__init__(*args, **kwargs)
-        self.choices = [('', ' -- ')] + \
-                [(i%100, str(i))
-                        for i in range(datetime.datetime.now().year, datetime.datetime.now().year + number_of_years)]
-        self.coerce = int
+<span class="kn">from</span> <span class="nn">fusionbox.forms.widgets</span> <span class="kn">import</span> <span class="n">MultiFileWidget</span>
 
 
-class MultiFileField(forms.FileField):
-    """</div>
-    Implements a multifile field for multiple file uploads.
+<div class="viewcode-block" id="MonthField"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.fields.MonthField">[docs]</a><span class="k">class</span> <span class="nc">MonthField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">TypedChoiceField</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :class:`MonthField` is a :class:`TypedChoiceField` that selects a month.</span>
+<span class="sd">    Its python value is a 1-indexed month number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MonthField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39; -- &#39;</span><span class="p">)]</span> <span class="o">+</span> \
+                <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">calendar</span><span class="o">.</span><span class="n">month_name</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coerce</span> <span class="o">=</span> <span class="nb">int</span>
+</div>
+<div class="viewcode-block" id="FutureYearField"><a class="viewcode-back" href="../../../forms.html#fusionbox.forms.fields.FutureYearField">[docs]</a><span class="k">class</span> <span class="nc">FutureYearField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">TypedChoiceField</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :class:`FutureYearField` is a :class:`TypedChoiceField` that selects a</span>
+<span class="sd">    year a defined period in the future. Useful for credit card expiration</span>
+<span class="sd">    dates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    This class' `clean` method is implented by currying `super.clean`
-    and running map over `data` which is a list of file upload objects received
-    from the :class:`MultiFileWidget`.
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">number_of_years</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;number_of_years&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FutureYearField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39; -- &#39;</span><span class="p">)]</span> <span class="o">+</span> \
+                <span class="p">[(</span><span class="n">i</span><span class="o">%</span><span class="mi">100</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="n">number_of_years</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coerce</span> <span class="o">=</span> <span class="nb">int</span>
 
-    Using this field requires a little work on the programmer's part in order
-    to use correctly.  Like other Forms with fields that inherit from
-    :class:`FileField`, the programmer must pass in the kwarg `files` when creating
-    the form instance.  For example:
-        ```
-        form = MyFormWithFileField(data=request.POST, files=request.FILES)
-        ```
+</div>
+<span class="k">class</span> <span class="nc">MultiFileField</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">FileField</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements a multifile field for multiple file uploads.</span>
 
-    After validation, the cleaned data will be a list of files.  You might
-    want to iterate over in a manner similar to this:
-        ```
-        if form.is_valid():
-            for media_file in form.cleaned_data['field_name']:
-                MyMedia.objects.create(
-                    name=media_file.name,
-                    file=media_file
-                    )
-        ```
-    """
-    default_error_messages = {
-        'required': u'This field is required.',
-        'invalid': u'Enter a valid value.',
-    }
-    widget = MultiFileWidget
+<span class="sd">    This class&#39; `clean` method is implented by currying `super.clean`</span>
+<span class="sd">    and running map over `data` which is a list of file upload objects received</span>
+<span class="sd">    from the :class:`MultiFileWidget`.</span>
 
-    def clean(self, data, initial=None):
-        try:
-            curry_super = partial(super(MultiFileField, self).clean,
-                    initial=initial)
-            return map(curry_super, data)
-        except TypeError:
-            return None
-</pre>
+<span class="sd">    Using this field requires a little work on the programmer&#39;s part in order</span>
+<span class="sd">    to use correctly.  Like other Forms with fields that inherit from</span>
+<span class="sd">    :class:`FileField`, the programmer must pass in the kwarg `files` when creating</span>
+<span class="sd">    the form instance.  For example:</span>
+<span class="sd">        ```</span>
+<span class="sd">        form = MyFormWithFileField(data=request.POST, files=request.FILES)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">    After validation, the cleaned data will be a list of files.  You might</span>
+<span class="sd">    want to iterate over in a manner similar to this:</span>
+<span class="sd">        ```</span>
+<span class="sd">        if form.is_valid():</span>
+<span class="sd">            for media_file in form.cleaned_data[&#39;field_name&#39;]:</span>
+<span class="sd">                MyMedia.objects.create(</span>
+<span class="sd">                    name=media_file.name,</span>
+<span class="sd">                    file=media_file</span>
+<span class="sd">                    )</span>
+<span class="sd">        ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">default_error_messages</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;required&#39;</span><span class="p">:</span> <span class="s">u&#39;This field is required.&#39;</span><span class="p">,</span>
+        <span class="s">&#39;invalid&#39;</span><span class="p">:</span> <span class="s">u&#39;Enter a valid value.&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">widget</span> <span class="o">=</span> <span class="n">MultiFileWidget</span>
+
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curry_super</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="n">MultiFileField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">,</span>
+                    <span class="n">initial</span><span class="o">=</span><span class="n">initial</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">curry_super</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+</pre></div>
 
           </div>
         </div>
@@ -161,13 +166,13 @@ class MultiFileField(forms.FileField):
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../../index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">django-fusionbox 0.0.1 documentation</a> &raquo;</li>
           <li><a href="../../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Fusionbox.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
