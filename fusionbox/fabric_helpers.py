@@ -6,6 +6,7 @@ from contextlib import contextmanager as _contextmanager
 
 from fabric.api import *
 from fabric.contrib.console import *
+from fabric.contrib.project import rsync_project
 
 
 @_contextmanager
@@ -38,9 +39,11 @@ def update_git(branch):
         loc = tempfile.mkdtemp()
         put(StringIO(local('git rev-parse %s' % branch, capture=True) + "\n"), 'static/.git_version.txt', mode=0775)
         local("git archive %s | tar xf - -C %s" % (branch, loc))
+        local("chmod -R g+rwX %s" % (loc)) # force group permissions
         # env.cwd is documented as private, but I'm not sure how else to do this
         with settings(warn_only=True):
-            local("rsync -r --perms --chmod=g=rwX,a+rX %s/ %s@%s:%s" % (loc, env.user, env.host_string, env.cwd))
+            loc = loc + '/' # without this, the temp directory will get uploaded instead of just its contents
+            rsync_project(env.cwd, loc, extra_opts='--chmod=g=rwX,a+rX')
     finally:
         shutil.rmtree(loc)
     return remote_head

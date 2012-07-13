@@ -1,6 +1,11 @@
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
+
+# `setlocale` is not threadsafe
 import locale
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
 import re
+import warnings
 
 inflect = None
 try:
@@ -16,6 +21,7 @@ from django.conf import settings
 from BeautifulSoup import BeautifulSoup
 from django.utils.safestring import mark_safe
 from django.contrib.humanize.templatetags.humanize import intcomma
+from django.core.exceptions import ImproperlyConfigured
 
 register = template.Library()
 
@@ -59,7 +65,7 @@ class HighlighterBase(template.Node):
     def parse_options(self, tokens):
         self.options = tokens[1:]
         try:
-            self.highlight_class = self.options.pop(0).replace('"','')
+            self.highlight_class = self.options.pop(0).replace('"', '')
         except IndexError:
             self.highlight_class = None
 
@@ -83,8 +89,17 @@ class HighlighterBase(template.Node):
     def render(self, context):
         soup = self.build_soup(context)
 
-        for elem in self.elems_to_highlight(soup, context):
-            self.highlight(elem)
+        try:
+            for elem in self.elems_to_highlight(soup, context):
+                self.highlight(elem)
+        except ImproperlyConfigured as e:
+            if settings.DEBUG:
+                raise
+            else:
+                # This is because the django 500 error view does not use a
+                # request context. We still need to be able to render some kind
+                # of error page, so we'll just return our contents unchanged.
+                warnings.warn(e.args[0])
 
         return str(soup)
 
@@ -126,7 +141,8 @@ class HighlightHereNode(HighlighterBase):
             if 'request' in context:
                 path = context['request'].path
             else:
-                raise KeyError("The request was not available in the context, please ensure that the request is made available in the context.")
+                raise ImproperlyConfigured(
+                        "The request was not available in the context, please ensure that the request is made available in the context.")
 
         return (anchor for anchor in soup.findAll('a', {'href': True}) if is_here(path, anchor['href']))
 
@@ -180,7 +196,25 @@ def attr(obj, arg1):
 
 @register.filter
 def json(a):
-    return mark_safe(to_json(a))
+    """
+    Output the json encoding of its argument.
+
+    This will escape all the HTML/XML special characters with their unicode
+    escapes, so it is safe to be output anywhere except for inside a tag
+    attribute.
+
+    If the output needs to be put in an attribute, entitize the output of this
+    filter.
+    """
+    json_str = to_json(a)
+
+    # Escape all the XML/HTML special characters.
+    escapes = ['<', '>', '&']
+    for c in escapes:
+        json_str = json_str.replace(c, r'\u%04x' % ord(c))
+
+    # now it's safe to use mark_safe
+    return mark_safe(json_str)
 json.is_safe = True
 
 
@@ -221,9 +255,49 @@ def us_dollars(value):
             return FORMAT_TAG_ERROR_VALUE
         else:
             raise e
+    except TypeError:
+        return FORMAT_TAG_ERROR_VALUE
     # Format as currency value
-    locale.setlocale(locale.LC_ALL, '')
     return locale.currency(value, grouping=True)[:-3]
+
+
+@register.filter
+def us_cents(value, places=1):
+    """
+    Returns the value formatted as US cents.  May specify decimal places for
+    fractional cents.
+
+    Example:
+        where c means cents symbol:
+
+        if value = -20.125
+        {{ value|us_cents }} => -20.1 \u00a2
+
+        if value = 0.082
+        {{ value|us_cents:3 }} => 0.082 \u00a2
+    """
+    # Try to convert to float
+    try:
+        value = float(value)
+    except ValueError as e:
+        if re.search('invalid literal for float', e[0]):
+            return FORMAT_TAG_ERROR_VALUE
+        else:
+            raise e
+    except TypeError:
+        return FORMAT_TAG_ERROR_VALUE
+    # Require places >= 0
+    places = max(0, places)
+    # Get negative sign
+    sign = u'-' if value < 0 else u''
+    # Get formatted value
+    formatted = unicode(locale.format(
+        '%0.' + str(places) + 'f',
+        abs(value),
+        grouping=True,
+        ))
+    # Return value with sign and cents symbol
+    return sign + formatted + u'\u00a2'
 
 
 @register.filter
@@ -248,6 +322,8 @@ def us_dollars_and_cents(value, cent_places=2):
             return FORMAT_TAG_ERROR_VALUE
         else:
             raise e
+    except TypeError:
+        return FORMAT_TAG_ERROR_VALUE
     # Require cent_places >= 2
     if cent_places < 2:
         cent_places = 2
@@ -258,12 +334,11 @@ def us_dollars_and_cents(value, cent_places=2):
     else:
         extra_places = ''
     # Format as currency value
-    locale.setlocale(locale.LC_ALL, '')
     return locale.currency(value, grouping=True) + extra_places
 
 
 @register.filter
-def add_commas(value, round=None):
+def add_commas(value, round=0):
     """
     Add commas to a numeric value, while rounding it to a specific number of
     places.  Humanize's intcomma is not adequate since it does not allow
@@ -277,7 +352,6 @@ def add_commas(value, round=None):
         if value = 1234.5678
         {{ value|add_commas:2 }} => 1,234.57
     """
-    locale.setlocale(locale.LC_ALL, '')
     # Decimals honor locale settings correctly
     try:
         value = Decimal(str(value))
@@ -286,16 +360,46 @@ def add_commas(value, round=None):
             return FORMAT_TAG_ERROR_VALUE
         else:
             raise e
-    # Round the value if necessary
-    if round != None:
-        if round > 0:
-            format = Decimal('1.' + round * '0')
-        else:
-            format = Decimal('1')
-        value = value.quantize(format, rounding=ROUND_HALF_UP)
+    except TypeError:
+        return FORMAT_TAG_ERROR_VALUE
+    # Round the value
+    if round > 0:
+        format = Decimal('1.' + round * '0')
+    else:
+        format = Decimal('1')
+    value = value.quantize(format, rounding=ROUND_HALF_UP)
     # Locale settings properly format Decimals with commas
     # Super gross, but it works for both 2.6 and 2.7.
     return locale.format("%." + str(round) + "f", value, grouping=True)
+
+
+@register.filter
+def naturalduration(time, show_minutes=None):
+    """
+    Displays a time delta in a form that is more human-readable.  Accepts a
+    datetime.timedelta object.  Microseconds in timedelta objects are ignored.
+    The `show_minutes` argument specifies whether or not to include the number
+    of minutes in the display.  If it evaluates to false, minutes are not
+    included and are rounded into the number of hours.
+
+    Example:
+        if time = datetime.timedelta(2, 7280, 142535)
+        {{ time|naturalduration }} => 2 days, 2 hours
+        {{ time|naturalduration:"minutes" }} => 2 days, 2 hours, 1 minute
+    """
+    days = time.days
+    hours = int(time.seconds / 3600) if show_minutes else int(round(time.seconds / 3600.0))
+    minutes = int((time.seconds % 3600) / 60) if show_minutes else 0
+
+    display = []
+    if days:
+        display.append('{0} days'.format(days))
+    if hours:
+        display.append('{0} hours'.format(hours))
+    if minutes:
+        display.append('{0} minutes'.format(minutes))
+
+    return ', '.join(display)
 
 
 @register.filter

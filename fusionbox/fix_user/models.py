@@ -21,14 +21,14 @@ User._meta.get_field('email').validators[0].limit_value = 255
 from django.contrib.auth.forms import AuthenticationForm
 
 AuthenticationForm.base_fields['username'].max_length = 255  # I guess not needed
-AuthenticationForm.base_fields['username'].widget.attrs['maxlength'] = 255  # html
+AuthenticationForm.base_fields['username'].widget.attrs['maxlength'] = 255
 AuthenticationForm.base_fields['username'].validators[0].limit_value = 255
 
 from django.contrib.auth.forms import UserCreationForm
 
 UserCreationForm.base_fields['username'].label = _('Email')
 UserCreationForm.base_fields['username'].max_length = 255
-UserCreationForm.base_fields['username'].widget.attrs['maxlength'] = 255  # html
+UserCreationForm.base_fields['username'].widget.attrs['maxlength'] = 255
 UserCreationForm.base_fields['username'].validators[0].limit_value = 255
 UserCreationForm.base_fields['username'].validators[1] = validate_email
 UserCreationForm.base_fields['username'].error_messages['invalid'] = _(u'Enter a valid e-mail address.')
@@ -38,26 +38,37 @@ from django.contrib.auth.forms import UserChangeForm
 
 UserChangeForm.base_fields['username'].label = _('Email')
 UserChangeForm.base_fields['username'].max_length = 255
-UserChangeForm.base_fields['username'].widget.attrs['maxlength'] = 255  # html
+UserChangeForm.base_fields['username'].widget.attrs['maxlength'] = 255
 UserChangeForm.base_fields['username'].validators[0].limit_value = 255
 UserChangeForm.base_fields['username'].validators[1] = validate_email
 UserChangeForm.base_fields['username'].error_messages['invalid'] = _(u'Enter a valid e-mail address.')
 UserChangeForm.base_fields['username'].help_text = _("Required. 255 characters or fewer. Must be a valid email address")
+
+
+UserChangeForm.base_fields['email'].label = 'Username'
+UserChangeForm.base_fields['email'].max_length = 255
+UserChangeForm.base_fields['email'].validators[0].limit_value = 255
+UserChangeForm.base_fields['email'].help_text = _("This will be set to the email")
+UserChangeForm.base_fields['email'].widget.attrs['maxlength'] = 255
+UserChangeForm.base_fields['email'].widget.attrs['readonly'] = 'readonly'
+UserChangeForm.base_fields['email'].widget.attrs['disabled'] = 'disabled'
+
+
+from fusionbox.passwords import validate_password
+from django.contrib.auth.forms import SetPasswordForm
+
+User._meta.get_field('password').validators.append(validate_password)
+UserCreationForm.base_fields['password2'].validators.append(validate_password)
+SetPasswordForm.base_fields['new_password1'].validators.append(validate_password)
+
 
 old_init = UserChangeForm.__init__
 def new_init(self, *args, **kwargs):
     if args:
         data = args[0]
     else:
-        data = {}
+        data = None
     ret = old_init(self, *args, **kwargs)
-    self.fields['email'].label = 'Username'
-    self.fields['email'].max_length = 255
-    self.fields['email'].validators[0].limit_value = 255
-    self.fields['email'].help_text = _("This will be set to the email")
-    self.fields['email'].widget.attrs['maxlength'] = 254  # html
-    self.fields['email'].widget.attrs['readonly'] = 'readonly'
-    self.fields['email'].widget.attrs['disabled'] = 'disabled'
 
     if data:
         data[self['email'].name] = data[self['username'].name]
