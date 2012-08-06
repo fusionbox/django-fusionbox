@@ -119,24 +119,92 @@ those inner classes.</p>
 
 </dd></dl>
 
+<dl class="attribute">
+<dt id="fusionbox.behaviors.ManagedQuerySet">
+<tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">ManagedQuerySet</tt><a class="headerlink" href="#fusionbox.behaviors.ManagedQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#fusionbox.behaviors.QuerySetManagerModel" title="fusionbox.behaviors.QuerySetManagerModel"><tt class="xref py py-class docutils literal"><span class="pre">QuerySetManagerModel</span></tt></a></p>
+</dd></dl>
+
 <dl class="class">
-<dt id="fusionbox.behaviors.Timestampable">
-<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Timestampable</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Timestampable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Timestampable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class for adding timestamping behavior to a model.</p>
+<dt id="fusionbox.behaviors.MetaBehavior">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">MetaBehavior</tt><a class="reference internal" href="_modules/fusionbox/behaviors.html#MetaBehavior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.MetaBehavior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Metaclass for Behaviors</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.behaviors.Publishable">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Publishable</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Publishable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Publishable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for adding publishable behavior to a model.</p>
 <dl class="docutils">
 <dt>Added Fields:</dt>
 <dd><dl class="first last docutils">
 <dt>Field 1:</dt>
-<dd>field: DateTimeField(default=datetime.datetime.now)
-description: Timestamps set at the creation of the instance
-default_name: created_at</dd>
+<dd>field: DateTimeField(default=datetime.datetime.now, help_text=&#8217;Selecting a future date will automatically publish to the live site on that date.&#8217;)
+description: The date that the model instance will be made available to the PublishableManager&#8217;s query set
+default_name: publish_at</dd>
 <dt>Field 2:</dt>
-<dd>field: DateTimeField(auto_now=True)
-description: Timestamps set each time the save method is called on the instance
-default_name: updated_at</dd>
+<dd>field: DateTimeField(default=datetime.datetime.now, help_text=&#8217;Selecting a future date will automatically publish to the live site on that date.&#8217;)
+description: setting to False will automatically draft the instance, making it unavailable to the PublishableManager&#8217;s query set
+default_name: is_published</dd>
+</dl>
+</dd>
+<dt>Added Managers:</dt>
+<dd><dl class="first last docutils">
+<dt>PublishableManager:</dt>
+<dd><p class="first">description: overwritten get_query_set() function to only fetch published instances.
+name: published
+usage:</p>
+<blockquote class="last">
+<div><p>class Blog(Publishable):
+...</p>
+<p>all_blogs = Blog.objects.all()
+published_blogs = Blog.published.all()</p>
+</div></blockquote>
+</dd>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.behaviors.PublishableManager">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">PublishableManager</tt><a class="reference internal" href="_modules/fusionbox/behaviors.html#PublishableManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.PublishableManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manager for publishable behavior</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.behaviors.QuerySetManagerModel">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">QuerySetManagerModel</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#QuerySetManagerModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.QuerySetManagerModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>This behavior is meant to be used in conjunction with
+<a class="reference internal" href="managers.html#fusionbox.db.models.QuerySetManager" title="fusionbox.db.models.QuerySetManager"><tt class="xref py py-class docutils literal"><span class="pre">fusionbox.db.models.QuerySetManager</span></tt></a></p>
+<p>A class which inherits from this class will any inner QuerySet classes
+found in the <cite>mro</cite> merged into a single class.</p>
+<p>Given the following Parent class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Parent</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">QuerySet</span><span class="p">(</span><span class="n">QuerySet</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">get_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="o">...</span>
+</pre></div>
+</div>
+<p>The following two Child classes are equivalent:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Parent</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">QuerySet</span><span class="p">(</span><span class="n">Parent</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">get_inactive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">QuerySetManagerModel</span><span class="p">,</span> <span class="n">Parent</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">QuerySet</span><span class="p">(</span><span class="n">QuerySet</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">get_inactive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="o">...</span>
+</pre></div>
+</div>
+<dl class="classmethod">
+<dt id="fusionbox.behaviors.QuerySetManagerModel.merge_parent_settings">
+<em class="property">classmethod </em><tt class="descname">merge_parent_settings</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#QuerySetManagerModel.merge_parent_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.QuerySetManagerModel.merge_parent_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically merges all parent QuerySet classes to preserve custom
+defined QuerySet methods</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -173,53 +241,66 @@ in HTML.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="fusionbox.behaviors.Timestampable">
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Timestampable</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Timestampable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Timestampable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for adding timestamping behavior to a model.</p>
+<dl class="docutils">
+<dt>Added Fields:</dt>
+<dd><dl class="first last docutils">
+<dt>Field 1:</dt>
+<dd>field: DateTimeField(default=datetime.datetime.now)
+description: Timestamps set at the creation of the instance
+default_name: created_at</dd>
+<dt>Field 2:</dt>
+<dd>field: DateTimeField(auto_now=True)
+description: Timestamps set each time the save method is called on the instance
+default_name: updated_at</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
 <dt id="fusionbox.behaviors.Validation">
 <em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">Validation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Validation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Validation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for adding complex validation behavior to a model.</p>
-<p>By inheriting from Validation, your model can have <tt class="docutils literal"><span class="pre">validate</span></tt> and <tt class="docutils literal"><span class="pre">validate_field</span></tt> methods.</p>
-<p><tt class="docutils literal"><span class="pre">validate</span></tt> is for generic validations, and for <tt class="docutils literal"><span class="pre">NON_FIELD_ERRORS</span></tt>, errors that do not belong to any
+<p>By inheriting from Validation, your model can have <tt class="docutils literal"><span class="pre">validate</span></tt> and
+<tt class="docutils literal"><span class="pre">validate_&lt;field&gt;</span></tt> methods.</p>
+<p><tt class="xref py py-func docutils literal"><span class="pre">validate()</span></tt> is for generic validations, and for <tt class="docutils literal"><span class="pre">NON_FIELD_ERRORS</span></tt>, errors that do not belong to any
 one field.  In this method you can raise a ValidationError that contains a single error message, a list of
 errors, or - if the messages <strong>are</strong> associated with a field - a dictionary of field-names to message-list.</p>
-<p>You can also write <tt class="docutils literal"><span class="pre">validate_field</span></tt> methods for any columns that need custom validation.  This is for convience,
+<p>You can also write <tt class="docutils literal"><span class="pre">validate_&lt;field&gt;</span></tt> methods for any columns that need custom validation.  This is for convience,
 since it is easier and more intuitive to raise an &#8216;invalid value&#8217; from within one of these methods, and have it
 automatically associated with the correct field.</p>
 <p>Even if you don&#8217;t implement custom validation methods, Validation changes the normal behavior of <tt class="docutils literal"><span class="pre">save</span></tt> so that
 validation <strong>always</strong> occurs.  This makes it easy to write APIs without having to understand the <tt class="docutils literal"><span class="pre">clean</span></tt>, <tt class="docutils literal"><span class="pre">full_clean</span></tt>,
-and <tt class="docutils literal"><span class="pre">clean_fields</span></tt> methods that must called in django.  If a validation error occurs, the exception will <strong>not</strong> be
+and <a class="reference internal" href="#fusionbox.behaviors.Validation.clean_fields" title="fusionbox.behaviors.Validation.clean_fields"><tt class="xref py py-func docutils literal"><span class="pre">clean_fields()</span></tt></a> methods that must called in django.  If a validation error occurs, the exception will <strong>not</strong> be
 caught, it is up to you to catch it in your view or API.</p>
-<p>For convience, two additional methods are added to your model.</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">validation_errors</span></tt> returns a dictionary of errors</li>
-<li><tt class="docutils literal"><span class="pre">is_valid</span></tt> returns True or False</li>
-</ul>
+<dl class="method">
+<dt id="fusionbox.behaviors.Validation.clean_fields">
+<tt class="descname">clean_fields</tt><big>(</big><em>exclude=None</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Validation.clean_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Validation.clean_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Must be manually called in Django.</p>
+<p>Calls any <tt class="docutils literal"><span class="pre">validate_&lt;field&gt;</span></tt> methods defined on the Model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.behaviors.Validation.is_valid">
+<tt class="descname">is_valid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Validation.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Validation.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <tt class="xref docutils literal"><span class="pre">True</span></tt> or <tt class="xref docutils literal"><span class="pre">False</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.behaviors.Validation.validation_errors">
+<tt class="descname">validation_errors</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#Validation.validation_errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.Validation.validation_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of errors.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
-<dt id="fusionbox.behaviors.MetaBehavior">
-<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">MetaBehavior</tt><a class="reference internal" href="_modules/fusionbox/behaviors.html#MetaBehavior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.MetaBehavior" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><tt class="descclassname">fusionbox.behaviors.</tt><tt class="descname">MetaBehavior</tt><a class="reference internal" href="_modules/fusionbox/behaviors.html#MetaBehavior"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Base Metaclass for Behaviors</p>
-<dl class="staticmethod">
-<dt id="fusionbox.behaviors.MetaBehavior.__new__">
-<em class="property">static </em><tt class="descname">__new__</tt><big>(</big><em>name</em>, <em>bases</em>, <em>attrs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/behaviors.html#MetaBehavior.__new__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.behaviors.MetaBehavior.__new__" title="Permalink to this definition">¶</a></dt>
-<dd><p>This allows declarative field definition in behaviors, just like in a
-regular model definition, while still allowing field names to be
-customized. Given a behavior:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">FooBehavior</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
-    <span class="n">some_column</span> <span class="o">=</span> <span class="n">IntegerField</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>A child class declaring:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">FooBehavior</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">FooBehavior</span><span class="p">:</span>
-        <span class="n">some_column</span> <span class="o">=</span> <span class="s">&#39;another_name&#39;</span>
-</pre></div>
-</div>
-<p>will be able to change the name of <tt class="docutils literal"><span class="pre">some_column</span></tt> to <tt class="docutils literal"><span class="pre">another_name</span></tt>.</p>
-<p>To do this, we rip out all instances of <tt class="xref py py-class docutils literal"><span class="pre">model.Field</span></tt>, and wait for
-<a class="reference internal" href="#fusionbox.behaviors.Behavior.modify_schema" title="fusionbox.behaviors.Behavior.modify_schema"><tt class="xref py py-func docutils literal"><span class="pre">Behavior.modify_schema()</span></tt></a> to add them back in once all config classes are
-merged.</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>

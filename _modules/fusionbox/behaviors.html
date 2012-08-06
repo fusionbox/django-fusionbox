@@ -66,7 +66,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="MetaBehavior.__new__"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.MetaBehavior.__new__">[docs]</a><span class="sd">        This allows declarative field definition in behaviors, just like in a</span>
+<span class="sd">        This allows declarative field definition in behaviors, just like in a</span>
 <span class="sd">        regular model definition, while still allowing field names to be</span>
 <span class="sd">        customized. Given a behavior::</span>
 
@@ -120,7 +120,7 @@
 
 
 <span class="k">class</span> <span class="nc">Behavior</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div></div>
+    <span class="sd">&quot;&quot;&quot;</span></div>
 <div class="viewcode-block" id="Behavior"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Behavior">[docs]</a><span class="sd">    Base class for all Behaviors</span>
 
 <span class="sd">    Behaviors are implemented through model inheritance, and support</span>
@@ -204,7 +204,6 @@
                 <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">behavior</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">behavior</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">parent_settings</span> <span class="o">+</span> <span class="p">[</span><span class="nb">object</span><span class="p">]),</span> <span class="p">{}))</span>
 
-
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">base_behaviors</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span></div>
         <span class="n">behaviors</span> <span class="o">=</span> <span class="p">[]</span>
@@ -214,13 +213,32 @@
         <span class="k">return</span> <span class="n">behaviors</span>
 
 
-<span class="k">class</span> <span class="nc">ManagedQuerySet</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">QuerySetManagerModel</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span></div>
-<span class="sd">    This behavior is meant to be used in conjunction with</span>
-<span class="sd">    `fusionbox.db.models.QuerySetManager`</span>
+<div class="viewcode-block" id="QuerySetManagerModel"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.QuerySetManagerModel">[docs]</a><span class="sd">    This behavior is meant to be used in conjunction with</span>
+<span class="sd">    :class:`fusionbox.db.models.QuerySetManager`</span>
 
 <span class="sd">    A class which inherits from this class will any inner QuerySet classes</span>
-<span class="sd">    found in the `mro` merged into a single class</span>
+<span class="sd">    found in the `mro` merged into a single class.</span>
+
+<span class="sd">    Given the following Parent class::</span>
+
+<span class="sd">        class Parent(models.Model):</span>
+<span class="sd">            class QuerySet(QuerySet):</span>
+<span class="sd">                def get_active(self):</span>
+<span class="sd">                    ...</span>
+
+<span class="sd">    The following two Child classes are equivalent::</span>
+
+<span class="sd">        class Child(Parent):</span>
+<span class="sd">            class QuerySet(Parent.QuerySet):</span>
+<span class="sd">                def get_inactive(self):</span>
+<span class="sd">                    ...</span>
+
+<span class="sd">        class Child(QuerySetManagerModel, Parent):</span>
+<span class="sd">            class QuerySet(QuerySet):</span>
+<span class="sd">                def get_inactive(self):</span>
+<span class="sd">                    ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">objects</span> <span class="o">=</span> <span class="n">QuerySetManager</span><span class="p">()</span>
@@ -234,7 +252,8 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge_parent_settings</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Merge QuerySet classes</span>
+<div class="viewcode-block" id="QuerySetManagerModel.merge_parent_settings"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.QuerySetManagerModel.merge_parent_settings">[docs]</a><span class="sd">        Automatically merges all parent QuerySet classes to preserve custom</span>
+<span class="sd">        defined QuerySet methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># get a list of all of the inner QuerySet classes from the bases</span>
         <span class="n">querysets</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s">&#39;QuerySet&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__bases__</span><span class="p">]</span>
@@ -247,10 +266,13 @@
             <span class="c"># Create the new inner QuerySet class and put it on the new child.</span>
             <span class="n">cls</span><span class="o">.</span><span class="n">QuerySet</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s">&#39;QuerySet&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">querysets</span><span class="p">),</span> <span class="p">{})</span>
         <span class="c"># Conditional bailout since ManageQuerySet is not defined during it&#39;s instantiation</span>
-        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;ManagedQuerySet&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;QuerySetManagerModel&#39;</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ManagedQuerySet</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">merge_parent_settings</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">QuerySetManagerModel</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">merge_parent_settings</span><span class="p">()</span>
 
+<span class="c"># To preserve backwards compatability</span>
+<span class="n">ManagedQuerySet</span> <span class="o">=</span> <span class="n">QuerySetManagerModel</span>
+</div></div>
 
 <span class="k">class</span> <span class="nc">Timestampable</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -276,7 +298,7 @@
 
 <span class="k">class</span> <span class="nc">PublishableManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span></div>
-<span class="sd">    Manager for publishable behavior</span>
+<div class="viewcode-block" id="PublishableManager"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.PublishableManager">[docs]</a><span class="sd">    Manager for publishable behavior</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">get_query_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -285,8 +307,8 @@
 
 
 <span class="k">class</span> <span class="nc">Publishable</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for adding publishable behavior to a model.</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="Publishable"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Publishable">[docs]</a><span class="sd">    Base class for adding publishable behavior to a model.</span>
 
 <span class="sd">    Added Fields:</span>
 <span class="sd">        Field 1:</span>
@@ -321,7 +343,7 @@
 
 
 <span class="k">class</span> <span class="nc">SEO</span><span class="p">(</span><span class="n">Behavior</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
 <div class="viewcode-block" id="SEO"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.SEO">[docs]</a><span class="sd">    Base class for adding seo behavior to a model.</span>
 
 <span class="sd">    Added Fields:</span>
@@ -367,30 +389,32 @@
     <span class="sd">&quot;&quot;&quot;</span></div></div>
 <div class="viewcode-block" id="Validation"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Validation">[docs]</a><span class="sd">    Base class for adding complex validation behavior to a model.</span>
 
-<span class="sd">    By inheriting from Validation, your model can have ``validate`` and ``validate_field`` methods.</span>
+<span class="sd">    By inheriting from Validation, your model can have ``validate`` and</span>
+<span class="sd">    ``validate_&lt;field&gt;`` methods.</span>
 
-<span class="sd">    ``validate`` is for generic validations, and for ``NON_FIELD_ERRORS``, errors that do not belong to any</span>
+<span class="sd">    :func:`validate` is for generic validations, and for ``NON_FIELD_ERRORS``, errors that do not belong to any</span>
 <span class="sd">    one field.  In this method you can raise a ValidationError that contains a single error message, a list of</span>
 <span class="sd">    errors, or - if the messages **are** associated with a field - a dictionary of field-names to message-list.</span>
 
-<span class="sd">    You can also write ``validate_field`` methods for any columns that need custom validation.  This is for convience,</span>
+<span class="sd">    You can also write ``validate_&lt;field&gt;`` methods for any columns that need custom validation.  This is for convience,</span>
 <span class="sd">    since it is easier and more intuitive to raise an &#39;invalid value&#39; from within one of these methods, and have it</span>
 <span class="sd">    automatically associated with the correct field.</span>
 
 <span class="sd">    Even if you don&#39;t implement custom validation methods, Validation changes the normal behavior of ``save`` so that</span>
 <span class="sd">    validation **always** occurs.  This makes it easy to write APIs without having to understand the ``clean``, ``full_clean``,</span>
-<span class="sd">    and ``clean_fields`` methods that must called in django.  If a validation error occurs, the exception will **not** be</span>
+<span class="sd">    and :func:`clean_fields` methods that must called in django.  If a validation error occurs, the exception will **not** be</span>
 <span class="sd">    caught, it is up to you to catch it in your view or API.</span>
 
-<span class="sd">    For convience, two additional methods are added to your model.</span>
-
-<span class="sd">    * ``validation_errors`` returns a dictionary of errors</span>
-<span class="sd">    * ``is_valid`` returns True or False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">abstract</span> <span class="o">=</span> <span class="bp">True</span>
 
     <span class="k">def</span> <span class="nf">clean_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Validation.clean_fields"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Validation.clean_fields">[docs]</a><span class="sd">        Must be manually called in Django.</span>
+
+<span class="sd">        Calls any ``validate_&lt;field&gt;`` methods defined on the Model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">errors</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">Validation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean_fields</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
@@ -422,13 +446,19 @@
             <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span></div>
         <span class="nb">super</span><span class="p">(</span><span class="n">Validation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Validation.is_valid"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Validation.is_valid">[docs]</a><span class="sd">        Returns ``True`` or ``False``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_errors</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">validation_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="Validation.validation_errors"><a class="viewcode-back" href="../../behaviors.html#fusionbox.behaviors.Validation.validation_errors">[docs]</a><span class="sd">        Returns a dictionary of errors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">full_clean</span><span class="p">()</span>
             <span class="k">return</span> <span class="p">{}</span>
@@ -436,7 +466,7 @@
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s">&#39;message_dict&#39;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">message_dict</span>
             <span class="k">return</span> <span class="p">{</span><span class="n">NON_FIELD_ERRORS</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">messages</span><span class="p">}</span>
-</pre></div></div>
+</pre></div></div></div>
 
           </div>
         </div>

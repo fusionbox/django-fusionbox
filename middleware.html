@@ -51,31 +51,25 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="the-middlewares">
-<h1>The Middlewares<a class="headerlink" href="#the-middlewares" title="Permalink to this headline">¶</a></h1>
-<p><tt class="xref py py-class docutils literal"><span class="pre">GenericTemplateFinderMiddleware</span></tt> is useful during development to avoid
-having to write urlpatterns for every template.</p>
-<span class="target" id="module-fusionbox.middleware"></span><dl class="class">
-<dt id="fusionbox.middleware.AutoErrorClassOnFormsMiddleware">
-<em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">AutoErrorClassOnFormsMiddleware</tt><a class="reference internal" href="_modules/fusionbox/middleware.html#AutoErrorClassOnFormsMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.AutoErrorClassOnFormsMiddleware" title="Permalink to this definition">¶</a></dt>
-<dd><p>Middleware which adds an error class to all form widgets that have a field
-error.</p>
-<p>Requires that views return a TemplateResponse object.</p>
-<p>Iterates through all values in the response context looking for anything
-which inherits from django&#8217;s BaseForm.  Any fields with field specific
-errors have the class &#8216;error&#8217; appended to their widget dictionary of
-attributes.</p>
-</dd></dl>
-
+  <div class="section" id="module-fusionbox.middleware">
+<span id="the-middlewares"></span><h1>The Middlewares<a class="headerlink" href="#module-fusionbox.middleware" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="fusionbox.middleware.GenericTemplateFinderMiddleware">
 <em class="property">class </em><tt class="descclassname">fusionbox.middleware.</tt><tt class="descname">GenericTemplateFinderMiddleware</tt><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware" title="Permalink to this definition">¶</a></dt>
 <dd><p>Response middleware that uses <a class="reference internal" href="#fusionbox.middleware.generic_template_finder_view" title="fusionbox.middleware.generic_template_finder_view"><tt class="xref py py-func docutils literal"><span class="pre">generic_template_finder_view()</span></tt></a> to attempt to
 autolocate a template for otherwise 404 responses.</p>
 <dl class="method">
+<dt id="fusionbox.middleware.GenericTemplateFinderMiddleware.process_response">
+<tt class="descname">process_response</tt><big>(</big><em>request</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware.process_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware.process_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures that
+404 raised from view functions are not caught by
+<tt class="docutils literal"><span class="pre">GenericTemplateFinderMiddleware</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="fusionbox.middleware.GenericTemplateFinderMiddleware.process_view">
 <tt class="descname">process_view</tt><big>(</big><em>request</em>, <em>view_func</em>, <em>view_args</em>, <em>view_kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/middleware.html#GenericTemplateFinderMiddleware.process_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.middleware.GenericTemplateFinderMiddleware.process_view" title="Permalink to this definition">¶</a></dt>
-<dd><p>Informs <tt class="xref py py-func docutils literal"><span class="pre">process_response()</span></tt> that there was a view for this url and that
+<dd><p>Informs <a class="reference internal" href="#fusionbox.middleware.GenericTemplateFinderMiddleware.process_response" title="fusionbox.middleware.GenericTemplateFinderMiddleware.process_response"><tt class="xref py py-func docutils literal"><span class="pre">process_response()</span></tt></a> that there was a view for this url and that
 it threw a real 404.</p>
 </dd></dl>
 
@@ -94,10 +88,10 @@ it threw a real 404.</p>
 <p>Only 404 responses will be redirected, so if something else is returning a
 non 404 error, this middleware will not produce a redirect</p>
 <p>Redirects should be formatted in CSV files located in either
-<cite>&lt;project_path&gt;/redirects/</cite> or an absolute path declared in
-<cite>settings.REDIRECTS_DIRECTORY</cite>.</p>
-<p>CSV files should not contain any headers, and be in the format <cite>source_url,
-target_url, status_code</cite> where <cite>status_code</cite> is optional and defaults to 301.
+<tt class="docutils literal"><span class="pre">&lt;project_path&gt;/redirects/</span></tt> or an absolute path declared in
+<tt class="docutils literal"><span class="pre">settings.REDIRECTS_DIRECTORY</span></tt>.</p>
+<p>CSV files should not contain any headers, and be in the format <tt class="docutils literal"><span class="pre">source_url,</span>
+<span class="pre">target_url,</span> <span class="pre">status_code</span></tt> where <tt class="docutils literal"><span class="pre">status_code</span></tt> is optional and defaults to 301.
 To issue a 410, leave off target url and status code.</p>
 </dd></dl>
 

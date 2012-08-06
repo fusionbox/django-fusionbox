@@ -266,7 +266,7 @@
     <span class="n">json_str</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">more_json</span><span class="p">)</span>
 
     <span class="c"># Escape all the XML/HTML special characters.</span>
-    <span class="n">escapes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;&#39;</span><span class="p">,]</span>
+    <span class="n">escapes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&amp;&#39;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">escapes</span><span class="p">:</span>
         <span class="n">json_str</span> <span class="o">=</span> <span class="n">json_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s">r&#39;\u</span><span class="si">%04x</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
 
@@ -300,7 +300,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="us_dollars"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_dollars">[docs]</a><span class="sd">    Returns the value formatted as whole US dollars.</span>
 
-<span class="sd">    Example:</span>
+<span class="sd">    Example::</span>
+
 <span class="sd">        if value = -20000</span>
 <span class="sd">        {{ value|us_dollars }} =&gt; -$20,000</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -324,13 +325,12 @@
 <div class="viewcode-block" id="us_cents"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_cents">[docs]</a><span class="sd">    Returns the value formatted as US cents.  May specify decimal places for</span>
 <span class="sd">    fractional cents.</span>
 
-<span class="sd">    Example:</span>
-<span class="sd">        where c means cents symbol:</span>
+<span class="sd">    ::</span>
 
-<span class="sd">        if value = -20.125</span>
+<span class="sd">        # if value = -20.125</span>
 <span class="sd">        {{ value|us_cents }} =&gt; -20.1 \u00a2</span>
 
-<span class="sd">        if value = 0.082</span>
+<span class="sd">        # if value = 0.082</span>
 <span class="sd">        {{ value|us_cents:3 }} =&gt; 0.082 \u00a2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Try to convert to float</span>
@@ -364,11 +364,12 @@
 <span class="sd">    include extra digits for fractional cents.  This is common when displaying</span>
 <span class="sd">    utility rates, for instance.</span>
 
-<span class="sd">    Example:</span>
-<span class="sd">        if value = -20000.125</span>
+<span class="sd">    Example::</span>
+
+<span class="sd">        # if value = -20000.125</span>
 <span class="sd">        {{ value|us_dollars_and_cents }} =&gt; -$20,000.13</span>
 
-<span class="sd">        if value = 0.082  (8.2 cents)</span>
+<span class="sd">        # if value = 0.082  (8.2 cents)</span>
 <span class="sd">        {{ value|us_dollars_and_cents:3 }} =&gt; $0.082</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Try to convert to Decimal</span>
@@ -401,12 +402,13 @@
 <span class="sd">    places.  Humanize&#39;s intcomma is not adequate since it does not allow</span>
 <span class="sd">    formatting of real numbers.</span>
 
-<span class="sd">    Example:</span>
-<span class="sd">        if value = 20000</span>
+<span class="sd">    Example::</span>
+
+<span class="sd">        # if value = 20000</span>
 <span class="sd">        {{ value|add_commas }} =&gt; 20,000</span>
 <span class="sd">        {{ value|add_commas:3 }} =&gt; 20,000.000</span>
 
-<span class="sd">        if value = 1234.5678</span>
+<span class="sd">        # if value = 1234.5678</span>
 <span class="sd">        {{ value|add_commas:2 }} =&gt; 1,234.57</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Decimals honor locale settings correctly</span>
@@ -428,7 +430,6 @@
     <span class="c"># Locale settings properly format Decimals with commas</span>
     <span class="c"># Super gross, but it works for both 2.6 and 2.7.</span>
     <span class="k">return</span> <span class="n">locale</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;%.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">grouping</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
 
 <span class="nd">@register.filter</span>
 <span class="k">def</span> <span class="nf">naturalduration</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">show_minutes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span></div>
@@ -459,19 +460,21 @@
     <span class="k">return</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">display</span><span class="p">)</span>
 
 
+
 <span class="nd">@register.filter</span>
 <span class="k">def</span> <span class="nf">pluralize_with</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">noun</span><span class="p">):</span></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="pluralize_with"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.pluralize_with">[docs]</a><span class="sd">    Pluralizes ``noun`` depending on ``count``.  Returns only the</span>
 <span class="sd">    noun, either pluralized or not pluralized.</span>
 
-<span class="sd">    Usage:</span>
+<span class="sd">    Usage::</span>
+
 <span class="sd">        {{ number_of_cats|pluralize_with:&quot;cat&quot; }}</span>
 
-<span class="sd">    Outputs:</span>
-<span class="sd">        number_of_cats == 0: &quot;0 cats&quot;</span>
-<span class="sd">        number_of_cats == 1: &quot;1 cat&quot;</span>
-<span class="sd">        number_of_cats == 2: &quot;2 cats&quot;</span>
+<span class="sd">        # Outputs::</span>
+<span class="sd">        # number_of_cats == 0: &quot;0 cats&quot;</span>
+<span class="sd">        # number_of_cats == 1: &quot;1 cat&quot;</span>
+<span class="sd">        # number_of_cats == 2: &quot;2 cats&quot;</span>
 
 <span class="sd">    Requires the ``inflect`` module.  If it isn&#39;t available, this filter</span>
 <span class="sd">    will not be loaded.</span>

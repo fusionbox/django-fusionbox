@@ -55,15 +55,15 @@
 <h1>Template Tags<a class="headerlink" href="#template-tags" title="Permalink to this headline">¶</a></h1>
 <p>The <tt class="xref py py-mod docutils literal"><span class="pre">fusionbox_tags</span></tt> library contains several useful template tags. Use
 <tt class="docutils literal"><span class="pre">{%</span> <span class="pre">load</span> <span class="pre">fusionbox_tags</span> <span class="pre">%}</span></tt> to use these.</p>
-</div>
 <div class="section" id="highlight-here">
-<h1><tt class="docutils literal"><span class="pre">highlight_here</span></tt><a class="headerlink" href="#highlight-here" title="Permalink to this headline">¶</a></h1>
+<h2><tt class="docutils literal"><span class="pre">highlight_here</span></tt><a class="headerlink" href="#highlight-here" title="Permalink to this headline">¶</a></h2>
 <p>Filter the subnode&#8217;s output to add a class to every anchor where
 appropriate, based on startswith matching. By default the class is <tt class="docutils literal"><span class="pre">here</span></tt>,
 but you can override by passing an argument to the tag.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This requires BeautifulSoup to do the HTML parsing</p>
+</div>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
@@ -168,15 +168,15 @@ overriden by implementing the <tt class="docutils literal"><span class="pre">par
 <dd><p>Add commas to a numeric value, while rounding it to a specific number of
 places.  Humanize&#8217;s intcomma is not adequate since it does not allow
 formatting of real numbers.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd><p class="first">if value = 20000
+<p>Example:</p>
+<div class="highlight-html"><div class="highlight"><pre># if value = 20000
 {{ value|add_commas }} =&gt; 20,000
-{{ value|add_commas:3 }} =&gt; 20,000.000</p>
-<p class="last">if value = 1234.5678
-{{ value|add_commas:2 }} =&gt; 1,234.57</p>
-</dd>
-</dl>
+{{ value|add_commas:3 }} =&gt; 20,000.000
+
+# if value = 1234.5678
+{{ value|add_commas:2 }} =&gt; 1,234.57
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -232,14 +232,15 @@ included and are rounded into the number of hours.</p>
 <tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">pluralize_with</tt><big>(</big><em>count</em>, <em>noun</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#pluralize_with"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.pluralize_with" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pluralizes <tt class="docutils literal"><span class="pre">noun</span></tt> depending on <tt class="docutils literal"><span class="pre">count</span></tt>.  Returns only the
 noun, either pluralized or not pluralized.</p>
-<dl class="docutils">
-<dt>Usage:</dt>
-<dd>{{ number_of_cats|pluralize_with:&#8221;cat&#8221; }}</dd>
-<dt>Outputs:</dt>
-<dd>number_of_cats == 0: &#8220;0 cats&#8221;
-number_of_cats == 1: &#8220;1 cat&#8221;
-number_of_cats == 2: &#8220;2 cats&#8221;</dd>
-</dl>
+<p>Usage:</p>
+<div class="highlight-html"><div class="highlight"><pre>{{ number_of_cats|pluralize_with:&quot;cat&quot; }}
+
+# Outputs::
+# number_of_cats == 0: &quot;0 cats&quot;
+# number_of_cats == 1: &quot;1 cat&quot;
+# number_of_cats == 2: &quot;2 cats&quot;
+</pre></div>
+</div>
 <p>Requires the <tt class="docutils literal"><span class="pre">inflect</span></tt> module.  If it isn&#8217;t available, this filter
 will not be loaded.</p>
 </dd></dl>
@@ -249,26 +250,24 @@ will not be loaded.</p>
 <tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">us_cents</tt><big>(</big><em>value</em>, <em>places=1</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#us_cents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.us_cents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value formatted as US cents.  May specify decimal places for
 fractional cents.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd><p class="first">where c means cents symbol:</p>
-<p>if value = -20.125
-{{ value|us_cents }} =&gt; -20.1 u00a2</p>
-<p class="last">if value = 0.082
-{{ value|us_cents:3 }} =&gt; 0.082 u00a2</p>
-</dd>
-</dl>
+<div class="highlight-html"><div class="highlight"><pre># if value = -20.125
+{{ value|us_cents }} =&gt; -20.1 \u00a2
+
+# if value = 0.082
+{{ value|us_cents:3 }} =&gt; 0.082 \u00a2
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="fusionbox.templatetags.fusionbox_tags.us_dollars">
 <tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">us_dollars</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#us_dollars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.us_dollars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value formatted as whole US dollars.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd>if value = -20000
-{{ value|us_dollars }} =&gt; -$20,000</dd>
-</dl>
+<p>Example:</p>
+<div class="highlight-html"><div class="highlight"><pre>if value = -20000
+{{ value|us_dollars }} =&gt; -$20,000
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -277,14 +276,14 @@ fractional cents.</p>
 <dd><p>Returns the value formatted as US dollars with cents.  May optionally
 include extra digits for fractional cents.  This is common when displaying
 utility rates, for instance.</p>
-<dl class="docutils">
-<dt>Example:</dt>
-<dd><p class="first">if value = -20000.125
-{{ value|us_dollars_and_cents }} =&gt; -$20,000.13</p>
-<p class="last">if value = 0.082  (8.2 cents)
-{{ value|us_dollars_and_cents:3 }} =&gt; $0.082</p>
-</dd>
-</dl>
+<p>Example:</p>
+<div class="highlight-html"><div class="highlight"><pre># if value = -20000.125
+{{ value|us_dollars_and_cents }} =&gt; -$20,000.13
+
+# if value = 0.082  (8.2 cents)
+{{ value|us_dollars_and_cents:3 }} =&gt; $0.082
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -298,8 +297,8 @@ utility rates, for instance.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Template Tags</a></li>
-<li><a class="reference internal" href="#highlight-here"><tt class="docutils literal"><span class="pre">highlight_here</span></tt></a><ul>
+<li><a class="reference internal" href="#">Template Tags</a><ul>
+<li><a class="reference internal" href="#highlight-here"><tt class="docutils literal"><span class="pre">highlight_here</span></tt></a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 <li><a class="reference internal" href="#module-fusionbox.templatetags.fusionbox_tags">Code</a></li>
 </ul>

@@ -51,7 +51,6 @@
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
-<span class="kn">from</span> <span class="nn">django.forms.forms</span> <span class="kn">import</span> <span class="n">BaseForm</span>
 <span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">django.template</span> <span class="kn">import</span> <span class="n">TemplateDoesNotExist</span><span class="p">,</span> <span class="n">RequestContext</span>
 <span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">Http404</span><span class="p">,</span> <span class="n">HttpResponse</span>
@@ -90,6 +89,11 @@
 <span class="sd">    autolocate a template for otherwise 404 responses.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">process_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="GenericTemplateFinderMiddleware.process_response"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.GenericTemplateFinderMiddleware.process_response">[docs]</a><span class="sd">        Ensures that</span>
+<span class="sd">        404 raised from view functions are not caught by</span>
+<span class="sd">        ``GenericTemplateFinderMiddleware``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;_generic_template_finder_middleware_view_found&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">generic_template_finder_view</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
@@ -101,45 +105,15 @@
             <span class="k">return</span> <span class="n">response</span>
 
     <span class="k">def</span> <span class="nf">process_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">view_func</span><span class="p">,</span> <span class="n">view_args</span><span class="p">,</span> <span class="n">view_kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span></div>
 <div class="viewcode-block" id="GenericTemplateFinderMiddleware.process_view"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.GenericTemplateFinderMiddleware.process_view">[docs]</a><span class="sd">        Informs :func:`process_response` that there was a view for this url and that</span>
 <span class="sd">        it threw a real 404.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">request</span><span class="o">.</span><span class="n">_generic_template_finder_middleware_view_found</span> <span class="o">=</span> <span class="bp">True</span>
 
 
-<span class="k">class</span> <span class="nc">AutoErrorClassOnFormsMiddleware</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div></div>
-<div class="viewcode-block" id="AutoErrorClassOnFormsMiddleware"><a class="viewcode-back" href="../../middleware.html#fusionbox.middleware.AutoErrorClassOnFormsMiddleware">[docs]</a><span class="sd">    Middleware which adds an error class to all form widgets that have a field</span>
-<span class="sd">    error.</span>
-
-<span class="sd">    Requires that views return a TemplateResponse object.</span>
-
-<span class="sd">    Iterates through all values in the response context looking for anything</span>
-<span class="sd">    which inherits from django&#39;s BaseForm.  Any fields with field specific</span>
-<span class="sd">    errors have the class &#39;error&#39; appended to their widget dictionary of</span>
-<span class="sd">    attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">process_template_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">context_data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">BaseForm</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">_errors</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">_errors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
-                            <span class="k">continue</span>
-                        <span class="n">field</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-                        <span class="n">cls</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="s">&#39;error&#39;</span> <span class="ow">in</span> <span class="n">cls</span><span class="p">:</span>
-                            <span class="k">continue</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">cls</span> <span class="o">+=</span> <span class="s">&#39; error&#39;</span>
-                            <span class="n">cls</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                        <span class="n">field</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span>
-        <span class="k">return</span> <span class="n">response</span>
-
-
 <span class="k">def</span> <span class="nf">get_redirect</span><span class="p">(</span><span class="n">redirects</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">full_uri</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">full_uri</span> <span class="ow">in</span> <span class="n">redirects</span><span class="p">:</span></div>
+    <span class="k">if</span> <span class="n">full_uri</span> <span class="ow">in</span> <span class="n">redirects</span><span class="p">:</span></div></div>
         <span class="n">redirect</span> <span class="o">=</span> <span class="n">redirects</span><span class="p">[</span><span class="n">full_uri</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">redirects</span><span class="p">:</span>
         <span class="n">redirect</span> <span class="o">=</span> <span class="n">redirects</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
@@ -283,11 +257,11 @@
 <span class="sd">    non 404 error, this middleware will not produce a redirect</span>
 
 <span class="sd">    Redirects should be formatted in CSV files located in either</span>
-<span class="sd">    `&lt;project_path&gt;/redirects/` or an absolute path declared in</span>
-<span class="sd">    `settings.REDIRECTS_DIRECTORY`.</span>
+<span class="sd">    ``&lt;project_path&gt;/redirects/`` or an absolute path declared in</span>
+<span class="sd">    ``settings.REDIRECTS_DIRECTORY``.</span>
 
-<span class="sd">    CSV files should not contain any headers, and be in the format `source_url,</span>
-<span class="sd">    target_url, status_code` where `status_code` is optional and defaults to 301.</span>
+<span class="sd">    CSV files should not contain any headers, and be in the format ``source_url,</span>
+<span class="sd">    target_url, status_code`` where ``status_code`` is optional and defaults to 301.</span>
 <span class="sd">    To issue a 410, leave off target url and status code.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

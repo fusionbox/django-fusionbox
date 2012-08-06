@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Class based Views &mdash; django-fusionbox v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Managers" href="managers.html" />
+    <link rel="prev" title="Fabric helpers" href="fabric.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="managers.html" title="Managers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="fabric.html" title="Fabric helpers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="class-based-views">
+<h1>Class based Views<a class="headerlink" href="#class-based-views" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-fusionbox.views">
+<span id="rest-views"></span><h2>REST Views<a class="headerlink" href="#module-fusionbox.views" title="Permalink to this headline">¶</a></h2>
+<p>Fusionbox generic views.</p>
+<dl class="class">
+<dt id="fusionbox.views.RestView">
+<em class="property">class </em><tt class="descclassname">fusionbox.views.</tt><tt class="descname">RestView</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#fusionbox.views.RestView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inherit this base class to implement a REST view.</p>
+<dl class="docutils">
+<dt>This view will handle:</dt>
+<dd><ul class="first last simple">
+<li>authentication (throuh the <tt class="docutils literal"><span class="pre">auth</span></tt> method)</li>
+<li>dispatching to the proper HTTP method function</li>
+<li>returning a proper error status code.</li>
+</ul>
+</dd>
+</dl>
+<p>It also implements a default response for the OPTIONS HTTP request method.</p>
+<dl class="method">
+<dt id="fusionbox.views.RestView.auth">
+<tt class="descname">auth</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#fusionbox.views.RestView.auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for implementing custom authentication.</p>
+<p>Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span></tt> by default.  Subclasses must overwrite
+this.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.views.RestView.dispatch">
+<tt class="descname">dispatch</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#fusionbox.views.RestView.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authenticates the request and dispatches to the correct HTTP method
+function (GET, POST, PUT,...).</p>
+<dl class="docutils">
+<dt>Translates exceptions into proper JSON serialized HTTP responses:</dt>
+<dd><ul class="first last simple">
+<li>ValidationError: HTTP 409</li>
+<li>Http404: HTTP 404</li>
+<li>PermissionDenied: HTTP 403</li>
+<li>ValueError: HTTP 400</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.views.RestView.options">
+<tt class="descname">options</tt><big>(</big><em>request</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#fusionbox.views.RestView.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a OPTIONS HTTP method function returning all allowed HTTP
+methods.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fusionbox.views.rest">
+<span id="rest-view-mixins"></span><h2>REST View Mixins<a class="headerlink" href="#module-fusionbox.views.rest" title="Permalink to this headline">¶</a></h2>
+<p>View classes to help facilitate the creation of REST APIs</p>
+<dl class="class">
+<dt id="fusionbox.views.rest.JsonRequestMixin">
+<em class="property">class </em><tt class="descclassname">fusionbox.views.rest.</tt><tt class="descname">JsonRequestMixin</tt><a class="reference internal" href="_modules/fusionbox/views/rest.html#JsonRequestMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.views.rest.JsonRequestMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a <tt class="docutils literal"><span class="pre">data</span></tt> method on the view instance.  It returns the GET parameters
+if it is a GET request.  It will return the python representation of the
+JSON sent with the request body.</p>
+<dl class="method">
+<dt id="fusionbox.views.rest.JsonRequestMixin.data">
+<tt class="descname">data</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/fusionbox/views/rest.html#JsonRequestMixin.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.views.rest.JsonRequestMixin.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper class for parsing JSON POST data into a Python object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fusionbox.views.rest.JsonResponseMixin">
+<em class="property">class </em><tt class="descclassname">fusionbox.views.rest.</tt><tt class="descname">JsonResponseMixin</tt><a class="reference internal" href="_modules/fusionbox/views/rest.html#JsonResponseMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.views.rest.JsonResponseMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the response MIME type to <tt class="docutils literal"><span class="pre">application/json</span></tt> and serializes the
+context obj as a JSON string.</p>
+<dl class="method">
+<dt id="fusionbox.views.rest.JsonResponseMixin.http_method_not_allowed">
+<tt class="descname">http_method_not_allowed</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/views/rest.html#JsonResponseMixin.http_method_not_allowed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.views.rest.JsonResponseMixin.http_method_not_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns super after setting the Content-Type header to
+<tt class="docutils literal"><span class="pre">application/json</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.views.rest.JsonResponseMixin.render_to_response">
+<tt class="descname">render_to_response</tt><big>(</big><em>obj</em>, <em>**response_kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/views/rest.html#JsonResponseMixin.render_to_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.views.rest.JsonResponseMixin.render_to_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an <tt class="docutils literal"><span class="pre">HttpResponse</span></tt> object instance with Content-Type:
+application/json.</p>
+<p>The response body will be the return value of <tt class="docutils literal"><span class="pre">self.serialize(obj)</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.views.rest.JsonResponseMixin.serialize">
+<tt class="descname">serialize</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/fusionbox/views/rest.html#JsonResponseMixin.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.views.rest.JsonResponseMixin.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles serialization of the object, calling <tt class="docutils literal"><span class="pre">to_json</span></tt> method if it
+exits on the object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Class based Views</a><ul>
+<li><a class="reference internal" href="#module-fusionbox.views">REST Views</a></li>
+<li><a class="reference internal" href="#module-fusionbox.views.rest">REST View Mixins</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="fabric.html"
+                        title="previous chapter">Fabric helpers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="managers.html"
+                        title="next chapter">Managers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/views.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="managers.html" title="Managers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="fabric.html" title="Fabric helpers"
+             >previous</a> |</li>
+        <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Fusionbox.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

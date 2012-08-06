@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Auth &mdash; django-fusionbox v0.0.1 documentation</title>
+    <title>Managers &mdash; django-fusionbox v0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,8 +23,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="django-fusionbox v0.0.1 documentation" href="index.html" />
-    <link rel="next" title="The Middlewares" href="middleware.html" />
-    <link rel="prev" title="Introduction" href="intro.html" /> 
+    <link rel="prev" title="Class based Views" href="views.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,10 +36,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="middleware.html" title="The Middlewares"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="views.html" title="Class based Views"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -51,17 +47,27 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="auth">
-<h1>Auth<a class="headerlink" href="#auth" title="Permalink to this headline">¶</a></h1>
-<p>Authentication backend to allow you to insert your own user model into the
-built in django authentication backend.</p>
-<div class="section" id="installation-and-usage">
-<h2>Installation and Usage<a class="headerlink" href="#installation-and-usage" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Add <tt class="docutils literal"><span class="pre">'fusionbox.auth.backends.CustomModelBackend'</span></tt> to your <tt class="docutils literal"><span class="pre">AUTHENTICATION_BACKENDS</span></tt> setting in <tt class="docutils literal"><span class="pre">settings.py</span></tt></li>
-<li>Set <tt class="docutils literal"><span class="pre">CUSTOM_USER_MODEL</span></tt> in your <tt class="docutils literal"><span class="pre">settings.py</span></tt> file to a fully qualified path to your custom user model.</li>
-</ul>
+  <div class="section" id="module-fusionbox.db.models">
+<span id="managers"></span><h1>Managers<a class="headerlink" href="#module-fusionbox.db.models" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="fusionbox.db.models.QuerySetManager">
+<em class="property">class </em><tt class="descclassname">fusionbox.db.models.</tt><tt class="descname">QuerySetManager</tt><a class="reference internal" href="_modules/fusionbox/db/models.html#QuerySetManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.db.models.QuerySetManager" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://djangosnippets.org/snippets/734/">http://djangosnippets.org/snippets/734/</a></p>
+<p>Easy extending of the base manager without needing to define multiple
+managers and queryset classes.</p>
+<p>Example Usage</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db.models.query</span> <span class="kn">import</span> <span class="n">QuerySet</span>
+<span class="kn">from</span> <span class="nn">fusionbox.db.models</span> <span class="kn">import</span> <span class="n">QuerySetManager</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">QuerySetManager</span><span class="p">()</span>
+    <span class="k">class</span> <span class="nc">QuerySet</span><span class="p">(</span><span class="n">QuerySet</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">published</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_published</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
 </div>
+</dd></dl>
+
 </div>
 
 
@@ -70,23 +76,12 @@ built in django authentication backend.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Auth</a><ul>
-<li><a class="reference internal" href="#installation-and-usage">Installation and Usage</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="previous chapter">Introduction</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="middleware.html"
-                        title="next chapter">The Middlewares</a></p>
+  <p class="topless"><a href="views.html"
+                        title="previous chapter">Class based Views</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/auth.txt"
+    <li><a href="_sources/managers.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -116,10 +111,7 @@ built in django authentication backend.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="middleware.html" title="The Middlewares"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="views.html" title="Class based Views"
              >previous</a> |</li>
         <li><a href="index.html">django-fusionbox v0.0.1 documentation</a> &raquo;</li> 
       </ul>
