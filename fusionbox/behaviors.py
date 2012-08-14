@@ -2,9 +2,9 @@ from django.db import models
 from django.core.exceptions import ImproperlyConfigured, ValidationError, NON_FIELD_ERRORS
 from django.db.models.base import ModelBase
 from django.db.models.query import QuerySet
+from django.utils import timezone
 
 import copy
-import datetime
 
 from fusionbox.db.models import QuerySetManager
 
@@ -234,7 +234,7 @@ class Timestampable(Behavior):
 
     Added Fields:
         Field 1:
-            field: DateTimeField(default=datetime.datetime.now)
+            field: DateTimeField(default=django.utils.timezone.now)
             description: Timestamps set at the creation of the instance
             default_name: created_at
         Field 2:
@@ -246,7 +246,7 @@ class Timestampable(Behavior):
     class Meta:
         abstract = True
 
-    created_at = models.DateTimeField(default=datetime.datetime.now)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -257,7 +257,7 @@ class PublishableManager(models.Manager):
     """
     def get_query_set(self):
         queryset = super(PublishableManager, self).get_query_set()
-        return queryset.filter(is_published=True, publish_at__lte=datetime.datetime.now())
+        return queryset.filter(is_published=True, publish_at__lte=timezone.now())
 
 
 class Publishable(Behavior):
@@ -266,11 +266,11 @@ class Publishable(Behavior):
 
     Added Fields:
         Field 1:
-            field: DateTimeField(default=datetime.datetime.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
+            field: DateTimeField(default=timezone.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
             description: The date that the model instance will be made available to the PublishableManager's query set
             default_name: publish_at
         Field 2:
-            field: DateTimeField(default=datetime.datetime.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
+            field: DateTimeField(default=timezone.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
             description: setting to False will automatically draft the instance, making it unavailable to the PublishableManager's query set
             default_name: is_published
 
@@ -289,7 +289,7 @@ class Publishable(Behavior):
     class Meta:
         abstract = True
 
-    publish_at = models.DateTimeField(default=datetime.datetime.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
+    publish_at = models.DateTimeField(default=timezone.now, help_text='Selecting a future date will automatically publish to the live site on that date.')
     is_published = models.BooleanField(default=True, help_text='Unchecking this will take the entry off the live site regardless of publishing date')
 
     objects = models.Manager()
