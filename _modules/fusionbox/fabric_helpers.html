@@ -55,9 +55,10 @@
 <span class="kn">from</span> <span class="nn">fabric.contrib.project</span> <span class="kn">import</span> <span class="n">rsync_project</span>
 
 
+<span class="n">env</span><span class="o">.</span><span class="n">workon_home</span> <span class="o">=</span> <span class="s">&#39;/var/python-environments&#39;</span>
 <span class="nd">@_contextmanager</span>
 <span class="k">def</span> <span class="nf">virtualenv</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">prefix</span><span class="p">(</span><span class="s">&#39;source </span><span class="si">%s</span><span class="s">/bin/activate&#39;</span> <span class="o">%</span> <span class="nb">dir</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">prefix</span><span class="p">(</span><span class="s">&#39;source </span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/bin/activate&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">workon_home</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)):</span>
         <span class="k">yield</span>
 
 
@@ -84,7 +85,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">loc</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
         <span class="n">put</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">local</span><span class="p">(</span><span class="s">&#39;git rev-parse </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">branch</span><span class="p">,</span> <span class="n">capture</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">),</span> <span class="s">&#39;static/.git_version.txt&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0775</span><span class="p">)</span>
-        <span class="n">local</span><span class="p">(</span><span class="s">&quot;git archive </span><span class="si">%s</span><span class="s"> | tar xf - -C </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">loc</span><span class="p">))</span>
+        <span class="n">local</span><span class="p">(</span><span class="s">&quot;cd `git rev-parse --show-toplevel` &amp;&amp; git archive </span><span class="si">%s</span><span class="s"> | tar xf - -C </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">loc</span><span class="p">))</span>
         <span class="n">local</span><span class="p">(</span><span class="s">&quot;chmod -R g+rwX </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">loc</span><span class="p">))</span> <span class="c"># force group permissions</span>
         <span class="c"># env.cwd is documented as private, but I&#39;m not sure how else to do this</span>
         <span class="k">with</span> <span class="n">settings</span><span class="p">(</span><span class="n">warn_only</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
@@ -109,7 +110,7 @@
         <span class="n">update_pip</span> <span class="o">=</span> <span class="n">pip</span> <span class="ow">or</span> <span class="n">files_changed</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="s">&quot;requirements.txt&quot;</span><span class="p">)</span>
         <span class="n">migrate</span> <span class="o">=</span> <span class="n">migrate</span> <span class="ow">or</span> <span class="n">files_changed</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="s">&quot;*/migrations/* </span><span class="si">%s</span><span class="s">/settings.py requirements.txt&quot;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">project_name</span><span class="p">)</span>
         <span class="n">syncdb</span> <span class="o">=</span> <span class="n">syncdb</span> <span class="ow">or</span> <span class="n">files_changed</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="s">&quot;*/settings.py&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">virtualenv</span><span class="p">(</span><span class="s">&#39;/var/python-environments/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">short_name</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">virtualenv</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">short_name</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">update_pip</span><span class="p">:</span>
                 <span class="n">run</span><span class="p">(</span><span class="s">&quot;pip install -r ./requirements.txt&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">syncdb</span><span class="p">:</span>

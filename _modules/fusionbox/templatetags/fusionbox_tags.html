@@ -79,8 +79,8 @@
 
 <span class="k">def</span> <span class="nf">is_here</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="is_here"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.is_here">[docs]</a><span class="sd">    Determine if current is &#39;underneath&#39; url.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Determine if current is &#39;underneath&#39; url.</span>
+<div class="viewcode-block" id="is_here"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.is_here">[docs]</a><span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">url</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">current</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span>
     <span class="k">if</span> <span class="n">current</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
@@ -90,9 +90,9 @@
 
 
 <span class="k">class</span> <span class="nc">HighlighterBase</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="HighlighterBase"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlighterBase">[docs]</a><span class="sd">    Base class for templatetags that highlight specific DOM elements.</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for templatetags that highlight specific DOM elements.</span></div>
+<div class="viewcode-block" id="HighlighterBase"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlighterBase">[docs]</a>
 <span class="sd">    Child classes must implement a ``elems_to_highlight`` method, which should</span>
 <span class="sd">    return a iterable of elements to modify.  Optionally, they can override the</span>
 <span class="sd">    ``highlight`` method, which by default simply adds a class to the DOM</span>
@@ -117,15 +117,15 @@
 
     <span class="k">def</span> <span class="nf">elems_to_highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soup</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="HighlighterBase.elems_to_highlight"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlighterBase.elems_to_highlight">[docs]</a><span class="sd">        Returns an iterable of all DOM elements to be highlighted.</span>
-
+<span class="sd">        Returns an iterable of all DOM elements to be highlighted.</span>
+<div class="viewcode-block" id="HighlighterBase.elems_to_highlight"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlighterBase.elems_to_highlight">[docs]</a>
 <span class="sd">        Accepts a BeautifulSoup object of the HTML</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="bp">NotImplemented</span>
 
     <span class="k">def</span> <span class="nf">build_soup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
-        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 
         <span class="k">return</span> <span class="n">soup</span>
 
@@ -151,9 +151,9 @@
 
 
 <span class="k">class</span> <span class="nc">HighlightHereNode</span><span class="p">(</span><span class="n">HighlighterBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span></div>
-<div class="viewcode-block" id="HighlightHereNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlightHereNode">[docs]</a><span class="sd">    Filter the subnode&#39;s output to add a &#39;here&#39; class to every anchor where</span>
-<span class="sd">    appropriate, based on startswith matching.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter the subnode&#39;s output to add a &#39;here&#39; class to every anchor where</span></div>
+<div class="viewcode-block" id="HighlightHereNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlightHereNode">[docs]</a><span class="sd">    appropriate, based on startswith matching.</span>
 
 <span class="sd">    Given::</span>
 
@@ -194,12 +194,12 @@
 
 
 <span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&quot;highlight_here&quot;</span><span class="p">,</span> <span class="n">HighlightHereNode</span><span class="p">)</span>
-</div>
 
+</div>
 <span class="k">class</span> <span class="nc">HighlightHereParentNode</span><span class="p">(</span><span class="n">HighlightHereNode</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="HighlightHereParentNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlightHereParentNode">[docs]</a><span class="sd">    Adds a here class to the parent of the anchor link.  Useful for nested navs</span>
-<span class="sd">    where highlight style might bubble upwards.</span>
+<span class="sd">    Adds a here class to the parent of the anchor link.  Useful for nested navs</span>
+<div class="viewcode-block" id="HighlightHereParentNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.HighlightHereParentNode">[docs]</a><span class="sd">    where highlight style might bubble upwards.</span>
 
 <span class="sd">    Given::</span>
 
@@ -231,8 +231,8 @@
             <span class="k">yield</span> <span class="n">anchor</span><span class="o">.</span><span class="n">parent</span>
 
 <span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&quot;highlight_here_parent&quot;</span><span class="p">,</span> <span class="n">HighlightHereParentNode</span><span class="p">)</span>
-</div>
 
+</div>
 <span class="nd">@register.filter_function</span>
 <span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">arg1</span><span class="p">):</span>
     <span class="n">att</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">arg1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
@@ -242,8 +242,8 @@
 
 <span class="k">def</span> <span class="nf">more_json</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="more_json"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.more_json">[docs]</a><span class="sd">    Allows decimals and objects with `to_json` methods to be serialized.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Allows decimals and objects with `to_json` methods to be serialized.</span>
+<div class="viewcode-block" id="more_json"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.more_json">[docs]</a><span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;to_json&#39;</span><span class="p">):</span>
@@ -252,10 +252,10 @@
 
 
 <span class="nd">@register.filter</span>
-<span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="n">a</span><span class="p">):</span></div>
-    <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="json"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.json">[docs]</a><span class="sd">    Output the json encoding of its argument.</span>
-
+<span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    Output the json encoding of its argument.</span>
+<div class="viewcode-block" id="json"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.json">[docs]</a>
 <span class="sd">    This will escape all the HTML/XML special characters with their unicode</span>
 <span class="sd">    escapes, so it is safe to be output anywhere except for inside a tag</span>
 <span class="sd">    attribute.</span>
@@ -273,13 +273,13 @@
     <span class="c"># now it&#39;s safe to use mark_safe</span>
     <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
 <span class="n">json</span><span class="o">.</span><span class="n">is_safe</span> <span class="o">=</span> <span class="bp">True</span>
-</div>
 
+</div>
 <span class="nd">@register.filter</span>
 <span class="k">def</span> <span class="nf">currency</span><span class="p">(</span><span class="n">dollars</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="currency"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.currency">[docs]</a><span class="sd">    Takes a number and prints it as a price, with a dollar sign and two decimal</span>
-<span class="sd">    places.</span>
+<span class="sd">    Takes a number and prints it as a price, with a dollar sign and two decimal</span>
+<div class="viewcode-block" id="currency"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.currency">[docs]</a><span class="sd">    places.</span>
 
 <span class="sd">    Taken from:</span>
 <span class="sd">    http://stackoverflow.com/a/2180209/1013960</span>
@@ -290,16 +290,16 @@
 
 
 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;FORMAT_TAG_ERROR_VALUE&#39;</span><span class="p">):</span>
-    <span class="n">FORMAT_TAG_ERROR_VALUE</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">FORMAT_TAG_ERROR_VALUE</span></div>
-<span class="k">else</span><span class="p">:</span>
+    <span class="n">FORMAT_TAG_ERROR_VALUE</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">FORMAT_TAG_ERROR_VALUE</span>
+<span class="k">else</span><span class="p">:</span></div>
     <span class="n">FORMAT_TAG_ERROR_VALUE</span> <span class="o">=</span> <span class="s">&#39;error&#39;</span>
 
 
 <span class="nd">@register.filter</span>
 <span class="k">def</span> <span class="nf">us_dollars</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="us_dollars"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_dollars">[docs]</a><span class="sd">    Returns the value formatted as whole US dollars.</span>
-
+<span class="sd">    Returns the value formatted as whole US dollars.</span>
+<div class="viewcode-block" id="us_dollars"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_dollars">[docs]</a>
 <span class="sd">    Example::</span>
 
 <span class="sd">        if value = -20000</span>
@@ -320,10 +320,10 @@
 
 
 <span class="nd">@register.filter</span>
-<span class="k">def</span> <span class="nf">us_cents</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span></div>
-    <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="us_cents"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_cents">[docs]</a><span class="sd">    Returns the value formatted as US cents.  May specify decimal places for</span>
-<span class="sd">    fractional cents.</span>
+<span class="k">def</span> <span class="nf">us_cents</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    Returns the value formatted as US cents.  May specify decimal places for</span>
+<div class="viewcode-block" id="us_cents"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_cents">[docs]</a><span class="sd">    fractional cents.</span>
 
 <span class="sd">    ::</span>
 
@@ -358,10 +358,10 @@
 
 
 <span class="nd">@register.filter</span>
-<span class="k">def</span> <span class="nf">us_dollars_and_cents</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cent_places</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span></div>
-    <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="us_dollars_and_cents"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_dollars_and_cents">[docs]</a><span class="sd">    Returns the value formatted as US dollars with cents.  May optionally</span>
-<span class="sd">    include extra digits for fractional cents.  This is common when displaying</span>
+<span class="k">def</span> <span class="nf">us_dollars_and_cents</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cent_places</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    Returns the value formatted as US dollars with cents.  May optionally</span>
+<div class="viewcode-block" id="us_dollars_and_cents"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.us_dollars_and_cents">[docs]</a><span class="sd">    include extra digits for fractional cents.  This is common when displaying</span>
 <span class="sd">    utility rates, for instance.</span>
 
 <span class="sd">    Example::</span>
@@ -396,10 +396,10 @@
 
 
 <span class="nd">@register.filter</span>
-<span class="k">def</span> <span class="nf">add_commas</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span></div>
-    <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="add_commas"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.add_commas">[docs]</a><span class="sd">    Add commas to a numeric value, while rounding it to a specific number of</span>
-<span class="sd">    places.  Humanize&#39;s intcomma is not adequate since it does not allow</span>
+<span class="k">def</span> <span class="nf">add_commas</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    Add commas to a numeric value, while rounding it to a specific number of</span>
+<div class="viewcode-block" id="add_commas"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.add_commas">[docs]</a><span class="sd">    places.  Humanize&#39;s intcomma is not adequate since it does not allow</span>
 <span class="sd">    formatting of real numbers.</span>
 
 <span class="sd">    Example::</span>
@@ -431,11 +431,12 @@
     <span class="c"># Super gross, but it works for both 2.6 and 2.7.</span>
     <span class="k">return</span> <span class="n">locale</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;%.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">grouping</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
+
 <span class="nd">@register.filter</span>
-<span class="k">def</span> <span class="nf">naturalduration</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">show_minutes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span></div>
-    <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="naturalduration"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.naturalduration">[docs]</a><span class="sd">    Displays a time delta in a form that is more human-readable.  Accepts a</span>
-<span class="sd">    datetime.timedelta object.  Microseconds in timedelta objects are ignored.</span>
+<span class="k">def</span> <span class="nf">naturalduration</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">show_minutes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    Displays a time delta in a form that is more human-readable.  Accepts a</span>
+<div class="viewcode-block" id="naturalduration"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.naturalduration">[docs]</a><span class="sd">    datetime.timedelta object.  Microseconds in timedelta objects are ignored.</span>
 <span class="sd">    The `show_minutes` argument specifies whether or not to include the number</span>
 <span class="sd">    of minutes in the display.  If it evaluates to false, minutes are not</span>
 <span class="sd">    included and are rounded into the number of hours.</span>
@@ -460,12 +461,11 @@
     <span class="k">return</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">display</span><span class="p">)</span>
 
 
-
 <span class="nd">@register.filter</span>
-<span class="k">def</span> <span class="nf">pluralize_with</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">noun</span><span class="p">):</span></div>
-    <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="pluralize_with"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.pluralize_with">[docs]</a><span class="sd">    Pluralizes ``noun`` depending on ``count``.  Returns only the</span>
-<span class="sd">    noun, either pluralized or not pluralized.</span>
+<span class="k">def</span> <span class="nf">pluralize_with</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">noun</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    Pluralizes ``noun`` depending on ``count``.  Returns only the</span>
+<div class="viewcode-block" id="pluralize_with"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.pluralize_with">[docs]</a><span class="sd">    noun, either pluralized or not pluralized.</span>
 
 <span class="sd">    Usage::</span>
 
@@ -483,6 +483,143 @@
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s">&#39;&quot;inflect&quot; module is not available.  Install using `pip install inflect`.&#39;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">inflect</span><span class="o">.</span><span class="n">plural</span><span class="p">(</span><span class="n">noun</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">NodeListNode</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Registered tags are expected to return an instance of template.Node or a</span></div>
+<div class="viewcode-block" id="NodeListNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.NodeListNode">[docs]</a><span class="sd">    subclass thereof.</span>
+
+<span class="sd">    An instance of this class accepts a nodelist on initialization and simply</span>
+<span class="sd">    renders the nodelist as render is called.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simply renders :self.nodelist</span>
+<div class="viewcode-block" id="NodeListNode.render"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.NodeListNode.render">[docs]</a><span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodelist</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodelist</span> <span class="o">=</span> <span class="n">nodelist</span>
+</div>
+
+<span class="k">class</span> <span class="nc">ChoiceNode</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ``ChoiceNode`` is a lightwrapper around other nodes.  Wrapping nodes around a</span></div>
+<div class="viewcode-block" id="ChoiceNode"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.ChoiceNode">[docs]</a><span class="sd">    ``choice`` tag flags them for randomization.  The wrapped nodes are placed in</span>
+<span class="sd">    an instance property called ``contents``.  During render, ``ChoiceNode`` will</span>
+<span class="sd">    simply call render on its ``contents`` property.</span>
+
+<span class="sd">    It also supplies one helper classmethod ``collect_choices`` that accepts a</span>
+<span class="sd">    parser and returns a list of all the ``Choice`` nodes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Will just call ``render`` on this nodes inner contents, raising the</span>
+<div class="viewcode-block" id="ChoiceNode.render"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.ChoiceNode.render">[docs]</a><span class="sd">        appropriate exceptions from Django&#39;s template system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Accepts a template parser object.  During ``__init__``, the inner content</span></div>
+<span class="sd">        nodes are parsed and placed into an instance property.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">((</span><span class="s">&#39;endchoice&#39;</span><span class="p">,))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">delete_first_token</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">collect_choices</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">endtag</span><span class="o">=</span><span class="s">&#39;endrandom&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses until ``endrandom`` tag is found, filtering out any non-Choice</span>
+<div class="viewcode-block" id="ChoiceNode.collect_choices"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.ChoiceNode.collect_choices">[docs]</a><span class="sd">        nodes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">node</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">__class__</span> <span class="ow">is</span> <span class="n">cls</span><span class="p">,</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">((</span><span class="n">endtag</span><span class="p">,))</span>
+                <span class="p">)</span>
+
+
+<span class="nd">@register.tag</span>
+<span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div></div>
+<span class="sd">    Returns a ``ChoiceNode``</span>
+<div class="viewcode-block" id="choice"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.choice">[docs]</a><span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ChoiceNode</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+
+
+<span class="nd">@register.tag</span>
+<span class="k">def</span> <span class="nf">random_choice</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span></div>
+<span class="sd">    Randomly orders each choice node.  If an integer is supplied as an</span>
+<div class="viewcode-block" id="random_choice"><a class="viewcode-back" href="../../../templatetags.html#fusionbox.templatetags.fusionbox_tags.random_choice">[docs]</a><span class="sd">    argument, we will limit our choices to that number.  A special argument</span>
+<span class="sd">    value, &quot;all&quot;, will randomly sort all the choices without limit.</span>
+<span class="sd">    &quot;all&quot; is the default behavior.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">    {% random %}</span>
+<span class="sd">    {% choice %}A{% endchoice %}</span>
+<span class="sd">    {% choice %}B{% endchoice %}</span>
+<span class="sd">    {% choice %}C{% endchoice %}</span>
+<span class="sd">    {% endrandom %}</span>
+
+<span class="sd">    If R = random.choice</span>
+<span class="sd">    Outputs: R({A, B, C})</span>
+
+<span class="sd">    {% random 2 %}</span>
+<span class="sd">    {% choice %}A{% endchoice %}</span>
+<span class="sd">    {% choice %}B{% endchoice %}</span>
+<span class="sd">    {% choice %}C{% endchoice %}</span>
+<span class="sd">    {% endrandom %}</span>
+
+<span class="sd">    If R = random.choice</span>
+<span class="sd">    r1 = R({A, B, C})</span>
+<span class="sd">    r2 = R({A, B, C} - r1)</span>
+
+<span class="sd">    Outputs: r1 || r2, where &#39;||&#39; is string concat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tag_tokens</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split_contents</span><span class="p">()</span>
+    <span class="c"># Collect nodes into a list.</span>
+    <span class="n">nodelist</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">((</span><span class="s">&#39;endrandom&#39;</span><span class="p">,))</span>
+    <span class="c"># Filter out the choice nodes, preserving their index in the nodelist.</span>
+    <span class="n">choices</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">node</span><span class="p">:</span> <span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">__class__</span> <span class="ow">is</span> <span class="n">ChoiceNode</span><span class="p">,</span>
+            <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodelist</span><span class="p">)</span>
+            <span class="p">)</span>
+    <span class="c"># Collect limit argument</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tag_tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">template</span><span class="o">.</span><span class="n">TemplateSyntaxError</span><span class="p">(</span>
+                    <span class="s">u&quot;Argument to random tag must be an integer. </span><span class="se">\</span>
+<span class="s">                            Received </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="n">tag_tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+    <span class="c"># After collecting the choice nodes, set them as None in the</span>
+    <span class="c"># original nodelist. We are essentially marking them for later as &quot;do not</span>
+    <span class="c"># use&quot;.</span>
+    <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">:</span>
+        <span class="n">nodelist</span><span class="p">[</span><span class="n">choice</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">delete_first_token</span><span class="p">()</span>
+    <span class="c"># Shuffle indices and assign each choice node a new index.</span>
+    <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span>
+    <span class="n">indexes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+    <span class="n">new_order_choices</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
+    <span class="c"># Iterate over choices in their new order, setting them in the nodelist</span>
+    <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">new_order_choices</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cnt</span> <span class="o">&gt;=</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">nodelist</span><span class="p">[</span><span class="n">choice</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">choice</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c"># Return a &quot;NodeListNode&quot; of all items in nodelist that have been reset.</span>
+    <span class="n">new_nodelist</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">NodeList</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodelist</span> <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">NodeListNode</span><span class="p">(</span><span class="n">new_nodelist</span><span class="p">)</span>
+
+<span class="n">register</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&quot;random&quot;</span><span class="p">,</span> <span class="n">random_choice</span><span class="p">)</span>
 </pre></div></div>
 
           </div>

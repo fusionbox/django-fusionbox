@@ -88,6 +88,31 @@ but you can override by passing an argument to the tag.</p>
 <div class="section" id="module-fusionbox.templatetags.fusionbox_tags">
 <span id="code"></span><h2>Code<a class="headerlink" href="#module-fusionbox.templatetags.fusionbox_tags" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
+<dt id="fusionbox.templatetags.fusionbox_tags.ChoiceNode">
+<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">ChoiceNode</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#ChoiceNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.ChoiceNode" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">ChoiceNode</span></tt> is a lightwrapper around other nodes.  Wrapping nodes around a
+<tt class="docutils literal"><span class="pre">choice</span></tt> tag flags them for randomization.  The wrapped nodes are placed in
+an instance property called <tt class="docutils literal"><span class="pre">contents</span></tt>.  During render, <tt class="docutils literal"><span class="pre">ChoiceNode</span></tt> will
+simply call render on its <tt class="docutils literal"><span class="pre">contents</span></tt> property.</p>
+<p>It also supplies one helper classmethod <tt class="docutils literal"><span class="pre">collect_choices</span></tt> that accepts a
+parser and returns a list of all the <tt class="docutils literal"><span class="pre">Choice</span></tt> nodes.</p>
+<dl class="classmethod">
+<dt id="fusionbox.templatetags.fusionbox_tags.ChoiceNode.collect_choices">
+<em class="property">classmethod </em><tt class="descname">collect_choices</tt><big>(</big><em>parser</em>, <em>endtag='endrandom'</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#ChoiceNode.collect_choices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.ChoiceNode.collect_choices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses until <tt class="docutils literal"><span class="pre">endrandom</span></tt> tag is found, filtering out any non-Choice
+nodes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fusionbox.templatetags.fusionbox_tags.ChoiceNode.render">
+<tt class="descname">render</tt><big>(</big><em>context</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#ChoiceNode.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.ChoiceNode.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will just call <tt class="docutils literal"><span class="pre">render</span></tt> on this nodes inner contents, raising the
+appropriate exceptions from Django&#8217;s template system.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="fusionbox.templatetags.fusionbox_tags.HighlightHereNode">
 <em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">HighlightHereNode</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#HighlightHereNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.HighlightHereNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter the subnode&#8217;s output to add a &#8216;here&#8217; class to every anchor where
@@ -162,6 +187,21 @@ overriden by implementing the <tt class="docutils literal"><span class="pre">par
 
 </dd></dl>
 
+<dl class="class">
+<dt id="fusionbox.templatetags.fusionbox_tags.NodeListNode">
+<em class="property">class </em><tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">NodeListNode</tt><big>(</big><em>nodelist</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#NodeListNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.NodeListNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registered tags are expected to return an instance of template.Node or a
+subclass thereof.</p>
+<p>An instance of this class accepts a nodelist on initialization and simply
+renders the nodelist as render is called.</p>
+<dl class="method">
+<dt id="fusionbox.templatetags.fusionbox_tags.NodeListNode.render">
+<tt class="descname">render</tt><big>(</big><em>context</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#NodeListNode.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.NodeListNode.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply renders :self.nodelist</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="fusionbox.templatetags.fusionbox_tags.add_commas">
 <tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">add_commas</tt><big>(</big><em>value</em>, <em>round=0</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#add_commas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.add_commas" title="Permalink to this definition">¶</a></dt>
@@ -177,6 +217,12 @@ formatting of real numbers.</p>
 {{ value|add_commas:2 }} =&gt; 1,234.57
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="function">
+<dt id="fusionbox.templatetags.fusionbox_tags.choice">
+<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">choice</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <tt class="docutils literal"><span class="pre">ChoiceNode</span></tt></p>
 </dd></dl>
 
 <dl class="function">
@@ -243,6 +289,33 @@ noun, either pluralized or not pluralized.</p>
 </div>
 <p>Requires the <tt class="docutils literal"><span class="pre">inflect</span></tt> module.  If it isn&#8217;t available, this filter
 will not be loaded.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fusionbox.templatetags.fusionbox_tags.random_choice">
+<tt class="descclassname">fusionbox.templatetags.fusionbox_tags.</tt><tt class="descname">random_choice</tt><big>(</big><em>parser</em>, <em>token</em><big>)</big><a class="reference internal" href="_modules/fusionbox/templatetags/fusionbox_tags.html#random_choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.templatetags.fusionbox_tags.random_choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Randomly orders each choice node.  If an integer is supplied as an
+argument, we will limit our choices to that number.  A special argument
+value, &#8220;all&#8221;, will randomly sort all the choices without limit.
+&#8220;all&#8221; is the default behavior.</p>
+<div class="highlight-html"><div class="highlight"><pre>{% random %}
+{% choice %}A{% endchoice %}
+{% choice %}B{% endchoice %}
+{% choice %}C{% endchoice %}
+{% endrandom %}
+</pre></div>
+</div>
+<p>If R = random.choice
+Outputs: R({A, B, C})</p>
+<p>{% random 2 %}
+{% choice %}A{% endchoice %}
+{% choice %}B{% endchoice %}
+{% choice %}C{% endchoice %}
+{% endrandom %}</p>
+<p>If R = random.choice
+r1 = R({A, B, C})
+r2 = R({A, B, C} - r1)</p>
+<p>Outputs: r1 || r2, where &#8216;||&#8217; is string concat.</p>
 </dd></dl>
 
 <dl class="function">

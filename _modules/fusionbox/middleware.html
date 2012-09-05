@@ -57,6 +57,7 @@
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render_to_response</span>
 <span class="kn">from</span> <span class="nn">django.views.decorators.csrf</span> <span class="kn">import</span> <span class="n">requires_csrf_token</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ImproperlyConfigured</span>
+<span class="kn">from</span> <span class="nn">django.contrib.sites.models</span> <span class="kn">import</span> <span class="n">get_current_site</span>
 
 
 <span class="nd">@requires_csrf_token</span>
@@ -185,7 +186,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">300</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">&gt;</span> <span class="mi">399</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">410</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span>
-                    <span class="s">&#39;status_code&#39;</span><span class="p">,</span> 
+                    <span class="s">&#39;status_code&#39;</span><span class="p">,</span>
                     <span class="s">&quot;ERROR: {redirect.filename}:{redirect.line_number} - Non 3xx/410 status code({redirect.status_code})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">redirect</span><span class="o">=</span><span class="bp">self</span><span class="p">),</span>
                     <span class="p">)</span>
 
@@ -196,7 +197,7 @@
 <span class="sd">    Redirect objects from them, and validates the redirects, returning a</span>
 <span class="sd">    dictionary of Redirect objects.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">error_messages</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> 
+    <span class="n">error_messages</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">warning_messages</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
     <span class="n">processed_redirects</span> <span class="o">=</span> <span class="p">{}</span>
@@ -209,7 +210,7 @@
 
         <span class="c"># Catch duplicate declaration of source urls.</span>
         <span class="k">if</span> <span class="n">redirect</span><span class="o">.</span><span class="n">source</span> <span class="ow">in</span> <span class="n">processed_redirects</span><span class="p">:</span>
-            <span class="n">first</span> <span class="o">=</span> <span class="n">processed_redirects</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span>
+            <span class="n">processed_redirects</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span>
             <span class="n">warning_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;WARNING: {filename}:{line_number} -  Duplicate declaration of url&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">line</span><span class="p">))</span>
         <span class="n">processed_redirects</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="n">redirect</span>
 
@@ -230,7 +231,7 @@
                 <span class="n">error_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;ERROR: {redirect.filename}:{redirect.line_number} - Circular redirect: {redirect.source} =&gt; {redirect.target}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">redirect</span><span class="o">=</span><span class="n">redirect</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">to_url</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">redirect</span><span class="o">.</span><span class="n">parsed_source</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
                 <span class="n">warning_messages</span><span class="p">[</span><span class="n">redirect</span><span class="o">.</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;WARNING: {redirect.filename}:{redirect.line_number}: - Possible circular redirect if hosting on domain {redirect.parsed_target.netloc}: {redirect.source} =&gt; {redirect.target}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">redirect</span><span class="o">=</span><span class="n">redirect</span><span class="p">))</span>
-    
+
     <span class="c"># Check for circular redirects.</span>
     <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">redirect</span> <span class="ow">in</span> <span class="n">processed_redirects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">validate_redirect</span><span class="p">(</span><span class="n">redirect</span><span class="p">)</span>
@@ -282,8 +283,10 @@
         <span class="k">return</span> <span class="n">lines</span>
 
     <span class="k">def</span> <span class="nf">process_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">404</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">response</span>  <span class="c"># No need to check for a redirect for non-404 responses.</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">404</span> <span class="ow">and</span> <span class="n">get_current_site</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="o">.</span><span class="n">domain</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">get_host</span><span class="p">():</span>
+            <span class="c"># No need to check for a redirect for non-404 responses, as long as</span>
+            <span class="c"># it&#39;s our Site.</span>
+            <span class="k">return</span> <span class="n">response</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_full_path</span><span class="p">()</span>
         <span class="n">full_uri</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">build_absolute_uri</span><span class="p">()</span>
 

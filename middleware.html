@@ -113,6 +113,30 @@ Redirect objects from them, and validates the redirects, returning a
 dictionary of Redirect objects.</p>
 </dd></dl>
 
+<span class="target" id="module-fusionbox.error_logging.middleware"></span><dl class="class">
+<dt id="fusionbox.error_logging.middleware.FusionboxCommonMiddleware">
+<em class="property">class </em><tt class="descclassname">fusionbox.error_logging.middleware.</tt><tt class="descname">FusionboxCommonMiddleware</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/fusionbox/error_logging/middleware.html#FusionboxCommonMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.error_logging.middleware.FusionboxCommonMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Impliments <tt class="docutils literal"><span class="pre">django.middleware.commom.CommonMiddleware</span></tt> broken link email
+messages in a slightly different way.  Internal broken links still function
+the same.  External broken links will now only trigger error emails once.
+All broken links are also logged to the database.</p>
+<p>To enable:</p>
+<ul class="simple">
+<li>add <tt class="docutils literal"><span class="pre">fusionbox.error_logging</span></tt> to <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt> add</li>
+<li><tt class="docutils literal"><span class="pre">fusionbox.error_logging.middleware.FusionboxCommonMiddleware</span></tt> to <tt class="docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></tt></li>
+<li>in your settings.py set <tt class="docutils literal"><span class="pre">SEND_BROKEN_LINK_EMAILS</span></tt> to <tt class="xref docutils literal"><span class="pre">False</span></tt></li>
+<li>in your settings.py set <tt class="docutils literal"><span class="pre">FUSIONBOX_SEND_BROKEN_LINK_EMAILS</span></tt> to <tt class="xref docutils literal"><span class="pre">True</span></tt></li>
+</ul>
+<p>This app also registers <tt class="docutils literal"><span class="pre">fusionbox.error_logging.admin.Logged404Admin</span></tt> to
+the django admin center.</p>
+<dl class="method">
+<dt id="fusionbox.error_logging.middleware.FusionboxCommonMiddleware.process_response">
+<tt class="descname">process_response</tt><big>(</big><em>request</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/fusionbox/error_logging/middleware.html#FusionboxCommonMiddleware.process_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fusionbox.error_logging.middleware.FusionboxCommonMiddleware.process_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take over CommonMiddleware&#8217;s error reporting for broken links.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
