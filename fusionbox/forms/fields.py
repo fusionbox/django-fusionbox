@@ -10,6 +10,7 @@ import datetime
 from functools import partial
 
 from django import forms
+from django.forms import widgets
 
 from fusionbox.forms.widgets import MultiFileWidget
 
@@ -82,3 +83,12 @@ class MultiFileField(forms.FileField):
             return map(curry_super, data)
         except TypeError:
             return None
+
+
+class ClearableFileInputWidget(widgets.ClearableFileInput):
+    """
+    Changes the default file widget to be easier to target with CSS
+    """
+
+    template_with_initial = u'<div class="fileField"><span class="currently">%(initial_text)s:</span> %(initial)s %(clear_template)s<span class="change">%(input_text)s:</span> %(input)s</div>'
+    template_with_clear = u'<div class="clear">%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label></div>'
