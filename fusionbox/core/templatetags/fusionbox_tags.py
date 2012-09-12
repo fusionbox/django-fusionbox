@@ -603,4 +603,3 @@ def random_choice(parser, token):
     return NodeListNode(new_nodelist)
 
 register.tag("random", random_choice)
->>>>>>> master
