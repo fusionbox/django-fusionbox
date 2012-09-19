@@ -206,15 +206,7 @@ def json(a):
     If the output needs to be put in an attribute, entitize the output of this
     filter.
     """
-    json_str = to_json(a)
-
-    # Escape all the XML/HTML special characters.
-    escapes = ['<', '>', '&']
-    for c in escapes:
-        json_str = json_str.replace(c, r'\u%04x' % ord(c))
-
-    # now it's safe to use mark_safe
-    return mark_safe(json_str)
+    return mark_safe(to_json(a))
 json.is_safe = True
 
 
@@ -243,7 +235,8 @@ def us_dollars(value):
     """
     Returns the value formatted as whole US dollars.
 
-    Example:
+    Example::
+
         if value = -20000
         {{ value|us_dollars }} => -$20,000
     """
@@ -267,13 +260,12 @@ def us_cents(value, places=1):
     Returns the value formatted as US cents.  May specify decimal places for
     fractional cents.
 
-    Example:
-        where c means cents symbol:
+    ::
 
-        if value = -20.125
+        # if value = -20.125
         {{ value|us_cents }} => -20.1 \u00a2
 
-        if value = 0.082
+        # if value = 0.082
         {{ value|us_cents:3 }} => 0.082 \u00a2
     """
     # Try to convert to float
@@ -307,11 +299,12 @@ def us_dollars_and_cents(value, cent_places=2):
     include extra digits for fractional cents.  This is common when displaying
     utility rates, for instance.
 
-    Example:
-        if value = -20000.125
+    Example::
+
+        # if value = -20000.125
         {{ value|us_dollars_and_cents }} => -$20,000.13
 
-        if value = 0.082  (8.2 cents)
+        # if value = 0.082  (8.2 cents)
         {{ value|us_dollars_and_cents:3 }} => $0.082
     """
     # Try to convert to Decimal
@@ -344,12 +337,13 @@ def add_commas(value, round=0):
     places.  Humanize's intcomma is not adequate since it does not allow
     formatting of real numbers.
 
-    Example:
-        if value = 20000
+    Example::
+
+        # if value = 20000
         {{ value|add_commas }} => 20,000
         {{ value|add_commas:3 }} => 20,000.000
 
-        if value = 1234.5678
+        # if value = 1234.5678
         {{ value|add_commas:2 }} => 1,234.57
     """
     # Decimals honor locale settings correctly
@@ -408,13 +402,14 @@ def pluralize_with(count, noun):
     Pluralizes ``noun`` depending on ``count``.  Returns only the
     noun, either pluralized or not pluralized.
 
-    Usage:
+    Usage::
+
         {{ number_of_cats|pluralize_with:"cat" }}
 
-    Outputs:
-        number_of_cats == 0: "0 cats"
-        number_of_cats == 1: "1 cat"
-        number_of_cats == 2: "2 cats"
+        # Outputs::
+        # number_of_cats == 0: "0 cats"
+        # number_of_cats == 1: "1 cat"
+        # number_of_cats == 2: "2 cats"
 
     Requires the ``inflect`` module.  If it isn't available, this filter
     will not be loaded.

@@ -47,6 +47,7 @@ UserChangeForm.base_fields['username'].help_text = _("Required. 255 characters o
 
 UserChangeForm.base_fields['email'].label = 'Username'
 UserChangeForm.base_fields['email'].max_length = 255
+UserChangeForm.base_fields['email'].widget.attrs['maxlength'] = 255
 UserChangeForm.base_fields['email'].validators[0].limit_value = 255
 UserChangeForm.base_fields['email'].help_text = _("This will be set to the email")
 UserChangeForm.base_fields['email'].widget.attrs['maxlength'] = 255
@@ -67,11 +68,18 @@ def new_init(self, *args, **kwargs):
     if args:
         data = args[0]
     else:
-        data = None
+        data = {}
     ret = old_init(self, *args, **kwargs)
+    self.fields['email'].label = 'Username'
+    self.fields['email'].max_length = 255
+    self.fields['email'].validators[0].limit_value = 255
+    self.fields['email'].help_text = _("This will be set to the email")
+    self.fields['email'].widget.attrs['maxlength'] = 254
+    self.fields['email'].widget.attrs['readonly'] = 'readonly'
+    self.fields['email'].widget.attrs['disabled'] = 'disabled'
 
     if data:
-        data[self['email'].name] = data[self['username'].name]
+        data[self.add_prefix(self['email'].name)] = data[self.add_prefix(self['username'].name)]
     return ret
 
 UserChangeForm.__init__ = new_init
