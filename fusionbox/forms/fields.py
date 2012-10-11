@@ -10,6 +10,7 @@ import datetime
 from functools import partial
 
 from django import forms
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 from fusionbox.forms.widgets import MultiFileWidget
 
@@ -116,3 +117,32 @@ class NoAutocompleteCharField(forms.CharField):
         ret['autocomplete'] = 'off'
 
         return ret
+
+
+class USDFormField(forms.DecimalField):
+    """
+    Form field for entering dollar amounts. Allows an optional leading dollar
+    sign, which gets stripped.
+    """
+    def clean(self, value):
+        return super(USDFormField, self).clean(value.lstrip('$'))
+
+
+class USNumberInput(forms.TextInput):
+    def render(self, name, value, attrs=None):
+        if value:
+            value = intcomma(value)
+        return super(USNumberInput, self).render(name, value, attrs)
+
+
+class USNumberField(forms.IntegerField):
+    """
+    Like a ``forms.IntegerField``, but allows commas as thousands-seperators.
+    """
+    widget = USNumberInput
+
+    def clean(self, value):
+        value = value.replace(',','')
+        super(USNumberField, self).clean(value)
+
+        return value
