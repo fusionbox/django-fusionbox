@@ -126,23 +126,3 @@ class USDFormField(forms.DecimalField):
     """
     def clean(self, value):
         return super(USDFormField, self).clean(value.lstrip('$'))
-
-
-class USNumberInput(forms.TextInput):
-    def render(self, name, value, attrs=None):
-        if value:
-            value = intcomma(value)
-        return super(USNumberInput, self).render(name, value, attrs)
-
-
-class USNumberField(forms.IntegerField):
-    """
-    Like a ``forms.IntegerField``, but allows commas as thousands-seperators.
-    """
-    widget = USNumberInput
-
-    def clean(self, value):
-        value = value.replace(',','')
-        super(USNumberField, self).clean(value)
-
-        return value
