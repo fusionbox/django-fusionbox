@@ -46,7 +46,8 @@ def create_markdown_mail(template,
                        to=None,
                        subject=None,
                        from_address=settings.SERVER_EMAIL,
-                       layout=EMAIL_LAYOUT):
+                       layout=EMAIL_LAYOUT,
+                       headers=None):
     """
     Creates a message from a markdown template and returns it as an
     `EmailMultiAlternatives` object.
@@ -69,7 +70,7 @@ def create_markdown_mail(template,
 
     from_address = meta.get('from', from_address)
 
-    msg = EmailMultiAlternatives(subject, raw, from_address, to)
+    msg = EmailMultiAlternatives(subject, raw, from_address, to, headers=headers)
     msg.attach_alternative(html, 'text/html')
 
     return msg
