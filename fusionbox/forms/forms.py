@@ -94,19 +94,23 @@ class BaseModelForm(FieldsetMixin, CSSClassMixin, forms.ModelForm):
     pass
 
 
-class BaseChangeListForm(forms.Form):
+class BaseChangeListForm(BaseForm):
     """
     Base class for all ``ChangeListForms``.
     """
-    error_css_class = 'error'
-    required_css_class = 'required'
-
     def __init__(self, *args, **kwargs):
         """
         Takes an option named argument ``queryset`` as the base queryset used in
         the ``get_queryset`` method.
         """
-        self.queryset = kwargs.pop('queryset', None)
+        try:
+            self.base_queryset = kwargs.pop('queryset', None)
+            if self.base_queryset is None:
+                self.base_queryset = self.model.objects.all()
+        except AttributeError:
+            raise AttributeError('`ChangeListForm`s must be instantiated with a\
+                                 queryset, or have a `model` attribute set on\
+                                 them')
         super(BaseChangeListForm, self).__init__(*args, **kwargs)
 
     def get_queryset(self):
@@ -115,9 +119,14 @@ class BaseChangeListForm(forms.Form):
         queryset.  Otherwise it returns ``Model.objects.all()`` for whatever
         model was defined for the form.
         """
-        if self.queryset is None:
-            return self.model.objects.all()
-        return self.queryset
+        return self.base_queryset
+
+    def full_clean(self, *args, **kwargs):
+        super(BaseChangeListForm, self).full_clean()
+        if self.is_valid():
+            self.queryset = self.get_queryset()
+
+
 
 
 class SearchForm(BaseChangeListForm):
@@ -134,9 +143,9 @@ class SearchForm(BaseChangeListForm):
     ::
 
         >>> form = UserSearchForm(request.GET, queryset=User.objects.filter(is_active=True))
-        >>> form
-        <accounts.forms.UserSearchForm object at 0x102ea18d0>
-        >>> form.get_queryset()
+        >>> form.is_valid()  # Sets form.queryset if form is valid.
+        True
+        >>> form.queryset
         [<User: admin>, <User: test@test.com>, <User: test2@test.com>]
 
     ``SEARCH_FIELDS`` should be an iterable of valid django queryset field lookups.
@@ -149,35 +158,12 @@ class SearchForm(BaseChangeListForm):
     CASE_SENSITIVE = False
     q = forms.CharField(label="Search", required=False)
 
-    def pre_search(self, qs):
-        """
-        Hook for modifying the queryset prior to the search
-
-        Runs prior to any searching and is run regardless form validation.
-        """
-        return qs
-
-    def post_search(self, qs):
-        """
-        Hook for modifying the queryset after the search.  Will not be called
-        on an invalid form.
-
-        Runs only if the form validates.
-        """
-        return qs
-
     def get_queryset(self):
         """
         Constructs an '__contains' or '__icontains' filter across all of the
         fields listed in ``SEARCH_FIELDS``.
         """
         qs = super(SearchForm, self).get_queryset()
-
-        qs = self.pre_search(qs)
-
-        # Ensure that the form is valid
-        if not self.is_valid():
-            return qs
 
         # Do Searching
         q = self.cleaned_data.get('q', None).strip()
@@ -194,9 +180,118 @@ class SearchForm(BaseChangeListForm):
             elif len(args) == 1:
                 qs = qs.filter(args[0])
 
-        qs = self.post_search(qs)
-
         return qs
+
+
+class ThingSet(object):
+    ThingClass = None
+
+    def __init__(self, form, headers):
+        if self.ThingClass is None:
+            raise AttributeError('ThingSet must have a ThingClass attribute')
+        self.form = form
+        self.headers = SortedDict()
+        for header in headers:
+            self.headers[header.name] = header
+
+    def __iter__(self):
+        for header in self.headers.values():
+            yield self.ThingClass(self.form, header)
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.ThingClass(self.form, self.headers.values()[key])
+        else:
+            return self.ThingClass(self.form, self.headers[key])
+
+
+class Header(object):
+    def __init__(self, name, label=None, column_name=False, is_sortable=True):
+        self.name = name
+        self.label = label or pretty_name(name)
+        self.column_name = column_name or name
+        self.is_sortable = is_sortable
+
+
+def construct_querystring(data, **kwargs):
+    params = copy.copy(data)
+    params.update(kwargs)
+    return urllib.urlencode(params)
+
+
+class BoundHeader(object):
+    """
+    Template object for outputting headers for SortForms
+    """
+    def __init__(self, form, header):
+        self.name = header.name
+        self.label = header.label
+        self.column_name = header.column_name
+        self.is_sortable = header.is_sortable
+        self.form = form
+        self.sorts = getattr(form, 'cleaned_data', {}).get('sorts', [])
+        self.header = header
+        self.param = "{0}-sorts".format(form.prefix or '').strip('-')
+
+    @property
+    def index(self):
+        return self.form.HEADERS.index(self.header)
+
+    @property
+    def sort_index(self):
+        return self.index + 1
+
+    @property
+    def is_ascending(self):
+        return self.is_active and self.sort_index in self.sorts
+
+    @property
+    def is_descending(self):
+        return self.is_active and self.sort_index not in self.sorts
+
+    @property
+    def css_classes(self):
+        classes = []
+        if self.is_active:
+            classes.append('active')
+            if self.sort_index in self.sorts:
+                classes.append('ascending')
+            else:
+                classes.append('descending')
+        return ' '.join(classes)
+
+    def get_sorts_with_header(self):
+        if not self.sorts:
+            return [self.sort_index]
+        elif abs(self.sorts[0]) == self.sort_index:
+            return [-1 * self.sorts[0]] + self.sorts[1:]
+        else:
+            return [self.sort_index] + filter(lambda x: x != self.sort_index, self.sorts)
+
+    @property
+    def priority(self):
+        if self.is_active:
+            return map(abs, self.sorts).index(self.sort_index) + 1
+
+    @property
+    def is_active(self):
+        return self.sort_index in map(abs, self.sorts)
+
+    @property
+    def querystring(self):
+        return construct_querystring(self.form.data, **{self.param: '.'.join(map(str, self.get_sorts_with_header()))})
+
+    @property
+    def singular_queryset(self):
+        return construct_querystring(self.form.data, **{self.param: str(self.sort_index)})
+
+    @property
+    def remove_queryset(self):
+        return construct_querystring(self.form.data, **{self.param: '.'.join(map(str, self.get_sorts_with_header()[1:]))})
+
+
+class HeaderSet(ThingSet):
+    ThingClass = BoundHeader
 
 
 class SortForm(BaseChangeListForm):
@@ -208,153 +303,47 @@ class SortForm(BaseChangeListForm):
 
         class UserSortForm(SortForm):
             HEADERS = (
-                {'column': 'username', 'title': 'Username', 'sortable': True},
-                {'column': 'email', 'title': 'Email Address', 'sortable': True},
-                {'column': 'is_active', 'title': 'Active', 'sortable': False},
+                SortForm.Header('username'),
+                SortForm.Header('email'),
+                SortForm.Header('is_active'),
+            )
             model = User
 
     The sort field for this form defaults to a HiddenInput widget which should
     be output within your form to preserve sorting accross any form
     submissions.
-
     """
+    Header = Header  # Easy access when defining SortForms
+    error_messages = {
+        'unknown_header': 'Invalid sort parameter',
+        'unsortable_header': 'Invalid sort parameter',
+    }
     HEADERS = tuple()
-    sort = forms.CharField(required=False, widget=forms.HiddenInput())
+    sorts = forms.CharField(required=False, widget=forms.HiddenInput())
 
-    def clean_sort(self):
+    def __init__(self, *args, **kwargs):
+        super(SortForm, self).__init__(*args, **kwargs)
+        if not len(set(h.name for h in self.HEADERS)) == len(self.HEADERS):
+            raise AttributeError('Duplicate `name` in HEADERS')
+        self.headers = HeaderSet(self, self.HEADERS)
+
+    def clean_sorts(self):
         cleaned_data = self.cleaned_data
-        sorts = cleaned_data.get('sort', '').split('.')
-        sorts = filter(bool, sorts)
+        sorts = filter(bool, cleaned_data.get('sorts', '').split('.'))
         if not sorts:
             return []
         # Ensure that the sort parameter does not contain non-numeric sort indexes
         if not all([sort.strip('-').isdigit() for sort in sorts]):
-            raise ValidationError("Unknown or invalid sort '{sort}'".format(sort=cleaned_data.get('sort', '')))
+            raise ValidationError(self.error_messages['unknown_header'])
         sorts = [int(sort) for sort in sorts]
-        # Ensure not un-sortable fields are being sorted by
-        for sort in map(abs, sorts):
-            header = self.HEADERS[sort - 1]
-            if not header['sortable']:
-                raise ValidationError("Invalid sort parameter '{sort}'".format(sort=cleaned_data.get('sort', '')))
         # Ensure that all of our sort parameters are in range of our header values
         if any([abs(sort) > len(self.HEADERS) for sort in sorts]):
-            raise ValidationError("Invalid sort parameter '{sort}'".format(sort=cleaned_data.get('sort', '')))
+            raise ValidationError(self.error_messages['unknown_header'])
+        # Ensure not un-sortable fields are being sorted by
+        if not all(self.HEADERS[abs(i) - 1].is_sortable for i in sorts):
+            raise ValidationError(self.error_messages['unsortable_header'])
 
         return sorts
-
-    def headers(self):
-        """
-        Returns an object with the following template variables:
-
-        ``{{ form.headers }}``
-            - access to the header
-
-        ``{{ header.title }}``
-            - title declared for this header
-
-        ``{{ header.sortable }}``
-            - boolean for whether this header is sortable
-
-        ``{{ header.active }}``
-            - boolean for whether the queryset is currently being sorted by this header
-
-        ``{{ header.classes }}``
-            - list of css classes for this header. (active, ascending|descending)
-
-        ``{{ header.priority }}``
-            - numeric index for which place this header is being used for ordering.
-
-        ``{{ header.querystring }}``
-            - querystring for use with progressive sorting (sorting by multiple fields)
-
-        ``{{ header.remove }}``
-            - querystring which can be used to remove this header from sorting
-
-        ``{{ header.singular }}``
-            - querystring which can be used to sort only by this header
-
-        Example:
-        ::
-            {% for header in form.headers %}
-              {% if header.priority %}
-              <th scope="col" class="active {{ form.prefix }}-{{ header.column }}">
-                <div class="sortoptions {{ header.classes|join:' ' }}">
-                  <a class="sortremove" href="?{{ header.remove }}" title="Remove from sorting">X</a>
-                  <span class="sortpriority" title="Sorting priority: {{ header.priority }}">{{ header.priority }}</span>
-                  <a href="?{{ header.querystring }}" class="toggle" title="Toggle sorting"></a>
-                </div>
-              {% else %}
-              <th scope="col" class="{{ form.prefix }}-{{ header.column }}">
-              {% endif %}
-
-              {% if header.sortable %}
-                 <div class="text"><a href="?{{ header.querystring }}">{{ header.title }}</a></div>
-              {% else %}
-                 <div class="text">{{ header.title|safe }}</div>
-              {% endif %}
-              </th>
-            {% endfor %}
-        """
-        headers = IterDict()
-        if self.is_valid():
-            sorts = self.cleaned_data.get('sort', '')
-        else:
-            sorts = []
-        params = copy.copy(self.data)
-        #for index, column, title, sortable in self.SORT_CHOICES:
-        for index, header in enumerate(self.HEADERS, 1):
-            header = copy.copy(header)
-            header['classes'] = []
-
-            if header['sortable']:
-                # compute sort parameter
-                if sorts and abs(sorts[0]) == index:
-                    header_sorts = [sorts[0] * -1] + sorts[1:]
-                else:
-                    header_sorts = [index] + filter(lambda x: not abs(x) == index, sorts)
-
-                # handles form prefixing on querystring parameters
-                sort_param = ((self.prefix or '') + '-sort').strip('-')
-
-                # Progressive sort querystring
-                params[sort_param] = '.'.join(map(str, header_sorts))
-                header['querystring'] = urllib.urlencode(params)
-                # Single sort querystring
-                params[sort_param] = str(index)
-                header['singular'] = urllib.urlencode(params)
-                # Remove sort querystring
-                params[sort_param] = '.'.join(map(str, header_sorts[1:]))
-                header['remove'] = urllib.urlencode(params)
-
-                # set sort priority display
-                try:
-                    header['priority'] = map(abs, sorts).index(index) + 1
-                    header['classes'].append('active')
-                    if index in sorts:
-                        header['classes'].append('ascending')
-                    else:
-                        header['classes'].append('descending')
-                except ValueError:
-                    header['priority'] = None
-
-            #headers.append(header)
-            headers[header.get('name', header['column'])] = header
-        return headers
-
-    def pre_sort(self, qs):
-        """
-        Hook for doing pre-sort modification of the queryset.
-
-        Runs regardless 
-        """
-        return qs
-
-    def post_sort(self, qs):
-        """
-        Hook for doing post-sort modification of the queryset.  Will not be
-        called on an invalid form.
-        """
-        return qs
 
     def get_queryset(self):
         """
@@ -363,17 +352,11 @@ class SortForm(BaseChangeListForm):
         """
         qs = super(SortForm, self).get_queryset()
 
-        qs = self.pre_sort(qs)
-
-        # Ensure that the form is valid
-        if not self.is_valid():
-            return qs
-
         # Do Sorting
-        sorts = self.cleaned_data.get('sort', [])
+        sorts = self.cleaned_data.get('sorts', [])
         order_by = []
         for sort in sorts:
-            param = self.HEADERS[abs(sort) - 1]['column']
+            param = self.headers[abs(sort) - 1].column_name
             if sort < 0:
                 param = '-' + param
             order_by.append(param)
@@ -381,11 +364,10 @@ class SortForm(BaseChangeListForm):
         if order_by:
             qs = qs.order_by(*order_by)
 
-        qs = self.post_sort(qs)
-
         return qs
 
 
+# How do we depricate this?
 class FilterForm(BaseChangeListForm):
     """
     Base class for implementing filtering on a model.
