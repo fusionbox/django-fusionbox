@@ -4,6 +4,7 @@ import csv
 import urllib
 
 from django import forms
+from django.forms.forms import pretty_name
 from django.core.exceptions import ValidationError
 from django.forms.util import ErrorList, ErrorDict
 from django.utils.functional import cached_property
@@ -125,8 +126,6 @@ class BaseChangeListForm(BaseForm):
         super(BaseChangeListForm, self).full_clean()
         if self.is_valid():
             self.queryset = self.get_queryset()
-
-
 
 
 class SearchForm(BaseChangeListForm):
@@ -363,137 +362,6 @@ class SortForm(BaseChangeListForm):
 
         if order_by:
             qs = qs.order_by(*order_by)
-
-        return qs
-
-
-# How do we depricate this?
-class FilterForm(BaseChangeListForm):
-    """
-    Base class for implementing filtering on a model.
-
-    # Example Usage
-
-    ::
-
-        class UserFilterForm(FilterForm):
-            FILTERS = {
-                'active': 'is_active',
-                'date_joined': 'date_joined__gte',
-                'published': None, # Custom filtering
-                }
-            model = User
-
-            PUBLISHED_CHOICES = (
-                    ('', 'All'),
-                    ('before', 'Before Today'),
-                    ('after', 'After Today'),
-                    )
-
-            active = forms.BooleanField(required=False)
-            date_joined = forms.DateTimeField(required=False)
-            published = forms.ChoiceField(choices=PUBLISHED_CHOICES, widget=forms.HiddenInput())
-
-            def pre_filter(self, queryset):
-                published = self.cleaned_data.get('published')
-                if published == '':
-                    return queryset
-                elif published == 'before':
-                    return queryset.filter(published_at__lte=datetime.datetime.now())
-                elif published == 'after':
-                    return queryset.filter(published_at__gte=datetime.datetime.now())
-
-    ``FILTERS`` defines a mapping of form fields to queryset filters.
-
-    When displaying in the template, this form also provides you with url querystrings for all of your filters.
-
-    ``form.filters`` is a dictionary of all of the filters defined on your form.
-
-    In the example above, you could do the following in the template for display links for the published filter
-
-    ::
-
-        {% for choice in form.filters.published %}
-            {% if choice.active %}
-                {{ choice.display }} (<a href='?{{ choice.remove }}'>remove</a>)
-            {% else %}
-                <a href='?{{ choice.querystring }}'>{{ choice.display }}</a>
-            {% endif %}
-        {% endfor %}
-    """
-    FILTERS = {}
-
-    @property
-    def filters(self):
-        """
-        Generates a dictionary of filters with proper queryset links to
-        maintian multiple filters.
-        """
-        filters = IterDict()
-        for key in self.FILTERS:
-            filter = IterDict()
-            filter_param = ((self.prefix or '') + '-' + key).strip('-')
-
-            for value, display in self.fields[key].choices:
-                choice = {}
-                choice['value'] = value
-                choice['display'] = display
-
-                # These are raw values so they must come from data, and be
-                # coerced to strings
-                choice['active'] = str(value) == self.data.get(filter_param, '')
-
-                params = copy.copy(self.data)
-                # Filter by this current choice
-                params[filter_param] = value
-                choice['querystring'] = urllib.urlencode(params)
-                # remove this filter
-                params[filter_param] = ''
-                choice['remove'] = urllib.urlencode(params)
-
-                filter[value] = choice
-            filters[key] = filter
-        return filters
-
-    def pre_filter(self, qs):
-        """
-        Hook for doing pre-filter modification to the queryset
-
-        Runs prior to any form filtering and is run regardless form validation.
-        """
-        return qs
-
-    def post_filter(self, qs):
-        """
-        Hook for doing post-filter modification to the queryset.  This is also
-        the place where any custom filtering should take place.
-
-        Runs only if the form validates.
-        """
-        return qs
-
-    def get_queryset(self):
-        """
-        Performs the following steps:
-            - Returns the queryset if the form is invalid.
-            - Otherwise, filters the queryset based on the filters defined on the
-              form.
-            - Returns the filtered queryset.
-        """
-        qs = super(FilterForm, self).get_queryset()
-
-        qs = self.pre_filter(qs)
-
-        #  Ensure that the form is valid
-        if not self.is_valid():
-            return qs
-
-        # Do filtering
-        for field, column_name in self.FILTERS.items():
-            if column_name and self.cleaned_data.get(field, ''):
-                qs = qs.filter(**{column_name: self.cleaned_data[field]})
-
-        qs = self.post_filter(qs)
 
         return qs
 
