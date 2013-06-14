@@ -26,10 +26,10 @@ except AttributeError:
 #       attachments: ['foo.pdf']
 #
 # In your email template.
-EMAIL_ATTACHMENT_ROOT = getattr(
-        settings,
-        'EMAIL_ATTACHMENT_ROOT',
-        os.path.join(settings.PROJECT_PATH, '../attachments/'))
+EMAIL_ATTACHMENT_ROOT = os.path.abspath(getattr(
+    settings,
+    'EMAIL_ATTACHMENT_ROOT',
+    os.path.join(settings.PROJECT_PATH, '../attachments/')))
 
 
 def create_markdown_mail(template,
@@ -64,7 +64,11 @@ def create_markdown_mail(template,
     for attachment in meta.get('attachments', []):
         if isinstance(attachment, basestring):
             # filename
-            msg.attach_file(os.path.join(EMAIL_ATTACHMENT_ROOT, attachment))
+            filename = os.path.abspath(os.path.join(EMAIL_ATTACHMENT_ROOT, attachment))
+            assert filename.startswith(EMAIL_ATTACHMENT_ROOT),\
+                    "Attachments must be inside of EMAIL_ATTACHMENT_ROOT (%r). %r is not." % (
+                        EMAIL_ATTACHMENT_ROOT, filename)
+            msg.attach_file(filename)
         else:
             msg.attach(*attachment)
     msg.attach_alternative(html, 'text/html')
