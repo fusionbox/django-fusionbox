@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'south',
     'django_extensions',
     'djangosecure',
+    'filer',
 
     # Apps to be tested
     'test_app',
