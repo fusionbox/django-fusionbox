@@ -1,5 +1,6 @@
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 import random
+from urllib import urlencode
 
 # `setlocale` is not threadsafe
 import locale
@@ -26,6 +27,7 @@ from BeautifulSoup import BeautifulSoup
 from django.utils.safestring import mark_safe
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.exceptions import ImproperlyConfigured
+
 
 from fusionbox.core.serializers import FusionboxJSONEncoder
 
@@ -601,6 +603,21 @@ def random_choice(parser, token):
     return NodeListNode(new_nodelist)
 
 register.tag("random", random_choice)
+
+@register.simple_tag(takes_context=True)
+def update_querystring(context, **kwargs):
+    # We want to override the parameters, but querydict doesn't:
+    # >>> qs.update(p=1)
+    # <QueryDict: {u'p': [1]>
+    # >>> qs.update(p=2)
+    # <QueryDict: {u'p': [1, 2]}>
+
+    # So we convert the querydict to dict.
+    # The downside of this is that we lose data for the querystring:
+    #   foo=bar&foo=bar2
+    qs = context['request'].GET.dict()
+    qs.update(kwargs)
+    return urlencode(qs)
 
 
 @register.filter(name='is_checkbox')
