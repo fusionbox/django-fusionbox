@@ -1,0 +1,38 @@
+{% load fusionbox_tags %}
+{% if is_paginated %}
+  <div id="pagination">
+    {% if page_obj.has_previous %}
+      <a href="?{% update_querystring page=page_obj.previous_page_number %}"><i class="icon icon-arrow-left"></i> Previous</a>
+    {% endif %}
+    <form action="{{ request.path }}" method="GET">
+      <div style="display: none;">
+      {# Copy the query string arguments #}
+      {% for name, value in request.GET.items %}
+        {% if key != 'page' %}
+          <input type="hidden" name="{{ name }}" value="{{ value }}">
+        {% endif %}
+      {% endfor %}
+      </div>
+      <label for="page_selector">Go to:
+        <select name="page" id="page_selector">
+          {% for p in paginator.page_range %}
+            <option value="{{ p }}"{% if p == page_obj.number %} selected="selected"{% endif %}>
+              Page {{ p }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <input type="submit" value="Go">
+    </form>
+    {% if page_obj.has_next %}
+      <a href="?{% update_querystring page=page_obj.next_page_number %}">Next <i class="icon icon-arrow-right"></i></a>
+    {% endif %}
+    <script type="application/javascript">
+      $(document).ready(function () {
+          var select = $("#page_selector");
+          select.change(function () { $(this).closest("form").submit(); });
+          select.closest("form").find("input[type=submit]").hide();
+      });
+    </script>
+  </div>
+{% endif %}
