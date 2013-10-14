@@ -27,7 +27,7 @@
     {% if page_obj.has_next %}
       <a href="?{% update_querystring page=page_obj.next_page_number %}">Next <i class="icon icon-arrow-right"></i></a>
     {% endif %}
-    <script type="application/javascript">
+    <script type="text/javascript">
       $(document).ready(function () {
           var select = $("#page_selector");
           select.change(function () { $(this).closest("form").submit(); });
