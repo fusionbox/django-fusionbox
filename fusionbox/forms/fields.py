@@ -7,11 +7,13 @@ These can also be accessed from ``fusionbox.forms``.
 
 import calendar
 import datetime
+import re
 from functools import partial
 
 import phonenumbers
 
 from django import forms
+from django.utils import timezone
 from django.contrib.auth.forms import ReadOnlyPasswordHashWidget
 from django.utils.safestring import mark_safe
 from django.forms.util import flatatt
@@ -184,3 +186,44 @@ class PhoneNumberField(forms.CharField):
             return phonenumbers.format_number(number, phonenumbers.PhoneNumberFormat.NATIONAL)
         else:
             return phonenumbers.format_number(number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+
+
+class CCExpirationDateField(forms.CharField):
+    """
+    Credit Card expiration date.
+    """
+
+    default_error_messages = {
+        'invalid': 'Enter a valid month and year',
+        'expired': 'This card is expired',
+    }
+
+    class MonthYear(object):
+        def __init__(self, month, year):
+            self.month = month
+            self.year = year
+
+    def clean(self, value):
+        value = super(CCExpirationDateField, self).clean(value)
+        match = re.match(r'^\s*(?P<month>\d{1,2})\s*\/\s*(?P<year>\d{2}|\d{4})\s*$', value)
+
+        if match:
+            month = int(match.group('month'), 10)
+            year = int(match.group('year'), 10)
+
+            if year < 100:  # If they entered only two number for the year
+                year += 2000  # Use 20YY
+
+            if not 0 < month < 13:
+                raise forms.ValidationError(self.error_messages['invalid'])
+
+            now = timezone.now()
+            if year < now.year:
+                raise forms.ValidationError(self.error_messages['expired'])
+            if year == now.year and month < now.month:
+                raise forms.ValidationError(self.error_messages['expired'])
+
+            return CCExpirationDateField.MonthYear(month, year)
+
+        else:
+            raise forms.ValidationError(self.error_messages['invalid'])

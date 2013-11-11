@@ -7,3 +7,4 @@ django-debug-toolbar
 django-extensions
 MySQL-python==1.2.3
 django-secure
+mock
