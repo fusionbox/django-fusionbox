@@ -4,7 +4,7 @@ from django.utils import unittest, timezone
 from django.forms import ValidationError
 from mock import patch
 
-from fusionbox.forms.fields import CCExpirationDateField
+from fusionbox.forms.fields import CCExpirationDateField, CCNumberField
 
 
 class TestCCExpirationDateField(unittest.TestCase):
@@ -42,3 +42,15 @@ class TestCCExpirationDateField(unittest.TestCase):
             value = self.field.clean('03 / 2006')
             self.assertEqual(value.month, 3)
             self.assertEqual(value.year, 2006)
+
+
+class TestCCNumberField(unittest.TestCase):
+
+    def setUp(self):
+        self.field = CCNumberField()
+
+    def test_creditcard_number(self):
+        self.assertEqual(self.field.clean('4242 4242 4242 4242'), 4242424242424242)
+
+    def test_last_four(self):
+        self.assertEqual(self.field.clean('42424242').last_four, 4242)
