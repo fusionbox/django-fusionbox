@@ -203,6 +203,10 @@ class CCExpirationDateField(forms.CharField):
             self.month = month
             self.year = year
 
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('help_text', "MM / YY")
+        super(CCExpirationDateField, self).__init__(*args, **kwargs)
+
     def clean(self, value):
         value = super(CCExpirationDateField, self).clean(value)
         match = re.match(r'^\s*(?P<month>\d{1,2})\s*\/\s*(?P<year>\d{2}|\d{4})\s*$', value)
