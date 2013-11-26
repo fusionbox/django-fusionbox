@@ -204,7 +204,7 @@ class CCExpirationDateField(forms.CharField):
             self.year = year
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('help_text', "MM / YY")
+        kwargs.setdefault('help_text', "MM / YY or MM / YYYY")
         super(CCExpirationDateField, self).__init__(*args, **kwargs)
 
     def clean(self, value):
