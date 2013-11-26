@@ -243,5 +243,7 @@ class CCNumberField(forms.CharField):
         super(CCNumberField, self).__init__(*args, **kwargs)
 
     def clean(self, value):
-        number = super(CCNumberField, self).clean(re.sub('\D', '', value))
+        if isinstance(value, basestring):
+            value = re.sub('\D', '', value)
+        number = super(CCNumberField, self).clean(value)
         return number
