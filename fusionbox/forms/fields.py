@@ -233,23 +233,15 @@ class CCExpirationDateField(forms.CharField):
             raise forms.ValidationError(self.error_messages['invalid'])
 
 
-class CCNumberField(forms.IntegerField):
+class CCNumberField(forms.CharField):
     """
     Credit Card Number Field
     """
-
-    class CCNumber(int):
-        ## TODO: Credit card type
-        # card_type = property(lambda self: 'visa')
-        @property
-        def last_four(self):
-            return self % (10 ** 4)
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('widget', forms.TextInput)
         super(CCNumberField, self).__init__(*args, **kwargs)
 
     def clean(self, value):
-        ## TODO: Check the Credit Card Number (Luhn)
         number = super(CCNumberField, self).clean(re.sub('\D', '', value))
-        return CCNumberField.CCNumber(number)
+        return number
