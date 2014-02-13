@@ -30,6 +30,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 from fusionbox.core.serializers import FusionboxJSONEncoder
+from fusionbox.core.utils import format_us_phonenumber
 
 register = template.Library()
 
@@ -635,3 +636,7 @@ def pdb_tag(context):
     For raising a pdb.set_trace from within a template during rendering.
     """
     import pdb; pdb.set_trace()  # NOQA
+
+@register.simple_tag(name='us_phonenumber', takes_context=False)
+def us_phonenumber(number):
+    return format_us_phonenumber(number)
