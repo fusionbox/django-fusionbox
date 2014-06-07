@@ -22,13 +22,14 @@ from django import forms
 from django import template
 from django.conf import settings
 from django.forms.models import model_to_dict
+from django.template.defaultfilters import stringfilter
 
 from BeautifulSoup import BeautifulSoup
 from django.utils.safestring import mark_safe
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.exceptions import ImproperlyConfigured
 
-
+import phonenumbers
 from fusionbox.core.serializers import FusionboxJSONEncoder
 from fusionbox.core.utils import format_us_phonenumber
 
@@ -638,5 +639,21 @@ def pdb_tag(context):
     import pdb; pdb.set_trace()  # NOQA
 
 @register.simple_tag(name='us_phonenumber', takes_context=False)
-def us_phonenumber(number):
+def us_phonenumber_tag(number):
+    """
+    This is for backward compatibility.
+    Don't use it.
+    """
+    import warnings
+    warnings.simplefilter("You're using us_phonenumber tag. You should use a "
+                          "the filter with the same name.", DeprecationWarning)
     return format_us_phonenumber(number)
+
+@register.filter(name='us_phonenumber')
+@stringfilter
+def us_phonenumber_filter(value):
+    try:
+        return format_us_phonenumber(value)
+    except phonenumbers.NumberParseException:
+        # XXX: Swallow the exception
+        return value
