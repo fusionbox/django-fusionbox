@@ -12,6 +12,7 @@ from django.views.decorators.csrf import requires_csrf_token
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import get_current_site
 from django.core import urlresolvers
+from django.utils.encoding import iri_to_uri
 
 from fusionbox import unicode_csv as csv
 
@@ -89,6 +90,8 @@ class GenericTemplateFinderMiddleware(object):
 def get_redirect(redirects, path, full_uri):
     if full_uri in redirects:
         redirect = redirects[full_uri]
+    elif iri_to_uri(path) in redirects:
+        redirect = redirects[iri_to_uri(path)]
     elif path in redirects:
         redirect = redirects[path]
     else:
