@@ -7,6 +7,8 @@ import urllib
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 
+from fusionbox.core.utils import format_html
+
 from .rest import RestView  # NOQA
 from .base import StaticServe  # NOQA
 
@@ -70,7 +72,7 @@ class WithNextUrlMixin(object):
         next = self.get_next_url()
         if next:
             kwargs['next'] = next
-            kwargs['next_input'] = mark_safe('<input type="hidden" name="next" value="{0}">'.format(next))
+            kwargs['next_input'] = format_html('<input type="hidden" name="next" value="{0}">', next)
         return kwargs
 
     @staticmethod
