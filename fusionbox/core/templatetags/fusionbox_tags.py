@@ -645,8 +645,9 @@ def us_phonenumber_tag(number):
     Don't use it.
     """
     import warnings
-    warnings.simplefilter("You're using us_phonenumber tag. You should use a "
-                          "the filter with the same name.", DeprecationWarning)
+    warnings.simplefilter("always", "You're using us_phonenumber tag. You "
+                          "should use a the filter with the same name.",
+                          DeprecationWarning)
     return format_us_phonenumber(number)
 
 @register.filter(name='us_phonenumber')
