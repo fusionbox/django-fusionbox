@@ -13,5 +13,6 @@ class Command(BaseCommand):
         send_mail(
                 subject='Test email from %s on %s' % (socket.gethostname(), datetime.datetime.now()),
                 message='If you\'re reading this, it was successful.',
+                from_email=None,
                 recipient_list=args,
         )
