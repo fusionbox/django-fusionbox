@@ -1,6 +1,6 @@
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 import random
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 # `setlocale` is not threadsafe
 import locale
@@ -24,7 +24,7 @@ from django.conf import settings
 from django.forms.models import model_to_dict
 from django.template.defaultfilters import stringfilter
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from django.utils.safestring import mark_safe
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.exceptions import ImproperlyConfigured

@@ -1,4 +1,4 @@
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.sites.models import get_current_site

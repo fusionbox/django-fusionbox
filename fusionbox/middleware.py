@@ -1,5 +1,5 @@
 import os
-import urlparse
+from six.moves.urllib.parse import urlparse, urljoin
 import warnings
 
 from collections import defaultdict
@@ -127,9 +127,9 @@ class Redirect(object):
     """
     def __init__(self, source, target, status_code, filename, line_number):
         self.source = source.strip()
-        self.parsed_source = urlparse.urlparse(self.source)
+        self.parsed_source = urlparse(self.source)
         self.target = (target or '').strip()
-        self.parsed_target = urlparse.urlparse(self.target)
+        self.parsed_target = urlparse(self.target)
         if target:
             self.status_code = int(status_code or 301)
         else:
@@ -202,7 +202,7 @@ def preprocess_redirects(lines, raise_errors=True):
                 return
         if redirect.target in processed_redirects or redirect.target == redirect.parsed_source.path:
             error_messages[redirect.source].append('ERROR: {redirect.filename}:{redirect.line_number} - Circular redirect: {redirect.source} => {redirect.target}'.format(redirect=redirect))
-        elif urlparse.urljoin(redirect.source, to_url.path) in processed_redirects and not redirect.status_code == 410:
+        elif urljoin(redirect.source, to_url.path) in processed_redirects and not redirect.status_code == 410:
             if not to_url.netloc:
                 error_messages[redirect.source].append('ERROR: {redirect.filename}:{redirect.line_number} - Circular redirect: {redirect.source} => {redirect.target}'.format(redirect=redirect))
             elif to_url.netloc and not redirect.parsed_source.netloc:

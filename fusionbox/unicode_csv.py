@@ -5,7 +5,7 @@ See <http://docs.python.org/library/csv.html> for details.
 """
 from csv import *
 import codecs
-import cStringIO
+from six import StringIO
 
 
 class UnicodeRecoder:
@@ -52,7 +52,7 @@ class UnicodeWriter:
     """
 
     def __init__(self, f, dialect=excel, encoding="utf-8", **kwargs):
-        self.queue = cStringIO.StringIO()
+        self.queue = StringIO()
         self.writer = writer(self.queue, dialect=dialect, **kwargs)
         self.stream = f
         self.encoding = encoding
