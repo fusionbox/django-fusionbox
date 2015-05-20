@@ -1,6 +1,7 @@
 import os
 from six.moves.urllib.parse import urlparse, urljoin
 import warnings
+import itertools
 
 from collections import defaultdict
 
@@ -219,7 +220,7 @@ def preprocess_redirects(lines, raise_errors=True):
     if error_messages and raise_errors:
         raise ImproperlyConfigured('There were errors while parsing redirects.  Run ./manage.py validate_redirects for error details')
     # Output warnings for all errors and warnings found.
-    for messages in warning_messages.values() + error_messages.values():
+    for messages in itertools.chain(warning_messages.values(),  error_messages.values()):
         for message in messages:
             warnings.warn(message)
 
