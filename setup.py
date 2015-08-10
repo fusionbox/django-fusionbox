@@ -29,6 +29,6 @@ setup(name='django-fusionbox',
         'Environment :: Web Environment',
         'Framework :: Django',
     ],
-    install_requires = ['beautifulsoup4', 'PyYAML', 'markdown', 'phonenumbers>=5', 'six'],
+    install_requires = ['beautifulsoup4', 'PyYAML', 'markdown', 'phonenumbers>=5', 'six', 'unicodecsv'],
     requires = ['beautifulsoup4', 'PyYAML', 'markdown', 'phonenumbers'],
 )

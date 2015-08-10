@@ -15,7 +15,7 @@ from django.contrib.sites.models import get_current_site
 from django.core import urlresolvers
 from django.utils.encoding import iri_to_uri
 
-from fusionbox import unicode_csv as csv
+import unicodecsv as csv
 
 
 @requires_csrf_token
