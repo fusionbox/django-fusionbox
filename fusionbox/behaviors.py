@@ -289,8 +289,8 @@ class PublishableManager(models.Manager):
     Manager for publishable behavior
 
     """
-    def get_query_set(self):
-        queryset = super(PublishableManager, self).get_query_set()
+    def get_queryset(self):
+        queryset = super(PublishableManager, self).get_queryset()
         return queryset.filter(is_published=True, publish_at__lte=now)
 
 
@@ -310,7 +310,7 @@ class Publishable(Behavior):
 
     Added Managers:
         PublishableManager:
-            description: overwritten get_query_set() function to only fetch published instances.
+            description: overwritten get_queryset() function to only fetch published instances.
             name: published
             usage:
                 class Blog(Publishable):
