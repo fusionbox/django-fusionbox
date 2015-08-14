@@ -2,11 +2,11 @@ import datetime
 import logging
 import hashlib
 import time
+import json
 import re
 from functools import wraps
 
 from django.conf import settings
-from django.utils import simplejson as json
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponseBadRequest
 from django.core.cache import cache
