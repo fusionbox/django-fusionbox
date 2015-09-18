@@ -289,8 +289,8 @@ class PublishableManager(models.Manager):
     Manager for publishable behavior
 
     """
-    def get_query_set(self):
-        queryset = super(PublishableManager, self).get_query_set()
+    def get_queryset(self):
+        queryset = super(PublishableManager, self).get_queryset()
         return queryset.filter(is_published=True, publish_at__lte=now)
 
 
