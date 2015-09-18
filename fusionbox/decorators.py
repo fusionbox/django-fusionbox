@@ -1,7 +1,7 @@
+import json
 from functools import wraps
 
 from django.conf import settings
-from django.utils import simplejson as json
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponseBadRequest
 
