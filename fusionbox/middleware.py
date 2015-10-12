@@ -11,9 +11,14 @@ from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.sites.models import get_current_site
 from django.core import urlresolvers
 from django.utils.encoding import iri_to_uri
+
+try:
+    from django.contrib.sites.shortcuts import get_current_site
+except ImportError:
+    # django < 1.9
+    from django.contrib.sites.models import get_current_site
 
 import unicodecsv as csv
 
