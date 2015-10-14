@@ -1,7 +1,11 @@
-import StringIO
 import copy
 import csv
 import urllib
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -345,7 +349,7 @@ class SortForm(BaseChangeListForm):
         """
         Hook for doing pre-sort modification of the queryset.
 
-        Runs regardless 
+        Runs regardless
         """
         return qs
 
@@ -656,7 +660,7 @@ class CsvForm(BaseChangeListForm):
             csv_data.append([unicode(csv_getvalue(obj, column)).encode('utf-8') for column in csv_columns])
 
         # Create buffer with csv content
-        content = StringIO.StringIO()
+        content = StringIO()
         writer = csv.writer(content)
         writer.writerow(csv_headers)
         writer.writerows(csv_data)
