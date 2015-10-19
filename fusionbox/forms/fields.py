@@ -228,7 +228,8 @@ class CCExpirationDateField(forms.CharField):
                 raise forms.ValidationError(self.error_messages['expired'])
 
             return CCExpirationDateField.MonthYear(month, year)
-
+        elif self.required == False and value == '':
+            return None
         else:
             raise forms.ValidationError(self.error_messages['invalid'])
 
