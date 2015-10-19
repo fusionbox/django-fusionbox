@@ -8,6 +8,7 @@ These can also be accessed from ``fusionbox.forms``.
 import calendar
 import datetime
 import re
+import six
 from functools import partial
 
 import phonenumbers
@@ -243,7 +244,7 @@ class CCNumberField(forms.CharField):
         super(CCNumberField, self).__init__(*args, **kwargs)
 
     def clean(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             value = re.sub('\D', '', value)
         number = super(CCNumberField, self).clean(value)
         return number
