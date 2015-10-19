@@ -2,10 +2,7 @@ import copy
 import csv
 import urllib
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from six.moves import StringIO
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -347,9 +344,8 @@ class SortForm(BaseChangeListForm):
 
     def pre_sort(self, qs):
         """
-        Hook for doing pre-sort modification of the queryset.
-
-        Runs regardless
+        Hook for doing pre-sort modification of the queryset. Runs regardless
+        of whether the form is valid.
         """
         return qs
 
