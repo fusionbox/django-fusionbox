@@ -4,6 +4,8 @@ import hashlib
 import time
 import json
 import re
+import six
+
 from functools import wraps
 
 from django.conf import settings
@@ -120,7 +122,7 @@ def args_kwargs_to_call(args, kwargs):
         if ret:
             ret.append(", ")
         ret.append(repr(arg))
-    for k, v in kwargs.iteritems():
+    for k, v in six.iteritems(kwargs):
         if ret:
             ret.append(", ")
         ret.append("%s=%r" % (k, v))
