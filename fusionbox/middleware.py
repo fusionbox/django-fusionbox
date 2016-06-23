@@ -42,7 +42,7 @@ def generic_template_finder_view(request, base_path='', extra_context={}):
     for t in possibilities:
         try:
             response = render(request, t, extra_context)
-        except TemplateDoesNotExist:
+        except (TemplateDoesNotExist, IsADirectoryError):
             continue
         if t.endswith('.html') and not path.endswith(request.path) and settings.APPEND_SLASH:
             # Emulate what CommonMiddleware does and redirect, only if:
