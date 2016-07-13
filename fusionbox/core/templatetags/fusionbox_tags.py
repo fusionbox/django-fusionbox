@@ -37,8 +37,7 @@ register = template.Library()
 
 
 def addclass(elem, cls):
-    elem['class'] = elem.get('class', '')
-    elem['class'] += ' ' + cls if elem['class'] else cls
+    elem['class'] = elem.get('class', []) + [cls]
 
 
 def is_here(current, url):
