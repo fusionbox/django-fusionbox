@@ -1,4 +1,5 @@
 import os
+import errno
 from six.moves.urllib.parse import urlparse, urljoin
 import warnings
 import itertools
@@ -42,8 +43,18 @@ def generic_template_finder_view(request, base_path='', extra_context={}):
     for t in possibilities:
         try:
             response = render(request, t, extra_context)
-        except (TemplateDoesNotExist, IsADirectoryError):
+        except (TemplateDoesNotExist):
             continue
+        except OSError as e:
+            # If there's a directory that matches the template we're looking for,
+            # Django will raise a `IsADirectoryError` in `render` instead of a
+            # `TemplateDoesNotExist` error. IsADirectoryError was introduced in
+            # Python 3 and is a subclass of OSError and its errno corresponds to EISDIR,
+            # so for Python 2 compatibility, OSError is caught instead of IsADirectoryError
+            if e.errno == errno.EISDIR:
+                continue
+            else:
+                raise
         if t.endswith('.html') and not path.endswith(request.path) and settings.APPEND_SLASH:
             # Emulate what CommonMiddleware does and redirect, only if:
             # - the template we found ends in .html
