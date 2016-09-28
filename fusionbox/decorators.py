@@ -163,7 +163,7 @@ def cached(keyfn, timeout=300):
             key = ':'.join(key)
             if WHITESPACE_RE.search(key):
                 # memcache doesn't allow whitespace in keys
-                return 'sha256:' + hashlib.sha256(key).hexdigest()
+                return 'sha256:' + hashlib.sha256(key.encode('utf-8')).hexdigest()
             else:
                 return 'raw:' + key
 
