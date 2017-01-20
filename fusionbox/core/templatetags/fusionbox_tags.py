@@ -88,7 +88,7 @@ class HighlighterBase(template.Node):
 
     def build_soup(self, context):
         content = self.nodelist.render(context)
-        soup = BeautifulSoup(content)
+        soup = BeautifulSoup(content, "html.parser")
 
         return soup
 
