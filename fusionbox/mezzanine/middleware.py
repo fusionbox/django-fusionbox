@@ -1,7 +1,6 @@
 from six.moves.urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib.sites.models import get_current_site
 
 from mezzanine.pages.views import page as page_view
 from mezzanine.pages.models import Page
@@ -9,6 +8,12 @@ from mezzanine.utils.urls import path_to_slug
 
 from fusionbox.middleware import (
     GenericTemplateFinderMiddleware, RedirectFallbackMiddleware, get_redirect)
+
+try:
+    from django.contrib.sites.shortcuts import get_current_site
+except ImportError:
+    # django < 1.9
+    from django.contrib.sites.models import get_current_site
 
 
 class GenericTemplateFinderMiddleware(GenericTemplateFinderMiddleware):
