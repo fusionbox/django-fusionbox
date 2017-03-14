@@ -1,1 +1,1 @@
-__all__ = ['models',]
+__all__ = ['models', 'fields']
