@@ -1,5 +1,6 @@
 from django.contrib.auth.backends import ModelBackend
 from django.conf import settings
+from django.db.models import Q
 
 
 def fancy_import(name):
@@ -27,7 +28,9 @@ class CustomModelBackend(ModelBackend):
     """
     def authenticate(self, username=None, password=None):
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(
+                    Q(username=username) | Q(email=username)
+                    )
             if user.check_password(password):
                 return user
         except User.DoesNotExist:
