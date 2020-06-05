@@ -1,4 +1,4 @@
-Django==1.4.2
+Django==1.11.29
 South
 Werkzeug
 django-cachebuster
